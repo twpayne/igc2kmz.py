@@ -1,0 +1,2 @@
+class TimeSeries(list):
+  pass
