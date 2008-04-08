@@ -6,6 +6,7 @@ import track
 from TimeSeries import TimeSeries
 from OpenStruct import OpenStruct
 
+
 A_RECORD_RE = re.compile(r'A(.*)\r\n\Z')
 B_RECORD_RE = re.compile(r'B(\d{2})(\d{2})(\d{2})(\d{2})(\d{5})([NS])(\d{3})(\d{5})([EW])([AV])(\d{5})(\d{5}).*\r\n\Z')
 C_RECORD_RE = re.compile(r'C(\d{2})(\d{5})([NS])(\d{3})(\d{5})([EW])(.*)\r\n\Z')
@@ -15,8 +16,10 @@ HFFXA_RECORD_RE = re.compile(r'H(F)(FXA)(\d+)\r\n\Z')
 H_RECORD_RE = re.compile(r'H([FOP])([A-Z]{3})[A-Z]*:(.*)\r\n\Z')
 I_RECORD_RE = re.compile(r'(\d{2})(\d{2})(\w{3})\Z')
 
+
 class Error(RuntimeError):
   pass
+
 
 class SyntaxError(Error):
   pass
@@ -65,8 +68,9 @@ class BRecord:
     self.validity = m.group(10)
     self.alt = int(m.group(11))
     self.ele = int(m.group(12))
-    for key, value in igc.i.fields.items():
-      setattr(self, key, int(line[value[0]:value[1]]))
+    if igc.i:
+      for key, value in igc.i.fields.items():
+        setattr(self, key, int(line[value[0]:value[1]]))
 
 
 class GRecord:
@@ -137,6 +141,7 @@ class IGC:
     self.c = []
     self.g = []
     self.h = {}
+    self.i = None
     ignore = lambda l, s: None
     self.records = [PARSERS.get(line[0], ignore)(line, self) for line in input]
 

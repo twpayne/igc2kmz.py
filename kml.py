@@ -1,6 +1,6 @@
 import coord
 import datetime
-import yaml
+
 
 class Element:
 
@@ -16,24 +16,20 @@ class Element:
   def write(self, file):
     file.write(str(self))
 
+
 class SimpleElement(Element):
 
   def __init__(self, text=None, **kwargs):
-    if text is None:
-      self.text = None
-    else:
-      self.text = str(text)
+    self.text = None if text is None else str(text)
     self.attrs = kwargs
 
   def __str__(self):
-    if len(self.attrs) == 0:
-      attrs = ''
-    else:
-      attrs = ''.join([' %s="%s"' % pair for pair in self.attrs.items()])
+    attrs = '' if len(self.attrs) == 0 else ''.join([' %s="%s"' % pair for pair in self.attrs.items()])
     if self.text is None:
       return '<%s%s/>' % (self.name(), attrs)
     else:
       return '<%s%s>%s</%s>' % (self.name(), attrs, self.text, self.name())
+
 
 class CompoundElement(Element):
 
@@ -51,10 +47,7 @@ class CompoundElement(Element):
       self.children.append(globals()[key](value))
 
   def write(self, file):
-    if len(self.attrs) == 0:
-      attrs = ''
-    else:
-      attrs = ''.join([' %s="%s"' % pair for pair in self.attrs.items()])
+    attrs = '' if len(self.attrs) == 0 else ''.join([' %s="%s"' % pair for pair in self.attrs.items()])
     if len(self.children) == 0:
       file.write('<%s%s/>' % (self.name(), attrs))
     else:
@@ -64,15 +57,11 @@ class CompoundElement(Element):
       file.write('</%s>' % self.name())
 
   def __str__(self):
-    if len(self.attrs) == 0:
-      attrs = ''
-    else:
-      attrs = ''.join([' %s="%s"' % pair for pair in self.attrs.items()])
+    attrs = '' if len(self.attrs) == 0 else ''.join([' %s="%s"' % pair for pair in self.attrs.items()])
     if len(self.children) == 0:
       return '<%s%s/>' % (self.name(), attrs)
     else:
       return '<%s%s>%s</%s>' % (self.name(), attrs, ''.join(map(str, self.children)), self.name())
-
 
 
 class CDATA:
@@ -149,13 +138,3 @@ class styleUrl(SimpleElement): pass
 class visibility(SimpleElement): pass
 class when(SimpleElement): pass
 class width(SimpleElement): pass
-
-
-if __name__ == '__main__':
-  import sys
-  #print(Document(altitude(40), altitudeMode='absolute'))
-  coords = coordinates(coord.Coord(1, 2, 3))
-  k = kml('2.1', Style(coords), when(dateTime(datetime.datetime.now())))
-  k.add(name='Tom')
-  k.write(sys.stdout)
-  sys.stdout.write('\n')
