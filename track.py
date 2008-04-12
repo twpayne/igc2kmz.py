@@ -2,7 +2,6 @@ from cStringIO import StringIO
 import math
 import sys
 
-import cairo
 import numpy
 
 from bounds import Bounds, BoundsSet
@@ -20,17 +19,8 @@ def runs(list):
       i = j
   yield((i, len(list)))
 
-class Stock:
 
-  def make_pixel(self):
-    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 1, 1)
-    context = cairo.Context(surface)
-    context.set_source_rgba(0.0, 0.0, 0.0, 0.0)
-    context.rectangle(0, 0, 1, 1)
-    context.fill()
-    string_io = StringIO()
-    surface.write_to_png(string_io)
-    return string_io.getvalue()
+class Stock:
 
   def make_none_folder(self, visibility):
     icon = kml.Icon(href=self.pixel_url)
@@ -48,7 +38,7 @@ class Stock:
     self.check_hide_children_style = kml.Style(kml.ListStyle(listItemType='checkHideChildren'))
     self.kmz.add_roots(self.check_hide_children_style)
     self.pixel_url = 'images/pixel.png'
-    self.kmz.add_files({self.pixel_url: self.make_pixel()})
+    self.kmz.add_files({self.pixel_url: open(self.pixel_url).read()})
     self.visible_none_folder = self.make_none_folder(1)
     self.invisible_none_folder = self.make_none_folder(0)
     animation_icon_url = 'images/paraglider.png'
