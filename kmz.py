@@ -21,21 +21,21 @@ class kmz:
   def add(self, *args):
     for arg in args:
       if isinstance(arg, kmz):
-	self.elements[0].add(*arg.elements)
-	self.add_roots(*arg.roots)
-	self.add_files(arg.files)
+        self.elements[0].add(*arg.elements)
+        self.add_roots(*arg.roots)
+        self.add_files(arg.files)
       else:
-	self.elements[0].add(arg)
+        self.elements[0].add(arg)
     return self
 
   def add_siblings(self, *args, **kwargs):
     for arg in args:
       if isinstance(arg, kmz):
-	self.elements.extend(arg.elements)
-	self.add_roots(*arg.roots)
-	self.add_files(arg.files)
+        self.elements.extend(arg.elements)
+        self.add_roots(*arg.roots)
+        self.add_files(arg.files)
       else:
-	self.elements.append(arg)
+        self.elements.append(arg)
     for key, value in kwargs.items():
       self.elements.append(kml.__dict__[key](value))
     return self

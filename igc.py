@@ -87,14 +87,14 @@ class HRecord:
 
   def __init__(self, line, igc):
     for re, f in (
-	(HFDTE_RECORD_RE, 'hfdte'),
-	(HFFXA_RECORD_RE, 'hffxa'),
-	(H_RECORD_RE, 'h'),
-	):
+        (HFDTE_RECORD_RE, 'hfdte'),
+        (HFFXA_RECORD_RE, 'hffxa'),
+        (H_RECORD_RE, 'h'),
+        ):
       m = re.match(line)
       if m:
-	getattr(self, f)(m, igc)
-	break
+        getattr(self, f)(m, igc)
+        break
 
   def h(self, m, igc):
     self.source, self.key, self.value = m.groups()
@@ -119,7 +119,7 @@ class IRecord:
     for i in range(0, int(line[1:3])):
       m = I_RECORD_RE.match(line, 3 + 7 * i, 10 + 7 * i)
       if not m:
-	raise SyntaxError, line
+        raise SyntaxError, line
       self.fields[m.group(3).lower()] = (int(m.group(1)), int(m.group(2)) + 1)
     igc.i = self
 
@@ -152,7 +152,7 @@ class IGC:
     t0 = datetime.datetime(2000, 1, 1)
     for record in self.records:
       if not isinstance(record, BRecord):
-	continue
+        continue
       coords.append(coord.Coord(record.lat, record.lon, record.ele))
       times.append(record.dt)
       t.append((record.dt - t0).seconds)

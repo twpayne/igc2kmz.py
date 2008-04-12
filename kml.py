@@ -53,7 +53,7 @@ class CompoundElement(Element):
     else:
       file.write('<%s%s>' % (self.name(), attrs))
       for child in self.children:
-	child.write(file)
+        child.write(file)
       file.write('</%s>' % self.name())
 
   def __str__(self):

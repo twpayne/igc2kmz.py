@@ -114,9 +114,9 @@ class Scale:
     else:
       result = int(round(n * self.normalize(value)))
       if result > n - 1:
-	return n - 1
+        return n - 1
       else:
-	return result
+        return result
 
   def rgb(self, value):
     return self.gradient(self.normalize(value))
@@ -130,16 +130,16 @@ class ZeroCenteredScale(Scale):
   def normalize(self, value):
     if value < 0.0:
       if value < self.range[0]:
-	return 0.0
+        return 0.0
       else:
-	return 0.5 - 0.5 * value / self.range[0]
+        return 0.5 - 0.5 * value / self.range[0]
     elif value == 0.0:
       return 0.5
     else:
       if self.range[1] <= value:
-	return 1.0
+        return 1.0
       else:
-	return 0.5 + 0.5 * value / self.range[1]
+        return 0.5 + 0.5 * value / self.range[1]
 
 
 class Stock:
@@ -238,9 +238,9 @@ class Track:
       ele[i + 1] = self.coords[i].ele
       x = sin(rlat[i]) * sin(rlat[i + 1]) + cos(rlat[i]) * cos(rlat[i + 1]) * cos(rlon[i] - rlon[i - 1])
       if x < 1.0:
-	ds[i + 1] = 6371000.0 * acos(x)
+        ds[i + 1] = 6371000.0 * acos(x)
       else:
-	ds[i + 1] = 0.0
+        ds[i + 1] = 0.0
     rlat[-1] = math.pi * self.coords[-1].lat / 180.0
     rlon[-1] = math.pi * self.coords[-1].lon / 180.0
     ele[-1] = self.coords[-1].ele
