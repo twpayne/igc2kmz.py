@@ -9,6 +9,7 @@ import kml
 import kmz
 from OpenStruct import OpenStruct
 
+
 def runs(list):
   if len(list) == 0:
     return
