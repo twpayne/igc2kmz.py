@@ -1,2 +1,6 @@
 .*.swp
+*.IGC
+*.igc
+*.kml
+*.kmz
 *.pyc
