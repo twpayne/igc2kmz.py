@@ -52,7 +52,3 @@ class kmz:
     for key, value in self.files.items():
       zipfile.writestr(ZipInfo(key), value)
     zipfile.close()
-
-if __name__ == '__main__':
-  k = kmz(roots=kml.name('Tom'), files={'tom.txt': 'hello'})
-  k.write('tom.zip')

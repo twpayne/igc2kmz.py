@@ -1,3 +1,5 @@
+from __future__ import with_statement
+
 import datetime
 import re
 
@@ -136,14 +138,16 @@ PARSERS = {
 
 class IGC:
 
-  def __init__(self, input):
+  def __init__(self, filename):
     global PARSERS
+    self.filename = filename
     self.c = []
     self.g = []
     self.h = {}
     self.i = None
     ignore = lambda l, s: None
-    self.records = [PARSERS.get(line[0], ignore)(line, self) for line in input]
+    with open(filename) as file:
+      self.records = [PARSERS.get(line[0], ignore)(line, self) for line in file]
 
   def track(self):
     coords = TimeSeries()
@@ -158,6 +162,7 @@ class IGC:
       t.append((record.dt - t0).seconds)
     coords.t = t
     meta = OpenStruct()
+    meta.name = self.filename
     if self.h.has_key('plt') and self.h['plt'].strip() != 'not set':
       meta.pilot_name = self.h['plt'].strip()
     else:
