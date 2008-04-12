@@ -100,6 +100,7 @@ class dateTime:
 
 class altitude(SimpleElement): pass
 class altitudeMode(SimpleElement): pass
+class begin(SimpleElement): pass
 class color(SimpleElement): pass
 
 
@@ -111,10 +112,12 @@ class coordinates(SimpleElement):
 
 class description(SimpleElement): pass
 class Document(CompoundElement): pass
+class end(SimpleElement): pass
 class extrude(SimpleElement): pass
 class Folder(CompoundElement): pass
 class href(SimpleElement): pass
 class Icon(CompoundElement): pass
+class IconStyle(CompoundElement): pass
 
 
 class kml(CompoundElement):
@@ -137,7 +140,9 @@ class name(SimpleElement): pass
 class open(SimpleElement): pass
 class overlayXY(SimpleElement): pass
 class Placemark(CompoundElement): pass
+class Point(CompoundElement): pass
 class PolyStyle(CompoundElement): pass
+class scale(SimpleElement): pass
 class ScreenOverlay(CompoundElement): pass
 class screenXY(SimpleElement): pass
 class size(SimpleElement): pass
@@ -152,6 +157,7 @@ class Style(CompoundElement):
 
 
 class styleUrl(SimpleElement): pass
+class TimeSpan(CompoundElement): pass
 class visibility(SimpleElement): pass
 class when(SimpleElement): pass
 class width(SimpleElement): pass

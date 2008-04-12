@@ -51,6 +51,9 @@ class Stock:
     self.kmz.add_files({self.pixel_url: self.make_pixel()})
     self.visible_none_folder = self.make_none_folder(1)
     self.invisible_none_folder = self.make_none_folder(0)
+    animation_icon_url = 'images/paraglider.png'
+    self.animation_icon = kml.Icon(href=animation_icon_url)
+    self.kmz.add_files({animation_icon_url: open(animation_icon_url).read()})
 
 
 class Hints:
@@ -148,6 +151,24 @@ class Track:
     folder.add(self.make_solid_track(hints, kml.Style(kml.LineStyle(color=hints.color, width=hints.width)), 'clampToGround', name='Solid color', visibility=0))
     return folder
 
+  def make_animation(self, hints):
+    style = kml.Style(kml.IconStyle(hints.stock.animation_icon, color=hints.color, scale=0.5))
+    folder = kml.Folder(style, name='Animation', open=0, styleUrl=hints.stock.check_hide_children_style.url())
+    point = kml.Point(coordinates=[self.coords[0]], altitudeMode=hints.altitude_mode)
+    timespan = kml.TimeSpan(end=kml.dateTime(self.times[0]))
+    placemark = kml.Placemark(point, timespan, styleUrl=style.url())
+    folder.add(placemark)
+    for i in range(1, len(self.coords)):
+      point = kml.Point(coordinates=[self.coords[i - 1].halfway_to(self.coords[i])], altitudeMode=hints.altitude_mode)
+      timespan = kml.TimeSpan(begin=kml.dateTime(self.times[i - 1]), end=kml.dateTime(self.times[i]))
+      placemark = kml.Placemark(point, timespan, styleUrl=style.url())
+      folder.add(placemark)
+    point = kml.Point(coordinates=[self.coords[-1]], altitudeMode=hints.altitude_mode)
+    timespan = kml.TimeSpan(begin=kml.dateTime(self.times[-1]))
+    placemark = kml.Placemark(point, timespan, styleUrl=style.url())
+    folder.add(placemark)
+    return kmz.kmz(folder)
+
   def kmz(self, hints):
     folder = kmz.kmz(kml.Folder(name=self.meta.name, open=1))
     rows = []
@@ -170,6 +191,7 @@ class Track:
       rows.append(('Landing altitude', '%dm' % self.coords[-1].ele))
     folder.add(kml.description(kml.CDATA('<table>%s</table>' % ''.join(['<tr><th align="right">%s</th><td>%s</td></tr>' % row for row in rows]))))
     folder.add(kml.Snippet(self.meta.pilot_name)) # FIXME
+    folder.add(self.make_animation(hints))
     folder.add(self.make_track_folder(hints))
     folder.add(self.make_shadow_folder(hints))
     return folder
