@@ -3,7 +3,6 @@
 import fileinput
 import optparse
 import sys
-import yaml
 
 from bounds import Bounds, BoundsSet
 import gradient
