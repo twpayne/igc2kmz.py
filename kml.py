@@ -2,7 +2,7 @@ import coord
 import datetime
 
 
-class Element:
+class Element(object):
   "KML element base class."
 
   def name(self):
@@ -21,6 +21,12 @@ class Element:
     "Write self to file."
     file.write(str(self))
 
+  def pretty_write(self, file, indent='\t', prefix=''):
+    "Write self to file."
+    file.write(prefix)
+    file.write(str(self))
+    file.write('\n')
+
 
 class SimpleElement(Element):
   "A KML element with no children."
@@ -31,7 +37,7 @@ class SimpleElement(Element):
 
   def __str__(self):
     "Return the KML representation of self."
-    attrs = '' if len(self.attrs) == 0 else ''.join([' %s="%s"' % pair for pair in self.attrs.items()])
+    attrs = '' if len(self.attrs) == 0 else ''.join(' %s="%s"' % pair for pair in self.attrs.items())
     if self.text is None:
       return '<%s%s/>' % (self.name(), attrs)
     else:
@@ -58,7 +64,7 @@ class CompoundElement(Element):
 
   def write(self, file):
     "Write self to file."
-    attrs = '' if len(self.attrs) == 0 else ''.join([' %s="%s"' % pair for pair in self.attrs.items()])
+    attrs = '' if len(self.attrs) == 0 else ''.join(' %s="%s"' % pair for pair in self.attrs.items())
     if len(self.children) == 0:
       file.write('<%s%s/>' % (self.name(), attrs))
     else:
@@ -67,16 +73,33 @@ class CompoundElement(Element):
         child.write(file)
       file.write('</%s>' % self.name())
 
+  def pretty_write(self, file, indent='\t', prefix=''):
+    "Write self to file."
+    attrs = '' if len(self.attrs) == 0 else ''.join(' %s="%s"' % pair for pair in self.attrs.items())
+    if len(self.children) == 0:
+      file.write(prefix)
+      file.write('<%s%s/>' % (self.name(), attrs))
+      file.write('\n')
+    else:
+      file.write(prefix)
+      file.write('<%s%s>' % (self.name(), attrs))
+      file.write('\n')
+      for child in self.children:
+        child.pretty_write(file, indent, indent + prefix)
+      file.write(prefix)
+      file.write('</%s>' % self.name())
+      file.write('\n')
+
   def __str__(self):
     "Return the KML representation of self."
-    attrs = '' if len(self.attrs) == 0 else ''.join([' %s="%s"' % pair for pair in self.attrs.items()])
+    attrs = '' if len(self.attrs) == 0 else ''.join(' %s="%s"' % pair for pair in self.attrs.items())
     if len(self.children) == 0:
       return '<%s%s/>' % (self.name(), attrs)
     else:
       return '<%s%s>%s</%s>' % (self.name(), attrs, ''.join(map(str, self.children)), self.name())
 
 
-class CDATA:
+class CDATA(object):
   "A KML CDATA."
 
   def __init__(self, value):
@@ -87,7 +110,7 @@ class CDATA:
     return '<![CDATA[%s]]>' % self.value
 
 
-class dateTime:
+class dateTime(object):
   "A KML dateTime."
 
   def __init__(self, value):
@@ -107,7 +130,7 @@ class color(SimpleElement): pass
 class coordinates(SimpleElement):
 
   def __init__(self, coords):
-    SimpleElement.__init__(self, ' '.join(['%f,%f,%d' % (coord.lon, coord.lat, coord.ele) for coord in coords]))
+    SimpleElement.__init__(self, ' '.join('%f,%f,%d' % (coord.lon, coord.lat, coord.ele) for coord in coords))
 
 
 class description(SimpleElement): pass

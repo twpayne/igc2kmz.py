@@ -3,7 +3,7 @@ from zipfile import ZipFile, ZipInfo
 
 import kml
 
-class kmz:
+class kmz(object):
 
   def __init__(self, *elements):
     self.elements = list(elements)
@@ -46,7 +46,7 @@ class kmz:
     document.add(*self.roots)
     document.add(*self.elements)
     string_io = StringIO()
-    kml.kml('2.1', document).write(string_io)
+    kml.kml('2.1', document).pretty_write(string_io)
     zipfile.writestr('doc.kml', string_io.getvalue())
     string_io.close()
     for key, value in self.files.items():
