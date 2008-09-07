@@ -17,6 +17,7 @@ HFDTE_RECORD_RE = re.compile(r'H(F)(DTE)(\d\d)(\d\d)(\d\d)\r\n\Z')
 HFFXA_RECORD_RE = re.compile(r'H(F)(FXA)(\d+)\r\n\Z')
 H_RECORD_RE = re.compile(r'H([FOP])([A-Z]{3})[A-Z]*:(.*)\r\n\Z')
 I_RECORD_RE = re.compile(r'(\d{2})(\d{2})(\w{3})\Z')
+NOT_SET_RE = re.compile(r'\s*(not\s+set)?\s*\Z')
 
 
 class Error(RuntimeError):
@@ -27,7 +28,8 @@ class SyntaxError(Error):
   pass
 
 
-class ARecord:
+class ARecord(object):
+  "Represents an A record."
 
   def __init__(self, line, igc):
     m = A_RECORD_RE.match(line)
@@ -37,7 +39,8 @@ class ARecord:
     igc.a = self.value
 
 
-class CRecord:
+class CRecord(object):
+  "Represents a C record."
 
   def __init__(self, line, igc):
     m = C_RECORD_RE.match(line)
@@ -53,7 +56,10 @@ class CRecord:
     igc.c.append(self)
 
 
-class BRecord:
+class BRecord(object):
+  "Represents a B record."
+
+  __slots__ = ('dt', 'lat', 'lon', 'validity', 'alt', 'ele', '__dict__')
 
   def __init__(self, line, igc):
     m = B_RECORD_RE.match(line)
@@ -75,7 +81,8 @@ class BRecord:
         setattr(self, key, int(line[value[0]:value[1]]))
 
 
-class GRecord:
+class GRecord(object):
+  "Represents a G record."
 
   def __init__(self, line, igc):
     m = G_RECORD_RE.match(line)
@@ -85,7 +92,8 @@ class GRecord:
     igc.g.append(self.value)
 
 
-class HRecord:
+class HRecord(object):
+  "Represents an H record."
 
   def __init__(self, line, igc):
     for re, f in (
@@ -114,7 +122,8 @@ class HRecord:
     igc.h['fxa'] = self.value
 
 
-class IRecord:
+class IRecord(object):
+  "Represents an I record."
 
   def __init__(self, line, igc):
     self.fields = {}
@@ -136,7 +145,7 @@ PARSERS = {
     }
 
 
-class IGC:
+class IGC(object):
 
   def __init__(self, filename):
     global PARSERS
@@ -161,18 +170,11 @@ class IGC:
       times.append(record.dt)
       t.append((record.dt - t0).seconds)
     coords.t = t
-    meta = OpenStruct()
-    meta.name = self.filename
-    if self.h.has_key('plt') and self.h['plt'].strip() != 'not set':
+    meta = OpenStruct(name=self.filename, pilot_name=None, glider_type=None, glider_id=None)
+    if 'plt' in self.h and not NOT_SET_RE.match(self.h['plt']):
       meta.pilot_name = self.h['plt'].strip()
-    else:
-      meta.pilot_name = None
-    if self.h.has_key('gty') and self.h['gty'].strip() != 'not set':
+    if 'gty' in self.h and not NOT_SET_RE.match(self.h['gty']):
       meta.glider_type = self.h['gty'].strip()
-    else:
-      meta.glider_type = None
-    if self.h.has_key('gid') and self.h['gid'].strip() != 'not set':
+    if 'gid' in self.h and not NOT_SET_RE.match(self.h['gid']):
       meta.glider_id = self.h['gid'].strip()
-    else:
-      meta.glider_id = None
     return track.Track(meta, times, coords)
