@@ -1,4 +1,4 @@
-class Scale:
+class Scale(object):
   "A linear scale."
 
   def __init__(self, title, range, gradient):
