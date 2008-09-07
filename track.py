@@ -2,7 +2,7 @@ from cStringIO import StringIO
 import math
 import sys
 
-import numpy
+#import numpy
 
 from bounds import Bounds, BoundsSet
 import kml
@@ -21,7 +21,7 @@ def runs(list):
   yield((i, len(list)))
 
 
-class Stock:
+class Stock(object):
 
   def make_none_folder(self, visibility):
     icon = kml.Icon(href=self.pixel_url)
@@ -47,7 +47,7 @@ class Stock:
     self.kmz.add_files({animation_icon_url: open(animation_icon_url).read()})
 
 
-class Hints:
+class Hints(object):
 
   def __init__(self):
     self.altitude_mode = 'absolute'
@@ -55,7 +55,7 @@ class Hints:
     self.width = 2
 
 
-class Track:
+class Track(object):
 
   def __init__(self, meta, times, coords):
     self.meta = meta
