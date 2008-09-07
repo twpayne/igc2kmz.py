@@ -1,4 +1,4 @@
-class Bounds:
+class Bounds(object):
 
   def __init__(self, min, max=None):
     self.min = min
@@ -17,7 +17,7 @@ class Bounds:
         self.max = value
 
 
-class BoundsSet:
+class BoundsSet(object):
 
   def merge(self, other):
     for key, value in other.__dict__.items():
