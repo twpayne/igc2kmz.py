@@ -14,7 +14,7 @@ def runs(list):
   if len(list) == 0:
     return
   i = 0
-  for j in range(1, len(list)):
+  for j in xrange(1, len(list)):
     if list[i] != list[j]:
       yield((i, j))
       i = j
@@ -71,7 +71,7 @@ class Track(object):
     half_period = period / 2.0
     self.dz_positive = [0]
     self.s = [0]
-    for i in range(1, len(self.coords)):
+    for i in xrange(1, len(self.coords)):
       dz = self.coords[i].ele - self.coords[i - 1].ele
       dz_positive = dz if dz > 0.0 else 0.0
       self.dz_positive.append(self.dz_positive[i - 1] + dz_positive)
@@ -90,7 +90,7 @@ class Track(object):
       ele[0] = self.coords[0].ele
       ds[0] = 0.0
       t[0] = -sys.maxint - 1
-      for i in range(0, n):
+      for i in xrange(0, n):
         rlat[i + 1] = math.pi * self.coords[i].lat / 180.0
         rlon[i + 1] = math.pi * self.coords[i].lon / 180.0
         ele[i + 1] = self.coords[i].ele
@@ -149,7 +149,7 @@ class Track(object):
     timespan = kml.TimeSpan(end=kml.dateTime(self.times[0]))
     placemark = kml.Placemark(point, timespan, styleUrl=style.url())
     folder.add(placemark)
-    for i in range(1, len(self.coords)):
+    for i in xrange(1, len(self.coords)):
       point = kml.Point(coordinates=[self.coords[i - 1].halfway_to(self.coords[i])], altitudeMode=hints.altitude_mode)
       timespan = kml.TimeSpan(begin=kml.dateTime(self.times[i - 1]), end=kml.dateTime(self.times[i]))
       placemark = kml.Placemark(point, timespan, styleUrl=style.url())

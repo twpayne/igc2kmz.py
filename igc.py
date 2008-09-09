@@ -127,7 +127,7 @@ class IRecord(object):
 
   def __init__(self, line, igc):
     self.fields = {}
-    for i in range(0, int(line[1:3])):
+    for i in xrange(0, int(line[1:3])):
       m = I_RECORD_RE.match(line, 3 + 7 * i, 10 + 7 * i)
       if not m:
         raise SyntaxError, line
