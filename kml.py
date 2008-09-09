@@ -1,9 +1,21 @@
 import coord
 import datetime
 
+class_by_name = {}
+
+
+class Metaclass(type):
+
+  def __new__(cls, name, bases, dct):
+    result = type.__new__(cls, name, bases, dct)
+    if name not in ('Element', 'SimpleElement', 'CompoundElement'):
+      class_by_name[name] = result
+    return result
+
 
 class Element(object):
   "KML element base class."
+  __metaclass__ = Metaclass
 
   def name(self):
     "Return name."
@@ -60,7 +72,7 @@ class CompoundElement(Element):
     "Add children."
     self.children.extend(list(args))
     for key, value in kwargs.items():
-      self.children.append(globals()[key](value))
+      self.children.append(class_by_name[key](value))
 
   def write(self, file):
     "Write self to file."
