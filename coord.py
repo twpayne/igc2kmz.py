@@ -25,7 +25,10 @@ class Coord(object):
     lat2 = _deg_to_rad(other.lat)
     lon2 = _deg_to_rad(other.lon)
     d = sin(lat1) * sin(lat2) + cos(lat1) * cos(lat2) * cos(lon1 - lon2)
-    return R * acos(d) if d < 1.0 else 0.0
+    if d < 1.0:
+      return R * acos(d)
+    else:
+      return 0.0
 
   def halfway_to(self, other):
     "Return the point halfway between self and other."

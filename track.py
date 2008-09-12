@@ -1,12 +1,18 @@
 from cStringIO import StringIO
+import datetime
+import itertools
 import math
+import urllib
 import sys
+import time
 
 #import numpy
+from pygooglechart import Axis, Chart, XYLineChart
 
-from bounds import Bounds, BoundsSet
+from bounds import bounds, Bounds, BoundsSet
 import kml
 import kmz
+import lib
 from OpenStruct import OpenStruct
 
 
@@ -19,6 +25,67 @@ def runs(list):
       yield((i, j))
       i = j
   yield((i, len(list)))
+
+
+def decimal_step_generator(start=1.0):
+  while True:
+    yield 1.0 * start
+    yield 2.0 * start
+    yield 5.0 * start
+    start = 10.0 * start
+
+
+def time_step_generator(start=1):
+  steps = [1, 5, 15, 30, 60, 5 * 60, 15 * 60, 30 * 60, 60 * 60, 3 * 60 * 60, 6 * 60 * 60, 12 * 60 * 60, 24 * 60 * 60]
+  return itertools.imap(lambda x: datetime.timedelta(0, x), itertools.dropwhile(lambda x: x < start, steps))
+
+
+def datetime_round_down(dt, delta):
+  if delta.seconds >= 3600:
+    return dt.replace(minute=0, second=0) - datetime.timedelta(0, 3600 * (dt.hour % int(delta.seconds / 3600)))
+  elif delta.seconds >= 60:
+    return dt.replace(second=0) - datetime.timedelta(0, 60 * (dt.minute % int(delta.seconds / 60)))
+  elif delta.seconds >= 1:
+    return dt - datetime.timedelta(0, dt.second % delta.seconds)
+  else:
+    return dt
+
+class TimeAxis(object):
+
+  def __init__(self, times):
+    step = None
+    for step in time_step_generator():
+      start = datetime_round_down(times[0], step)
+      stop = datetime_round_down(times[-1], step)
+      if stop < times[-1]:
+        stop += step
+      duration = (stop - start).seconds
+      if (stop - start).seconds / step.seconds < 16:
+        self.range = (time.mktime(start.timetuple()), time.mktime(stop.timetuple()))
+        self.grid_step = '%.1f' % (100.0 * step.seconds / duration)
+        break
+    self.labels = []
+    self.positions = []
+    t = datetime.datetime(start.year, start.month, start.day, start.hour)
+    while t <= stop:
+      self.labels.append(t.strftime('%H:%M'))
+      self.positions.append('%.1f' % (100.0 * (t - start).seconds / duration))
+      t += step
+
+
+class YAxis(object):
+
+  def __init__(self, y):
+    y_range = bounds(y.__iter__())
+    for step in decimal_step_generator(0.1):
+      bottom = int(y_range.min / step)
+      top = int(y_range.max / step)
+      if y_range.max > step * top:
+        top += 1
+      if top - bottom < 16:
+        self.range = (step * bottom, step * top)
+        self.grid_step = '%.1f' % (100.0 / (top - bottom))
+        break
 
 
 class Stock(object):
@@ -53,6 +120,8 @@ class Hints(object):
     self.altitude_mode = 'absolute'
     self.color = 'ff0000ff'
     self.width = 2
+    self.graph_width = 720
+    self.graph_height = 405
 
 
 class Track(object):
@@ -73,10 +142,16 @@ class Track(object):
     self.s = [0]
     for i in range(1, len(self.coords)):
       dz = self.coords[i].ele - self.coords[i - 1].ele
-      dz_positive = dz if dz > 0.0 else 0.0
+      if dz > 0.0:
+        dz_positive = dz
+      else:
+        dz_positive = 0.0
       self.dz_positive.append(self.dz_positive[i - 1] + dz_positive)
       x = math.sin(math.pi * self.coords[i - 1].lat / 180.0) * math.sin(math.pi * self.coords[i].lat / 180.0) + math.cos(math.pi * self.coords[i - 1].lat / 180.0) * math.cos(math.pi * self.coords[i].lat) * math.cos(math.pi * (self.coords[i - 1].lon - self.coords[i].lon) / 180.0)
-      ds = 6371.0 * math.acos(x) if x < 1.0 else 0.0
+      if x < 1.0:
+        ds = 6371.0 * math.acos(x)
+      else:
+        ds = 0.0
       self.s.append(self.s[i - 1] + ds)
     if 0:
       n = len(self.coords)
@@ -160,6 +235,40 @@ class Track(object):
     folder.add(placemark)
     return kmz.kmz(folder)
 
+  def make_graph(self, hints, name, y, epsilon):
+    time_axis = TimeAxis(self.times)
+    y_axis = YAxis(y)
+    chart = XYLineChart(hints.graph_width, hints.graph_height, x_range=time_axis.range, y_range=y_axis.range)
+    chart.fill_solid(Chart.BACKGROUND, 'ffffff00')
+    chart.fill_solid(Chart.CHART, 'ffffffcc')
+    axis_index = chart.set_axis_range(Axis.LEFT, y_axis.range[0], y_axis.range[1])
+    chart.set_axis_style(axis_index, 'ffffff')
+    axis_index = chart.set_axis_labels(Axis.BOTTOM, time_axis.labels)
+    chart.set_axis_positions(axis_index, time_axis.positions)
+    chart.set_axis_style(axis_index, 'ffffff')
+    chart.set_grid(time_axis.grid_step, y_axis.grid_step, 2, 2)
+    indexes = lib.douglas_peucker(self.coords.t, y, epsilon)
+    print "len(indexes)=%d" % len(indexes)
+    chart.add_data([self.coords.t[i] for i in indexes])
+    chart.add_data([y[i] for i in indexes])
+    print chart.get_url()
+    chart.download("altitude.png")
+    icon = kml.Icon(href=chart.get_url().replace('&', '&amp;'))
+    overlay_xy = kml.overlayXY(x=0, y=0, xunits='fraction', yunits='fraction')
+    screen_xy = kml.screenXY(x=0, y=16, xunits='fraction', yunits='pixels')
+    size = kml.size(x=0, y=0, xunits='fraction', yunits='fraction')
+    screen_overlay = kml.ScreenOverlay(icon, overlay_xy, screen_xy, size)
+    folder = kml.Folder(screen_overlay, name=name, styleUrl=hints.stock.check_hide_children_style.url(), visibility=0)
+    return folder
+
+  def make_graphs_folder(self, hints):
+    folder = kmz.kmz(kml.Folder(name='Graphs', open=1, styleUrl=hints.stock.radio_folder_style.url()))
+    folder.add(hints.stock.visible_none_folder)
+    folder.add(self.make_graph(hints, 'Altitude', list(coord.ele for coord in self.coords), 5))
+    folder.add(self.make_graph(hints, 'Latitude', list(coord.lat for coord in self.coords), 1.0 / 1800.0))
+    folder.add(self.make_graph(hints, 'Longitude', list(coord.lon for coord in self.coords), 1.0 / 1800.0))
+    return folder
+
   def kmz(self, hints):
     folder = kmz.kmz(kml.Folder(name=self.meta.name, open=1))
     rows = []
@@ -185,4 +294,5 @@ class Track(object):
     folder.add(self.make_animation(hints))
     folder.add(self.make_track_folder(hints))
     folder.add(self.make_shadow_folder(hints))
+    folder.add(self.make_graphs_folder(hints))
     return folder

@@ -1,5 +1,3 @@
-from __future__ import with_statement
-
 import datetime
 import time
 import re
@@ -156,8 +154,7 @@ class IGC(object):
     self.h = {}
     self.i = None
     ignore = lambda l, s: None
-    with open(filename) as file:
-      self.records = [PARSERS.get(line[0], ignore)(line, self) for line in file]
+    self.records = list(PARSERS.get(line[0], ignore)(line, self) for line in open(filename))
 
   def track(self):
     coords = TimeSeries()

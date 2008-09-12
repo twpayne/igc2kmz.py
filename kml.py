@@ -44,12 +44,15 @@ class SimpleElement(Element):
   "A KML element with no children."
 
   def __init__(self, text=None, **kwargs):
-    self.text = None if text is None else str(text)
+    if text is None:
+      self.text = None
+    else:
+      self.text = str(text)
     self.attrs = kwargs
 
   def __str__(self):
     "Return the KML representation of self."
-    attrs = '' if len(self.attrs) == 0 else ''.join(' %s="%s"' % pair for pair in self.attrs.items())
+    attrs = ''.join(' %s="%s"' % pair for pair in self.attrs.items())
     if self.text is None:
       return '<%s%s/>' % (self.name(), attrs)
     else:
@@ -76,7 +79,7 @@ class CompoundElement(Element):
 
   def write(self, file):
     "Write self to file."
-    attrs = '' if len(self.attrs) == 0 else ''.join(' %s="%s"' % pair for pair in self.attrs.items())
+    attrs = ''.join(' %s="%s"' % pair for pair in self.attrs.items())
     if len(self.children) == 0:
       file.write('<%s%s/>' % (self.name(), attrs))
     else:
@@ -87,7 +90,7 @@ class CompoundElement(Element):
 
   def pretty_write(self, file, indent='\t', prefix=''):
     "Write self to file."
-    attrs = '' if len(self.attrs) == 0 else ''.join(' %s="%s"' % pair for pair in self.attrs.items())
+    attrs = ''.join(' %s="%s"' % pair for pair in self.attrs.items())
     if len(self.children) == 0:
       file.write(prefix)
       file.write('<%s%s/>' % (self.name(), attrs))
@@ -104,7 +107,7 @@ class CompoundElement(Element):
 
   def __str__(self):
     "Return the KML representation of self."
-    attrs = '' if len(self.attrs) == 0 else ''.join(' %s="%s"' % pair for pair in self.attrs.items())
+    attrs = ''.join(' %s="%s"' % pair for pair in self.attrs.items())
     if len(self.children) == 0:
       return '<%s%s/>' % (self.name(), attrs)
     else:
