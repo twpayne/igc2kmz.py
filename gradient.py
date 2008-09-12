@@ -21,7 +21,10 @@ def hsl_to_rgb(hsl):
   h, s, l = hsl
   if s == 0:
     return (l, l, l)
-  q = l * (s + 1.0) if l < 0.5 else l + s - l * s
+  if l < 0.5:
+    q = l * (s + 1.0)
+  else:
+    q = l + s - l * s
   p = 2.0 * l - q
   r = _h_to_value(p, q, h + 1.0 / 3.0)
   g = _h_to_value(p, q, h)
