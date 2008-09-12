@@ -4,6 +4,9 @@ class Bounds(object):
     self.min = min
     self.max = max or min
 
+  def __repr__(self):
+    return 'Bounds(%(min)s, %(max)s)' % self.__dict__
+
   def merge(self, value):
     if isinstance(value, Bounds):
       if value.min < self.min:
@@ -25,3 +28,13 @@ class BoundsSet(object):
         getattr(self, key).merge(value)
       else:
         setattr(self, key, Bounds(value.min, value.max))
+
+
+def bounds(iterable):
+  min = max = iterable.next()
+  for value in iterable:
+    if value < min:
+      min = value
+    if value > max:
+      max = value
+  return Bounds(min, max)
