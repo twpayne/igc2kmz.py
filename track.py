@@ -268,11 +268,11 @@ class Track(object):
   def kmz(self, hints):
     folder = kmz.kmz(kml.Folder(name=self.meta.name, open=1))
     rows = []
-    if not self.meta.pilot_name is None:
+    if self.meta.pilot_name:
       rows.append(('Pilot name', self.meta.pilot_name))
-    if not self.meta.glider_type is None:
+    if self.meta.glider_type:
       rows.append(('Glider type', self.meta.glider_type))
-    if not self.meta.glider_id is None:
+    if self.meta.glider_id:
       rows.append(('Glider ID', self.meta.glider_id))
     rows.append(('Take-off time', self.times[0].strftime('%H:%M:%S')))
     rows.append(('Landing time', self.times[-1].strftime('%H:%M:%S')))
@@ -286,7 +286,11 @@ class Track(object):
       #rows.append(('Accumulated altitude gain', '%dm' % self.dz_positive[-1]))
       rows.append(('Landing altitude', '%dm' % self.coords[-1].ele))
     folder.add(kml.description(kml.CDATA('<table>%s</table>' % ''.join(['<tr><th align="right">%s</th><td>%s</td></tr>' % row for row in rows]))))
-    folder.add(kml.Snippet(self.meta.pilot_name)) # FIXME
+    snippet = [self.meta.pilot_name]
+    if self.meta.glider_type:
+      snippet.append(self.meta.glider_type)
+    snippet.append(self.times[0].strftime('%Y-%m-%d'))
+    folder.add(kml.Snippet(', '.join(snippet)))
     folder.add(self.make_animation(hints))
     folder.add(self.make_track_folder(hints))
     folder.add(self.make_shadow_folder(hints))
