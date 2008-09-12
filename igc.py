@@ -1,6 +1,7 @@
 import datetime
 import time
 import re
+import sys
 
 import coord
 import track
@@ -8,15 +9,20 @@ from TimeSeries import TimeSeries
 from OpenStruct import OpenStruct
 
 
-A_RECORD_RE = re.compile(r'A(.*)\r\n\Z')
-B_RECORD_RE = re.compile(r'B(\d{2})(\d{2})(\d{2})(\d{2})(\d{5})([NS])(\d{3})(\d{5})([EW])([AV])(\d{5})(\d{5}).*\r\n\Z')
-C_RECORD_RE = re.compile(r'C(\d{2})(\d{5})([NS])(\d{3})(\d{5})([EW])(.*)\r\n\Z')
-G_RECORD_RE = re.compile(r'G(.*)\r\n\Z')
-HFDTE_RECORD_RE = re.compile(r'H(F)(DTE)(\d\d)(\d\d)(\d\d)\r\n\Z')
-HFFXA_RECORD_RE = re.compile(r'H(F)(FXA)(\d+)\r\n\Z')
-H_RECORD_RE = re.compile(r'H([FOP])([A-Z]{3})[A-Z]*:(.*)\r\n\Z')
+A_RECORD_RE = re.compile(r'A(.*)\Z')
+B_RECORD_RE = re.compile(r'B(\d{2})(\d{2})(\d{2})(\d{2})(\d{5})([NS])(\d{3})(\d{5})([EW])([AV])(\d{5})(\d{5})\d*\Z')
+C_RECORD_RE = re.compile(r'C(\d{2})(\d{5})([NS])(\d{3})(\d{5})([EW])(.*)\Z')
+G_RECORD_RE = re.compile(r'G(.*)\Z')
+HFDTE_RECORD_RE = re.compile(r'H(F)(DTE)(\d\d)(\d\d)(\d\d)\Z')
+HFFXA_RECORD_RE = re.compile(r'H(F)(FXA)(\d+)\Z')
+H_RECORD_RE = re.compile(r'H([FOP])([A-Z]{3})[A-Z]*:(.*)\Z')
 I_RECORD_RE = re.compile(r'(\d{2})(\d{2})(\w{3})\Z')
+L_RECORD_RE = re.compile(r'L(.*)\Z')
+
 NOT_SET_RE = re.compile(r'\s*(not\s+set)?\s*\Z')
+
+
+class_by_letter = {}
 
 
 class Error(RuntimeError):
@@ -27,8 +33,21 @@ class SyntaxError(Error):
   pass
 
 
-class ARecord(object):
-  "Represents an A record."
+class Metaclass(type):
+
+  def __new__(cls, name, bases, dct):
+    result = type.__new__(cls, name, bases, dct)
+    if name != 'Record':
+      class_by_letter[name[0]] = result
+    return result
+
+
+class Record(object):
+
+  __metaclass__ = Metaclass
+
+
+class ARecord(Record):
 
   def __init__(self, line, igc):
     m = A_RECORD_RE.match(line)
@@ -38,27 +57,9 @@ class ARecord(object):
     igc.a = self.value
 
 
-class CRecord(object):
-  "Represents a C record."
+class BRecord(Record):
 
-  def __init__(self, line, igc):
-    m = C_RECORD_RE.match(line)
-    if not m:
-      raise SyntaxError, line
-    self.lat = int(m.group(1)) + int(m.group(2)) / 60000.0
-    if m.group(3) == 'S':
-      self.lat *= -1
-    self.lon = int(m.group(4)) + int(m.group(5)) / 60000.0
-    if m.group(6) == 'W':
-      self.lon *= -1
-    self.name = m.group(7)
-    igc.c.append(self)
-
-
-class BRecord(object):
-  "Represents a B record."
-
-  __slots__ = ('dt', 'lat', 'lon', 'validity', 'alt', 'ele', '__dict__')
+  __slots__ = ('dt', 'lat', 'lon', 'validity', 'alt', 'ele')
 
   def __init__(self, line, igc):
     m = B_RECORD_RE.match(line)
@@ -80,49 +81,58 @@ class BRecord(object):
         setattr(self, key, int(line[value[0]:value[1]]))
 
 
-class GRecord(object):
-  "Represents a G record."
+class CRecord(Record):
+
+  def __init__(self, line, igc):
+    m = C_RECORD_RE.match(line)
+    if not m:
+      raise SyntaxError, line
+    self.lat = int(m.group(1)) + int(m.group(2)) / 60000.0
+    if m.group(3) == 'S':
+      self.lat *= -1
+    self.lon = int(m.group(4)) + int(m.group(5)) / 60000.0
+    if m.group(6) == 'W':
+      self.lon *= -1
+    self.name = m.group(7)
+    igc.c.append(self)
+
+
+class GRecord(Record):
 
   def __init__(self, line, igc):
     m = G_RECORD_RE.match(line)
     if not m:
-      raise SyntaxError, m
+      raise SyntaxError, line
     self.value = m.group(1)
     igc.g.append(self.value)
 
 
-class HRecord(object):
-  "Represents an H record."
+class HRecord(Record):
 
   def __init__(self, line, igc):
-    for re, f in (
-        (HFDTE_RECORD_RE, 'hfdte'),
-        (HFFXA_RECORD_RE, 'hffxa'),
-        (H_RECORD_RE, 'h'),
-        ):
+    def hfdte():
+      self.source, self.type = m.group(1, 2)
+      day, month, year = map(int, m.group(3, 4, 5))
+      try:
+        self.date = datetime.date(2000 + year, month, day)
+      except ValueError:
+        raise SyntaxError, line
+      igc.hfdterecord = self
+    def hffxa():
+      self.source, self.type = m.group(1, 2)
+      self.value = int(m.group(3))
+      igc.h['fxa'] = self.value
+    def h():
+      self.source, self.key, self.value = m.groups()
+      igc.h[self.key.lower()] = self.value
+    for re, f in ((HFDTE_RECORD_RE, hfdte), (HFFXA_RECORD_RE, hffxa), (H_RECORD_RE, h)):
       m = re.match(line)
       if m:
-        getattr(self, f)(m, igc)
+        f()
         break
 
-  def h(self, m, igc):
-    self.source, self.key, self.value = m.groups()
-    igc.h[self.key.lower()] = self.value
 
-  def hfdte(self, m, igc):
-    self.source, self.type = m.group(1, 2)
-    day, month, year = map(int, m.group(3, 4, 5))
-    self.date = datetime.date(2000 + year, month, day)
-    igc.hfdterecord = self
-
-  def hffxa(self, m, igc):
-    self.source, self.type = m.group(1, 2)
-    self.value = int(m.group(3))
-    igc.h['fxa'] = self.value
-
-
-class IRecord(object):
-  "Represents an I record."
+class IRecord(Record):
 
   def __init__(self, line, igc):
     self.fields = {}
@@ -134,38 +144,36 @@ class IRecord(object):
     igc.i = self
 
 
-PARSERS = {
-    'A': ARecord,
-    'C': CRecord,
-    'B': BRecord,
-    'G': GRecord,
-    'H': HRecord,
-    'I': IRecord,
-    }
+class LRecord(Record):
+
+  def __init__(self, line, igc):
+    m = L_RECORD_RE.match(line)
+    if not m:
+      raise SyntaxError, line
+    igc.l.append(m.group(1))
 
 
 class IGC(object):
 
   def __init__(self, filename):
-    global PARSERS
     self.filename = filename
     self.c = []
     self.g = []
     self.h = {}
     self.i = None
-    ignore = lambda l, s: None
-    self.records = list(PARSERS.get(line[0], ignore)(line, self) for line in open(filename))
+    self.l = []
+    ignore = lambda l, s: l
+    self.records = list(class_by_letter.get(line[0], ignore)(line.rstrip(), self) for line in open(filename))
 
   def track(self):
     coords = TimeSeries()
     times = []
     t = []
     for record in self.records:
-      if not isinstance(record, BRecord):
-        continue
-      coords.append(coord.Coord(record.lat, record.lon, record.ele))
-      times.append(record.dt)
-      t.append(int(time.mktime(record.dt.timetuple())))
+      if isinstance(record, BRecord):
+        coords.append(coord.Coord(record.lat, record.lon, record.ele))
+        times.append(record.dt)
+        t.append(int(time.mktime(record.dt.timetuple())))
     coords.t = t
     meta = OpenStruct(name=self.filename, pilot_name=None, glider_type=None, glider_id=None)
     if 'plt' in self.h and not NOT_SET_RE.match(self.h['plt']):
