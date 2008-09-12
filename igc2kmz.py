@@ -44,7 +44,8 @@ def main(argv):
   for track, hints in options.tracks_and_hints:
     bounds.merge(track.bounds)
   stock = Stock()
-  stock.altitude_scale = scale.Scale('altitude', (bounds.ele.min, bounds.ele.max), gradient.default)
+  stock.altitude_scale = scale.Scale(bounds.ele.tuple(), title='altitude', gradient=gradient.default)
+  stock.time_scale = scale.TimeScale(bounds.time.tuple())
   result = kmz.kmz()
   result.add_siblings(stock.kmz)
   for track, hints in options.tracks_and_hints:
