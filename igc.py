@@ -1,6 +1,7 @@
 from __future__ import with_statement
 
 import datetime
+import time
 import re
 
 import coord
@@ -162,13 +163,12 @@ class IGC(object):
     coords = TimeSeries()
     times = []
     t = []
-    t0 = datetime.datetime(2000, 1, 1)
     for record in self.records:
       if not isinstance(record, BRecord):
         continue
       coords.append(coord.Coord(record.lat, record.lon, record.ele))
       times.append(record.dt)
-      t.append((record.dt - t0).seconds)
+      t.append(int(time.mktime(record.dt.timetuple())))
     coords.t = t
     meta = OpenStruct(name=self.filename, pilot_name=None, glider_type=None, glider_id=None)
     if 'plt' in self.h and not NOT_SET_RE.match(self.h['plt']):
