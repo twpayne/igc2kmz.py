@@ -35,6 +35,21 @@ def decimal_step_generator(start=1.0):
     start = 10.0 * start
 
 
+class YAxis(object):
+
+  def __init__(self, y):
+    y_range = bounds(y.__iter__())
+    for step in decimal_step_generator(0.1):
+      bottom = int(y_range.min / step)
+      top = int(y_range.max / step)
+      if y_range.max > step * top:
+        top += 1
+      if top - bottom < 16:
+        self.range = (step * bottom, step * top)
+        self.grid_step = '%.1f' % (100.0 / (top - bottom))
+        break
+
+
 def time_step_generator(start=1):
   steps = [1, 5, 15, 30, 60, 5 * 60, 15 * 60, 30 * 60, 60 * 60, 3 * 60 * 60, 6 * 60 * 60, 12 * 60 * 60, 24 * 60 * 60]
   return itertools.imap(lambda x: datetime.timedelta(0, x), itertools.dropwhile(lambda x: x < start, steps))
@@ -49,6 +64,7 @@ def datetime_round_down(dt, delta):
     return dt - datetime.timedelta(0, dt.second % delta.seconds)
   else:
     return dt
+
 
 class TimeAxis(object):
 
@@ -71,21 +87,6 @@ class TimeAxis(object):
       self.labels.append(t.strftime('%H:%M'))
       self.positions.append('%.1f' % (100.0 * (t - start).seconds / duration))
       t += step
-
-
-class YAxis(object):
-
-  def __init__(self, y):
-    y_range = bounds(y.__iter__())
-    for step in decimal_step_generator(0.1):
-      bottom = int(y_range.min / step)
-      top = int(y_range.max / step)
-      if y_range.max > step * top:
-        top += 1
-      if top - bottom < 16:
-        self.range = (step * bottom, step * top)
-        self.grid_step = '%.1f' % (100.0 / (top - bottom))
-        break
 
 
 class Stock(object):
@@ -248,11 +249,8 @@ class Track(object):
     chart.set_axis_style(axis_index, 'ffffff')
     chart.set_grid(time_axis.grid_step, y_axis.grid_step, 2, 2)
     indexes = lib.douglas_peucker(self.coords.t, y, epsilon)
-    print "len(indexes)=%d" % len(indexes)
     chart.add_data([self.coords.t[i] for i in indexes])
     chart.add_data([y[i] for i in indexes])
-    print chart.get_url()
-    chart.download("altitude.png")
     icon = kml.Icon(href=chart.get_url().replace('&', '&amp;'))
     overlay_xy = kml.overlayXY(x=0, y=0, xunits='fraction', yunits='fraction')
     screen_xy = kml.screenXY(x=0, y=16, xunits='fraction', yunits='pixels')
@@ -265,8 +263,6 @@ class Track(object):
     folder = kmz.kmz(kml.Folder(name='Graphs', open=1, styleUrl=hints.stock.radio_folder_style.url()))
     folder.add(hints.stock.visible_none_folder)
     folder.add(self.make_graph(hints, 'Altitude', list(coord.ele for coord in self.coords), 5))
-    folder.add(self.make_graph(hints, 'Latitude', list(coord.lat for coord in self.coords), 1.0 / 1800.0))
-    folder.add(self.make_graph(hints, 'Longitude', list(coord.lon for coord in self.coords), 1.0 / 1800.0))
     return folder
 
   def kmz(self, hints):
