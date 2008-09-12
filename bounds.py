@@ -19,6 +19,9 @@ class Bounds(object):
       if value > self.max:
         self.max = value
 
+  def tuple(self):
+    return (self.min, self.max)
+
 
 class BoundsSet(object):
 
