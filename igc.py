@@ -166,12 +166,18 @@ class IGC(object):
     self.records = list(class_by_letter.get(line[0], ignore)(line.rstrip(), self) for line in open(filename))
 
   def track(self):
-    coords = TimeSeries()
     times = []
     t = []
     for record in self.records:
+      if isinstance(record, BRecord) and record.ele:
+        ele = 'ele'
+        break
+    else:
+      ele = 'alt'
+    coords = TimeSeries()
+    for record in self.records:
       if isinstance(record, BRecord):
-        coords.append(coord.Coord(record.lat, record.lon, record.ele))
+        coords.append(coord.Coord(record.lat, record.lon, getattr(record, ele)))
         times.append(record.dt)
         t.append(int(time.mktime(record.dt.timetuple())))
     coords.t = t
