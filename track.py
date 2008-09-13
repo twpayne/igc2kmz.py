@@ -178,7 +178,7 @@ class Track(object):
     chart.add_data(list(self.coords.t[i] for i in indexes))
     chart.add_data(list(values[i] for i in indexes))
     print chart.get_url()
-    icon = kml.Icon(href=chart.get_url().replace('&', '&amp;'))
+    icon = kml.Icon(href=kml.CDATA(chart.get_url()))
     overlay_xy = kml.overlayXY(x=0, y=0, xunits='fraction', yunits='fraction')
     screen_xy = kml.screenXY(x=0, y=16, xunits='fraction', yunits='pixels')
     size = kml.size(x=0, y=0, xunits='fraction', yunits='fraction')
