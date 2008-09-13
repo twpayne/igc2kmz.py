@@ -203,7 +203,7 @@ class Track(object):
       rows.append(('Glider ID', self.meta.glider_id))
     rows.append(('Take-off time', (self.times[0] + hints.globals.timezone_offset).strftime('%H:%M:%S')))
     rows.append(('Landing time', (self.times[-1] + hints.globals.timezone_offset).strftime('%H:%M:%S')))
-    hour, seconds = divmod((self.times[0] - self.times[-1]).seconds, 3600)
+    hour, seconds = divmod((self.times[-1] - self.times[0]).seconds, 3600)
     minute, second = divmod(seconds, 60)
     rows.append(('Duration', '%d:%02d:%02d' % (hour, minute, second)))
     #rows.append(('Track length', '%.3fkm' % (self.s[-1] / 1000.0)))
