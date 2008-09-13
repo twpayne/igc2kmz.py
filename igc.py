@@ -164,7 +164,12 @@ class IGC(object):
     self.i = None
     self.l = []
     ignore = lambda l, s: l
-    self.records = [class_by_letter.get(line[0], ignore)(line.rstrip(), self) for line in open(filename)]
+    self.records = []
+    for line in open(filename):
+      try:
+        self.records.append(class_by_letter.get(line[0], ignore)(line.rstrip(), self))
+      except SyntaxError:
+        pass
 
   def track(self):
     times = []
