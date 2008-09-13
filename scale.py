@@ -34,7 +34,7 @@ class Scale(object):
     elif self.range[1] <= value:
       return 1.0
     else:
-      return (value - self.range[0]) / (self.range[1] - self.range[0])
+      return float(value - self.range[0]) / (self.range[1] - self.range[0])
 
   def discretize(self, value, n=32):
     """Discretize value."""
@@ -55,7 +55,7 @@ class Scale(object):
 
   def colors(self, n=32):
     """Return the colors."""
-    return list(self.gradient(float(i) / (n - 1)) for i in range(0, n))
+    return list(self.gradient(float(i) / (n - 1)) for i in xrange(0, n))
 
 
 class ZeroCenteredScale(Scale):
