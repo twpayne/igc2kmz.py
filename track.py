@@ -213,11 +213,8 @@ class Track(object):
       #rows.append(('Accumulated altitude gain', '%dm' % self.dz_positive[-1]))
       rows.append(('Landing altitude', '%dm' % self.coords[-1].ele))
     folder.add(kml.description(kml.CDATA('<table>%s</table>' % ''.join(['<tr><th align="right">%s</th><td>%s</td></tr>' % row for row in rows]))))
-    snippet = [self.meta.pilot_name]
-    if self.meta.glider_type:
-      snippet.append(self.meta.glider_type)
-    snippet.append(self.times[0].strftime('%Y-%m-%d'))
-    folder.add(kml.Snippet(', '.join(snippet)))
+    snippet = [self.meta.pilot_name, self.meta.glider_type, (self.times[0] + hints.globals.timezone_offset).strftime('%Y-%m-%d')]
+    folder.add(kml.Snippet(', '.join(s for s in snippet if s)))
     folder.add(self.make_animation(hints))
     folder.add(self.make_track_folder(hints))
     folder.add(self.make_shadow_folder(hints))
