@@ -6,7 +6,7 @@ import urllib
 import sys
 import time
 
-#import numpy
+import numpy
 from pygooglechart import Axis, Chart, XYLineChart
 
 from bounds import bounds, Bounds, BoundsSet
@@ -63,7 +63,27 @@ class Track(object):
     self.bounds.time = Bounds(self.times[0], self.times[-1])
     self.elevation_data = self.bounds.ele.min != 0 or self.bounds.ele.max != 0
 
-  def analyse(self, period=20):
+  def analyse(self):
+    n = len(self.coords)
+    lat = numpy.empty((n + 2,))
+    lat[0] = self.coords[0].lat
+    lat[1:n + 1] = [coord.lat for coord in self.coords]
+    lat[-1] = self.coords[-1].lat
+    lat *= math.pi / 180.0
+    lon = numpy.empty((n + 2,))
+    lon[0] = self.coords[0].lon
+    lon[1:n + 1] = [coord.lon for coord in self.coords]
+    lon[-1] = self.coords[-1].lon
+    lon *= math.pi / 180.0
+    ele = numpy.empty((n + 2,))
+    ele[0] = self.coords[0].ele
+    ele[1:n + 1] = [coord.ele for coord in self.coords]
+    ele[-1] = self.coords[-1].ele
+    dz = (ele[1:] - ele[:-1])[:-1]
+    self.max_dz_positive = max(numpy.add.accumulate(dz))
+    self.total_dz_positive = numpy.sum(x for x in dz if x > 0.0)
+
+  def old_analyse(self, period=20):
     half_period = period / 2.0
     self.dz_positive = [0]
     self.s = [0]
@@ -207,9 +227,11 @@ class Track(object):
     if self.elevation_data:
       rows.append(('Take-off altitude', '%dm' % self.coords[0].ele))
       rows.append(('Maximum altitude', '%dm' % self.bounds.ele.max))
-      #rows.append(('Accumulated altitude gain', '%dm' % self.dz_positive[-1]))
+      rows.append(('Minimum altitude', '%dm' % self.bounds.ele.min))
       rows.append(('Landing altitude', '%dm' % self.coords[-1].ele))
-    folder.add(kml.description(kml.CDATA('<table>%s</table>' % ''.join(['<tr><th align="right">%s</th><td>%s</td></tr>' % row for row in rows]))))
+      rows.append(('Accumulated altitude gain', '%dm' % self.total_dz_positive))
+      rows.append(('Maximum altitude gain', '%dm' % self.max_dz_positive))
+    folder.add(kml.description(kml.CDATA('<table>%s</table>' % ''.join('<tr><th align="right">%s</th><td>%s</td></tr>' % row for row in rows))))
     snippet = [self.meta.pilot_name, self.meta.glider_type, (self.times[0] + hints.globals.timezone_offset).strftime('%Y-%m-%d')]
     folder.add(kml.Snippet(', '.join(s for s in snippet if s)))
     folder.add(self.make_animation(hints))

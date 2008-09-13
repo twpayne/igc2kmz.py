@@ -56,6 +56,7 @@ def main(argv):
   result = kmz.kmz()
   result.add_siblings(globals.stock.kmz)
   for track, hints in options.tracks_and_hints:
+    track.analyse()
     hints.globals = globals
     result.add_siblings(track.kmz(hints))
   result.write(options.output)
