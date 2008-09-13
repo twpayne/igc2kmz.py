@@ -63,69 +63,50 @@ class Track(object):
     self.bounds.time = Bounds(self.times[0], self.times[-1])
     self.elevation_data = self.bounds.ele.min != 0 or self.bounds.ele.max != 0
 
-  def analyse(self):
+  def analyse(self, half_period=30):
     n = len(self.coords)
-    lat = numpy.empty((n + 2,))
-    lat[0] = self.coords[0].lat
-    lat[1:n + 1] = [coord.lat for coord in self.coords]
-    lat[-1] = self.coords[-1].lat
+    def make_seq(seq, dtype=numpy.float):
+      result = numpy.empty((len(seq) + 2,), dtype=dtype)
+      result[0], result[-1] = seq[0], seq[-1]
+      result[1:len(seq) + 1] = seq
+      return result
+    lat = make_seq([coord.lat for coord in self.coords])
     lat *= math.pi / 180.0
-    lon = numpy.empty((n + 2,))
-    lon[0] = self.coords[0].lon
-    lon[1:n + 1] = [coord.lon for coord in self.coords]
-    lon[-1] = self.coords[-1].lon
+    sin_lat = numpy.sin(lat)
+    cos_lat = numpy.cos(lat)
+    lon = make_seq([coord.lon for coord in self.coords])
     lon *= math.pi / 180.0
-    ele = numpy.empty((n + 2,))
-    ele[0] = self.coords[0].ele
-    ele[1:n + 1] = [coord.ele for coord in self.coords]
-    ele[-1] = self.coords[-1].ele
-    dz = (ele[1:] - ele[:-1])[:-1]
-    self.max_dz_positive = max(numpy.add.accumulate(dz))
-    self.total_dz_positive = numpy.sum(x for x in dz if x > 0.0)
-
-  def old_analyse(self, period=20):
-    half_period = period / 2.0
-    self.dz_positive = [0]
-    self.s = [0]
-    for i in xrange(1, len(self.coords)):
-      dz = self.coords[i].ele - self.coords[i - 1].ele
-      if dz > 0.0:
-        dz_positive = dz
-      else:
-        dz_positive = 0.0
-      self.dz_positive.append(self.dz_positive[i - 1] + dz_positive)
-      x = math.sin(math.pi * self.coords[i - 1].lat / 180.0) * math.sin(math.pi * self.coords[i].lat / 180.0) + math.cos(math.pi * self.coords[i - 1].lat / 180.0) * math.cos(math.pi * self.coords[i].lat) * math.cos(math.pi * (self.coords[i - 1].lon - self.coords[i].lon) / 180.0)
-      if x < 1.0:
-        ds = 6371.0 * math.acos(x)
-      else:
-        ds = 0.0
-      self.s.append(self.s[i - 1] + ds)
-    if 0:
-      n = len(self.coords)
-      rlat = numpy.empty((n + 2,))
-      rlon = numpy.empty((n + 2,))
-      ele = numpy.empty((n + 2,))
-      ds = numpy.empty((n + 2,))
-      t = numpy.empty((n + 2,))
-      rlat[0] = math.pi * self.coords[0].lat / 180.0
-      rlon[0] = math.pi * self.coords[0].lon / 180.0
-      ele[0] = self.coords[0].ele
-      ds[0] = 0.0
-      t[0] = -sys.maxint - 1
-      for i in xrange(0, n):
-        rlat[i + 1] = math.pi * self.coords[i].lat / 180.0
-        rlon[i + 1] = math.pi * self.coords[i].lon / 180.0
-        ele[i + 1] = self.coords[i].ele
-        x = sin(rlat[i]) * sin(rlat[i + 1]) + cos(rlat[i]) * cos(rlat[i + 1]) * cos(rlon[i] - rlon[i - 1])
-        if x < 1.0:
-          ds[i + 1] = 6371000.0 * acos(x)
-        else:
-          ds[i + 1] = 0.0
-      rlat[-1] = math.pi * self.coords[-1].lat / 180.0
-      rlon[-1] = math.pi * self.coords[-1].lon / 180.0
-      ele[-1] = self.coords[-1].ele
-      ds[-1] = 0.0
-      t[-1] = sys.maxint
+    ds = 6371000.0 * numpy.arccos(sin_lat[1:-1] * sin_lat[0:-2] + cos_lat[1:-1] * cos_lat[0:-2] * numpy.cos(lon[1:-1] - lon[0:-2]))
+    s = numpy.empty((n + 2,))
+    s[0], s[-1] = 0.0, 0.0
+    s[1:-2] = numpy.add.accumulate(ds)
+    t = make_seq(self.coords.t, dtype=numpy.int)
+    t[0], t[-1] = 0, sys.maxint
+    j, k = 0, 1
+    left_index, right_index = numpy.empty((n,), dtype=numpy.int), numpy.empty((n,), dtype=numpy.int)
+    left_k, right_k = numpy.empty((n,)), numpy.empty((n,))
+    for i in xrange(0, n):
+      while t[j + 1] <= t[i + 1] - half_period:
+        j += 1
+      while t[k + 1] <= t[i + 1] + half_period:
+        k += 1
+      left_index[i], right_index[i] = j, k
+      left_k[i] = float(t[j + 1] - t[i + 1] + half_period) / (t[j + 1] - t[j])
+      right_k[i] = float(t[k] - t[i + 1] - half_period) / (t[k + 1] - t[k])
+    s_left = s[left_index] * left_k + s[left_index + 1] * (1.0 - left_k)
+    s_right = s[right_index] * right_k + s[right_index + 1] * (1.0 - right_k)
+    self.speed = (s_right - s_left) / (2 * half_period)
+    self.bounds.speed = bounds(self.speed.__iter__())
+    if self.elevation_data:
+      ele = make_seq([coord.ele for coord in self.coords])
+      self.ele = (ele[1:-1] + ele[0:-2]) / 2.0
+      dz = ele[1:-1] - ele[0:-2]
+      self.max_dz_positive = max(numpy.add.accumulate(dz))
+      self.total_dz_positive = numpy.sum(x for x in dz if x > 0.0)
+      z_left = ele[left_index] * left_k + ele[left_index + 1] * (1.0 - left_k)
+      z_right = ele[right_index] * right_k + ele[right_index + 1] * (1.0 - right_k)
+      self.climb = (z_right - z_left) / (2 * half_period)
+      self.bounds.climb = bounds(self.climb.__iter__())
 
   def make_solid_track(self, hints, style, altitude_mode, extrude=None, **folder_options):
     line_string = kml.LineString(coordinates=self.coords, altitudeMode=altitude_mode)
@@ -150,7 +131,9 @@ class Track(object):
     folder = kmz.kmz(kml.Folder(name='Track', open=1, styleUrl=hints.globals.stock.radio_folder_style.url()))
     folder.add(hints.globals.stock.invisible_none_folder)
     if self.elevation_data:
-      folder.add(self.make_colored_track(hints, map(lambda c: c.ele, self.coords), hints.globals.altitude_scale, 'absolute'))
+      folder.add(self.make_colored_track(hints, map(lambda c: c.ele, self.coords), hints.globals.altitude_scale, 'absolute', visibility=0))
+      folder.add(self.make_colored_track(hints, self.climb, hints.globals.climb_scale, 'absolute'))
+    folder.add(self.make_colored_track(hints, self.speed, hints.globals.speed_scale, hints.altitude_mode))
     folder.add(self.make_solid_track(hints, kml.Style(kml.LineStyle(color=hints.color, width=hints.width)), hints.altitude_mode, name='Solid color', visibility=0))
     return folder
 
@@ -195,6 +178,7 @@ class Track(object):
     indexes = lib.douglas_peucker(self.coords.t, values, epsilon)
     chart.add_data([self.coords.t[i] for i in indexes])
     chart.add_data([values[i] for i in indexes])
+    print chart.get_url()
     icon = kml.Icon(href=kml.CDATA(chart.get_url()))
     overlay_xy = kml.overlayXY(x=0, y=0, xunits='fraction', yunits='fraction')
     screen_xy = kml.screenXY(x=0, y=16, xunits='fraction', yunits='pixels')
@@ -206,7 +190,8 @@ class Track(object):
   def make_graphs_folder(self, hints):
     folder = kmz.kmz(kml.Folder(name='Graphs', open=1, styleUrl=hints.globals.stock.radio_folder_style.url()))
     folder.add(hints.globals.stock.visible_none_folder)
-    folder.add(self.make_graph(hints, [coord.ele for coord in self.coords], hints.globals.altitude_scale, 5))
+    folder.add(self.make_graph(hints, self.ele, hints.globals.altitude_scale, 5))
+    folder.add(self.make_graph(hints, self.climb, hints.globals.climb_scale, 0.1))
     return folder
 
   def kmz(self, hints):
@@ -231,6 +216,9 @@ class Track(object):
       rows.append(('Landing altitude', '%dm' % self.coords[-1].ele))
       rows.append(('Accumulated altitude gain', '%dm' % self.total_dz_positive))
       rows.append(('Maximum altitude gain', '%dm' % self.max_dz_positive))
+      rows.append(('Maximum climb', '%.1fm/s' % self.bounds.climb.max))
+      rows.append(('Maximum sink', '%.1fm/s' % self.bounds.climb.min))
+    rows.append(('Maximum speed', '%.1fm/s' % self.bounds.speed.max))
     folder.add(kml.description(kml.CDATA('<table>%s</table>' % ''.join('<tr><th align="right">%s</th><td>%s</td></tr>' % row for row in rows))))
     snippet = [self.meta.pilot_name, self.meta.glider_type, (self.times[0] + hints.globals.timezone_offset).strftime('%Y-%m-%d')]
     folder.add(kml.Snippet(', '.join(s for s in snippet if s)))

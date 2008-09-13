@@ -45,18 +45,20 @@ def main(argv):
     raise RuntimeError # FIXME
   bounds = BoundsSet()
   for track, hints in options.tracks_and_hints:
+    track.analyse()
     bounds.merge(track.bounds)
   globals = OpenStruct()
   globals.stock = Stock()
   globals.timezone_offset = datetime.timedelta(0, 3600 * options.timezone_offset)
   globals.altitude_scale = scale.Scale(bounds.ele.tuple(), title='altitude', gradient=gradient.default)
+  globals.climb_scale = scale.Scale(bounds.climb.tuple(), title='climb', gradient=gradient.default)
+  globals.speed_scale = scale.Scale(bounds.speed.tuple(), title='speed', gradient=gradient.default)
   globals.time_scale = scale.TimeScale(bounds.time.tuple(), timezone_offset=globals.timezone_offset)
   globals.graph_width = 600
   globals.graph_height = 300
   result = kmz.kmz()
   result.add_siblings(globals.stock.kmz)
   for track, hints in options.tracks_and_hints:
-    track.analyse()
     hints.globals = globals
     result.add_siblings(track.kmz(hints))
   result.write(options.output)
