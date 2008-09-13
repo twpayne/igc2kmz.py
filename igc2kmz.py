@@ -24,6 +24,7 @@ def add_track(option, opt_str, value, parser, make_track, **kwargs):
     parser.values.tracks_and_hints = []
   parser.values.tracks_and_hints.append((track, hints))
 
+
 def main(argv):
   parser = optparse.OptionParser(usage='Usage: %prog [options]')
   parser.add_option('-o', '--output', metavar='FILENAME')
@@ -50,6 +51,8 @@ def main(argv):
   globals.timezone_offset = datetime.timedelta(0, 3600 * options.timezone_offset)
   globals.altitude_scale = scale.Scale(bounds.ele.tuple(), title='Altitude', gradient=gradient.default)
   globals.time_scale = scale.TimeScale(bounds.time.tuple(), timezone_offset=globals.timezone_offset)
+  globals.graph_width = 600
+  globals.graph_height = 300
   result = kmz.kmz()
   result.add_siblings(globals.stock.kmz)
   for track, hints in options.tracks_and_hints:

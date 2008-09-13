@@ -48,8 +48,6 @@ class Hints(object):
     self.altitude_mode = 'absolute'
     self.color = 'ff0000ff'
     self.width = 2
-    self.graph_width = 720
-    self.graph_height = 405
 
 
 class Track(object):
@@ -165,7 +163,7 @@ class Track(object):
     return kmz.kmz(folder)
 
   def make_graph(self, hints, values, scale, epsilon):
-    chart = XYLineChart(hints.graph_width, hints.graph_height, x_range=hints.globals.time_scale.range, y_range=scale.range)
+    chart = XYLineChart(hints.globals.graph_width, hints.globals.graph_height, x_range=hints.globals.time_scale.range, y_range=scale.range)
     chart.fill_solid(Chart.BACKGROUND, 'ffffff00')
     chart.fill_solid(Chart.CHART, 'ffffffcc')
     axis_index = chart.set_axis_labels(Axis.BOTTOM, hints.globals.time_scale.labels)
