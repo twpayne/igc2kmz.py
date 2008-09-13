@@ -163,7 +163,7 @@ class IGC(object):
     self.i = None
     self.l = []
     ignore = lambda l, s: l
-    self.records = list(class_by_letter.get(line[0], ignore)(line.rstrip(), self) for line in open(filename))
+    self.records = [class_by_letter.get(line[0], ignore)(line.rstrip(), self) for line in open(filename)]
 
   def track(self):
     times = []

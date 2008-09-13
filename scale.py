@@ -55,7 +55,7 @@ class Scale(object):
 
   def colors(self, n=32):
     """Return the colors."""
-    return list(self.gradient(float(i) / (n - 1)) for i in xrange(0, n))
+    return [self.gradient(float(i) / (n - 1)) for i in xrange(0, n)]
 
 
 class ZeroCenteredScale(Scale):

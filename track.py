@@ -175,8 +175,8 @@ class Track(object):
     chart.set_axis_style(axis_index, 'ffffff')
     chart.set_grid(hints.stock.time_scale.grid_step, scale.grid_step, 2, 2)
     indexes = lib.douglas_peucker(self.coords.t, values, epsilon)
-    chart.add_data(list(self.coords.t[i] for i in indexes))
-    chart.add_data(list(values[i] for i in indexes))
+    chart.add_data([self.coords.t[i] for i in indexes])
+    chart.add_data([values[i] for i in indexes])
     print chart.get_url()
     icon = kml.Icon(href=kml.CDATA(chart.get_url()))
     overlay_xy = kml.overlayXY(x=0, y=0, xunits='fraction', yunits='fraction')
@@ -189,7 +189,7 @@ class Track(object):
   def make_graphs_folder(self, hints):
     folder = kmz.kmz(kml.Folder(name='Graphs', open=1, styleUrl=hints.stock.radio_folder_style.url()))
     folder.add(hints.stock.visible_none_folder)
-    folder.add(self.make_graph(hints, list(coord.ele for coord in self.coords), hints.stock.altitude_scale, 5))
+    folder.add(self.make_graph(hints, [coord.ele for coord in self.coords], hints.stock.altitude_scale, 5))
     return folder
 
   def kmz(self, hints):
