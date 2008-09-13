@@ -114,11 +114,11 @@ class Track(object):
     if extrude:
       line_string.add(extrude=1)
     placemark = kml.Placemark(style, line_string)
-    folder_options['styleUrl'] = hints.stock.check_hide_children_style.url()
+    folder_options['styleUrl'] = hints.globals.stock.check_hide_children_style.url()
     return kmz.kmz(kml.Folder(placemark, **folder_options))
 
   def make_colored_track(self, hints, values, scale, altitude_mode, **folder_options):
-    folder = kml.Folder(name='Colored by %s' % scale.title, styleUrl=hints.stock.check_hide_children_style.url(), **folder_options)
+    folder = kml.Folder(name='Colored by %s' % scale.title, styleUrl=hints.globals.stock.check_hide_children_style.url(), **folder_options)
     styles = [kml.Style(kml.LineStyle(color=color, width=hints.width)) for color in scale.colors()]
     discrete_values = map(scale.discretize, values)
     for start, end in lib.runs(discrete_values):
@@ -129,26 +129,26 @@ class Track(object):
     return kmz.kmz(folder).add_roots(*styles)
 
   def make_track_folder(self, hints):
-    folder = kmz.kmz(kml.Folder(name='Track', open=1, styleUrl=hints.stock.radio_folder_style.url()))
-    folder.add(hints.stock.invisible_none_folder)
+    folder = kmz.kmz(kml.Folder(name='Track', open=1, styleUrl=hints.globals.stock.radio_folder_style.url()))
+    folder.add(hints.globals.stock.invisible_none_folder)
     if self.elevation_data:
-      folder.add(self.make_colored_track(hints, map(lambda c: c.ele, self.coords), hints.stock.altitude_scale, 'absolute'))
+      folder.add(self.make_colored_track(hints, map(lambda c: c.ele, self.coords), hints.globals.altitude_scale, 'absolute'))
     folder.add(self.make_solid_track(hints, kml.Style(kml.LineStyle(color=hints.color, width=hints.width)), hints.altitude_mode, name='Solid color', visibility=0))
     return folder
 
   def make_shadow_folder(self, hints):
     if not self.elevation_data:
       return kmz.kmz()
-    folder = kmz.kmz(kml.Folder(name='Shadow', open=1, styleUrl=hints.stock.radio_folder_style.url()))
-    folder.add(hints.stock.invisible_none_folder)
+    folder = kmz.kmz(kml.Folder(name='Shadow', open=1, styleUrl=hints.globals.stock.radio_folder_style.url()))
+    folder.add(hints.globals.stock.invisible_none_folder)
     folder.add(self.make_solid_track(hints, kml.Style(kml.LineStyle(color='ff000000', width=1)), 'clampToGround', name='Normal', visibility=1))
     folder.add(self.make_solid_track(hints, kml.Style(kml.LineStyle(color='00000000', width=1), kml.PolyStyle(color='80000000')), 'absolute', True, name='Extrude', visibility=0))
     folder.add(self.make_solid_track(hints, kml.Style(kml.LineStyle(color=hints.color, width=hints.width)), 'clampToGround', name='Solid color', visibility=0))
     return folder
 
   def make_animation(self, hints):
-    style = kml.Style(kml.IconStyle(hints.stock.animation_icon, color=hints.color, scale=0.5))
-    folder = kml.Folder(style, name='Animation', open=0, styleUrl=hints.stock.check_hide_children_style.url())
+    style = kml.Style(kml.IconStyle(hints.globals.stock.animation_icon, color=hints.color, scale=0.5))
+    folder = kml.Folder(style, name='Animation', open=0, styleUrl=hints.globals.stock.check_hide_children_style.url())
     point = kml.Point(coordinates=[self.coords[0]], altitudeMode=hints.altitude_mode)
     timespan = kml.TimeSpan(end=kml.dateTime(self.times[0]))
     placemark = kml.Placemark(point, timespan, styleUrl=style.url())
@@ -165,15 +165,15 @@ class Track(object):
     return kmz.kmz(folder)
 
   def make_graph(self, hints, values, scale, epsilon):
-    chart = XYLineChart(hints.graph_width, hints.graph_height, x_range=hints.stock.time_scale.range, y_range=scale.range)
+    chart = XYLineChart(hints.graph_width, hints.graph_height, x_range=hints.globals.time_scale.range, y_range=scale.range)
     chart.fill_solid(Chart.BACKGROUND, 'ffffff00')
     chart.fill_solid(Chart.CHART, 'ffffffcc')
-    axis_index = chart.set_axis_labels(Axis.BOTTOM, hints.stock.time_scale.labels)
-    chart.set_axis_positions(axis_index, hints.stock.time_scale.positions)
+    axis_index = chart.set_axis_labels(Axis.BOTTOM, hints.globals.time_scale.labels)
+    chart.set_axis_positions(axis_index, hints.globals.time_scale.positions)
     chart.set_axis_style(axis_index, 'ffffff')
     axis_index = chart.set_axis_range(Axis.LEFT, scale.range[0], scale.range[1])
     chart.set_axis_style(axis_index, 'ffffff')
-    chart.set_grid(hints.stock.time_scale.grid_step, scale.grid_step, 2, 2)
+    chart.set_grid(hints.globals.time_scale.grid_step, scale.grid_step, 2, 2)
     indexes = lib.douglas_peucker(self.coords.t, values, epsilon)
     chart.add_data([self.coords.t[i] for i in indexes])
     chart.add_data([values[i] for i in indexes])
@@ -183,13 +183,13 @@ class Track(object):
     screen_xy = kml.screenXY(x=0, y=16, xunits='fraction', yunits='pixels')
     size = kml.size(x=0, y=0, xunits='fraction', yunits='fraction')
     screen_overlay = kml.ScreenOverlay(icon, overlay_xy, screen_xy, size)
-    folder = kml.Folder(screen_overlay, name=scale.title, styleUrl=hints.stock.check_hide_children_style.url(), visibility=0)
+    folder = kml.Folder(screen_overlay, name=scale.title, styleUrl=hints.globals.stock.check_hide_children_style.url(), visibility=0)
     return folder
 
   def make_graphs_folder(self, hints):
-    folder = kmz.kmz(kml.Folder(name='Graphs', open=1, styleUrl=hints.stock.radio_folder_style.url()))
-    folder.add(hints.stock.visible_none_folder)
-    folder.add(self.make_graph(hints, [coord.ele for coord in self.coords], hints.stock.altitude_scale, 5))
+    folder = kmz.kmz(kml.Folder(name='Graphs', open=1, styleUrl=hints.globals.stock.radio_folder_style.url()))
+    folder.add(hints.globals.stock.visible_none_folder)
+    folder.add(self.make_graph(hints, [coord.ele for coord in self.coords], hints.globals.altitude_scale, 5))
     return folder
 
   def kmz(self, hints):
@@ -201,8 +201,8 @@ class Track(object):
       rows.append(('Glider type', self.meta.glider_type))
     if not self.meta.glider_id is None:
       rows.append(('Glider ID', self.meta.glider_id))
-    rows.append(('Take-off time', self.times[0].strftime('%H:%M:%S')))
-    rows.append(('Landing time', self.times[-1].strftime('%H:%M:%S')))
+    rows.append(('Take-off time', (self.times[0] + hints.globals.timezone_offset).strftime('%H:%M:%S')))
+    rows.append(('Landing time', (self.times[-1] + hints.globals.timezone_offset).strftime('%H:%M:%S')))
     hour, seconds = divmod((self.times[0] - self.times[-1]).seconds, 3600)
     minute, second = divmod(seconds, 60)
     rows.append(('Duration', '%d:%02d:%02d' % (hour, minute, second)))

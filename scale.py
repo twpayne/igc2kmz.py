@@ -79,7 +79,7 @@ class ZeroCenteredScale(Scale):
 
 class TimeScale(Scale):
 
-  def __init__(self, range, title=None, gradient=None, step=1, max_divisions=16):
+  def __init__(self, range, title=None, gradient=None, step=1, max_divisions=16, timezone_offset=datetime.timedelta(0, 0)):
     def steps(step=None):
       steps = [1, 5, 15, 30, 60, 5 * 60, 15 * 60, 30 * 60, 3600, 3 * 3600, 6 * 3600, 12 * 3600]
       return itertools.imap(lambda seconds: datetime.timedelta(0, seconds), itertools.dropwhile(lambda s: s < step, steps))
@@ -107,6 +107,6 @@ class TimeScale(Scale):
     self.labels, self.positions = [], []
     t = datetime.datetime(lower.year, lower.month, lower.day, lower.hour)
     while t < upper:
-      self.labels.append(t.strftime('%H:%M'))
+      self.labels.append((t + timezone_offset).strftime('%H:%M'))
       self.positions.append('%1.f' % (100.0 * (t - lower).seconds / (upper - lower).seconds))
       t += self.step
