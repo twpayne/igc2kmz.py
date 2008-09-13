@@ -105,7 +105,7 @@ class TimeScale(Scale):
           break
     super(TimeScale, self).__init__(range, title=title, gradient=gradient, step=None)
     self.labels, self.positions = [], []
-    t = datetime.datetime(lower.year, lower.month, lower.day, lower.hour)
+    t = datetime.datetime(lower.year, lower.month, lower.day, lower.hour) + self.step
     while t < upper:
       self.labels.append((t + timezone_offset).strftime('%H:%M'))
       self.positions.append('%1.f' % (100.0 * (t - lower).seconds / (upper - lower).seconds))
