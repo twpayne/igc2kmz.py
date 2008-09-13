@@ -180,7 +180,7 @@ class Track(object):
     screen_xy = kml.screenXY(x=0, y=16, xunits='fraction', yunits='pixels')
     size = kml.size(x=0, y=0, xunits='fraction', yunits='fraction')
     screen_overlay = kml.ScreenOverlay(icon, overlay_xy, screen_xy, size)
-    folder = kml.Folder(screen_overlay, name=scale.title, styleUrl=hints.globals.stock.check_hide_children_style.url(), visibility=0)
+    folder = kml.Folder(screen_overlay, name=scale.title.capitalize(), styleUrl=hints.globals.stock.check_hide_children_style.url(), visibility=0)
     return folder
 
   def make_graphs_folder(self, hints):
