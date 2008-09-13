@@ -1,5 +1,19 @@
 import math
 
+
+def runs(seq):
+  generator = enumerate(seq)
+  try:
+    start, current = generator.next()
+  except StopIteration:
+    return
+  for index, element in generator:
+    if element != current:
+      yield (start, index)
+      start, current = index, element
+  yield (start, index + 1)
+
+
 def douglas_peucker(x, y, epsilon, left=0, right=None):
   """
   Implement the Douglas-Peucker line simplification algorithm.

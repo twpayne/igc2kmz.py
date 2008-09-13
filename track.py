@@ -16,17 +16,6 @@ import lib
 from OpenStruct import OpenStruct
 
 
-def runs(list):
-  if len(list) == 0:
-    return
-  i = 0
-  for j in xrange(1, len(list)):
-    if list[i] != list[j]:
-      yield((i, j))
-      i = j
-  yield((i, len(list)))
-
-
 class Stock(object):
 
   def make_none_folder(self, visibility):
@@ -132,7 +121,7 @@ class Track(object):
     folder = kml.Folder(name='Colored by %s' % scale.title, styleUrl=hints.stock.check_hide_children_style.url(), **folder_options)
     styles = [kml.Style(kml.LineStyle(color=color, width=hints.width)) for color in scale.colors()]
     discrete_values = map(scale.discretize, values)
-    for start, end in runs(discrete_values):
+    for start, end in lib.runs(discrete_values):
       line_string = kml.LineString(coordinates=self.coords[start:end + 1], altitudeMode=hints.altitude_mode)
       style_url = kml.styleUrl(styles[discrete_values[start]].url())
       placemark = kml.Placemark(style_url, line_string)
