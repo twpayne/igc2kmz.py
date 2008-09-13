@@ -48,7 +48,7 @@ def main(argv):
   globals = OpenStruct()
   globals.stock = Stock()
   globals.timezone_offset = datetime.timedelta(0, 3600 * options.timezone_offset)
-  globals.altitude_scale = scale.Scale(bounds.ele.tuple(), title='altitude', gradient=gradient.default)
+  globals.altitude_scale = scale.Scale(bounds.ele.tuple(), title='Altitude', gradient=gradient.default)
   globals.time_scale = scale.TimeScale(bounds.time.tuple(), timezone_offset=globals.timezone_offset)
   result = kmz.kmz()
   result.add_siblings(globals.stock.kmz)

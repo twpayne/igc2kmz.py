@@ -177,7 +177,6 @@ class Track(object):
     indexes = lib.douglas_peucker(self.coords.t, values, epsilon)
     chart.add_data([self.coords.t[i] for i in indexes])
     chart.add_data([values[i] for i in indexes])
-    print chart.get_url()
     icon = kml.Icon(href=kml.CDATA(chart.get_url()))
     overlay_xy = kml.overlayXY(x=0, y=0, xunits='fraction', yunits='fraction')
     screen_xy = kml.screenXY(x=0, y=16, xunits='fraction', yunits='pixels')
