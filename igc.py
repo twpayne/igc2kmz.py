@@ -1,4 +1,5 @@
 import datetime
+import os.path
 import time
 import re
 import sys
@@ -181,7 +182,7 @@ class IGC(object):
         times.append(record.dt)
         t.append(int(time.mktime(record.dt.timetuple())))
     coords.t = t
-    meta = OpenStruct(name=self.filename, pilot_name=None, glider_type=None, glider_id=None)
+    meta = OpenStruct(name=os.path.basename(self.filename), pilot_name=None, glider_type=None, glider_id=None)
     if 'plt' in self.h and not NOT_SET_RE.match(self.h['plt']):
       meta.pilot_name = self.h['plt'].strip()
     if 'gty' in self.h and not NOT_SET_RE.match(self.h['gty']):
