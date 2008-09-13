@@ -164,19 +164,19 @@ class Track(object):
     folder.add(placemark)
     return kmz.kmz(folder)
 
-  def make_graph(self, hints, scale, values, epsilon):
+  def make_graph(self, hints, values, scale, epsilon):
     chart = XYLineChart(hints.graph_width, hints.graph_height, x_range=hints.stock.time_scale.range, y_range=scale.range)
     chart.fill_solid(Chart.BACKGROUND, 'ffffff00')
     chart.fill_solid(Chart.CHART, 'ffffffcc')
-    axis_index = chart.set_axis_range(Axis.LEFT, scale.range[0], scale.range[1])
-    chart.set_axis_style(axis_index, 'ffffff')
     axis_index = chart.set_axis_labels(Axis.BOTTOM, hints.stock.time_scale.labels)
     chart.set_axis_positions(axis_index, hints.stock.time_scale.positions)
     chart.set_axis_style(axis_index, 'ffffff')
+    axis_index = chart.set_axis_range(Axis.LEFT, scale.range[0], scale.range[1])
+    chart.set_axis_style(axis_index, 'ffffff')
     chart.set_grid(hints.stock.time_scale.grid_step, scale.grid_step, 2, 2)
     indexes = lib.douglas_peucker(self.coords.t, values, epsilon)
-    chart.add_data([self.coords.t[i] for i in indexes])
-    chart.add_data([values[i] for i in indexes])
+    chart.add_data(list(self.coords.t[i] for i in indexes))
+    chart.add_data(list(values[i] for i in indexes))
     print chart.get_url()
     icon = kml.Icon(href=chart.get_url().replace('&', '&amp;'))
     overlay_xy = kml.overlayXY(x=0, y=0, xunits='fraction', yunits='fraction')
@@ -189,7 +189,7 @@ class Track(object):
   def make_graphs_folder(self, hints):
     folder = kmz.kmz(kml.Folder(name='Graphs', open=1, styleUrl=hints.stock.radio_folder_style.url()))
     folder.add(hints.stock.visible_none_folder)
-    folder.add(self.make_graph(hints, hints.stock.altitude_scale, list(coord.ele for coord in self.coords), 5))
+    folder.add(self.make_graph(hints, list(coord.ele for coord in self.coords), hints.stock.altitude_scale, 5))
     return folder
 
   def kmz(self, hints):
