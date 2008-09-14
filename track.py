@@ -135,7 +135,7 @@ class Track(object):
     if self.elevation_data:
       folder.add(self.make_colored_track(hints, map(lambda c: c.ele, self.coords), hints.globals.altitude_scale, 'absolute', visibility=0))
       folder.add(self.make_colored_track(hints, self.climb, hints.globals.climb_scale, 'absolute'))
-    folder.add(self.make_colored_track(hints, self.speed, hints.globals.speed_scale, hints.altitude_mode))
+    folder.add(self.make_colored_track(hints, 3.6 * self.speed, hints.globals.speed_scale, hints.altitude_mode, visibility=not self.elevation_data))
     folder.add(self.make_solid_track(hints, kml.Style(kml.LineStyle(color=hints.color, width=hints.width)), hints.altitude_mode, name='Solid color', visibility=0))
     return folder
 
@@ -209,17 +209,16 @@ class Track(object):
     hour, seconds = divmod((self.times[-1] - self.times[0]).seconds, 3600)
     minute, second = divmod(seconds, 60)
     rows.append(('Duration', '%d:%02d:%02d' % (hour, minute, second)))
-    #rows.append(('Track length', '%.3fkm' % (self.s[-1] / 1000.0)))
     if self.elevation_data:
       rows.append(('Take-off altitude', '%dm' % self.coords[0].ele))
       rows.append(('Maximum altitude', '%dm' % self.bounds.ele.max))
       rows.append(('Minimum altitude', '%dm' % self.bounds.ele.min))
       rows.append(('Landing altitude', '%dm' % self.coords[-1].ele))
-      rows.append(('Accumulated altitude gain', '%dm' % self.total_dz_positive))
+      rows.append(('Total altitude gain', '%dm' % self.total_dz_positive))
       rows.append(('Maximum altitude gain', '%dm' % self.max_dz_positive))
       rows.append(('Maximum climb', '%.1fm/s' % self.bounds.climb.max))
       rows.append(('Maximum sink', '%.1fm/s' % self.bounds.climb.min))
-    rows.append(('Maximum speed', '%.1fm/s' % self.bounds.speed.max))
+    rows.append(('Maximum speed', '%.1fkm/h' % (3.6 * self.bounds.speed.max)))
     folder.add(kml.description(kml.CDATA('<table>%s</table>' % ''.join('<tr><th align="right">%s</th><td>%s</td></tr>' % row for row in rows))))
     snippet = [self.meta.pilot_name, self.meta.glider_type, (self.times[0] + hints.globals.timezone_offset).strftime('%Y-%m-%d')]
     folder.add(kml.Snippet(', '.join(s for s in snippet if s)))
