@@ -19,6 +19,8 @@ class Scale(object):
     if step:
       for step in steps(step):
         lower, upper = int(self.range[0] / step), int(self.range[1] / step)
+        if self.range[0] < step * lower:
+          lower -= 1
         if self.range[1] > step * upper:
           upper += 1
         if upper - lower <= max_divisions:
