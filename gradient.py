@@ -72,3 +72,18 @@ def default(value):
   else:
     h = 2.0 * (1.0 - value) / 3.0
     return rgb_to_kml(hsl_to_rgb((h, 1.0, 0.5)))
+
+
+def bilinear(value):
+  """Return a bilinear gradient from blue to green to red."""
+  if value < 0.0:
+    h = 2.0 / 3.0
+  elif value < 0.5:
+    h = (6.0 - 4.0 * value) / 9.0
+  elif value == 0.5:
+    h = 1.0 / 3.0
+  elif value < 1.0:
+    h = (4.0 - 4.0 * value) / 9.0
+  else:
+    h = 0.0
+  return rgb_to_kml(hsl_to_rgb((h, 1.0, 0.5)))
