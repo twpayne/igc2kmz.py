@@ -15,34 +15,34 @@ class Metaclass(type):
 
 
 class Element(object):
-  "KML element base class."
+  """KML element base class."""
   __metaclass__ = Metaclass
 
   def name(self):
-    "Return name."
+    """Return name."""
     return self.__class__.__name__
 
   def id(self):
-    "Return a unique id."
+    """Return a unique id."""
     return '%x' % id(self)
 
   def url(self):
-    "Return a URL referring to self."
+    """Return a URL referring to self."""
     return '#%s' % self.id()
   
   def write(self, file):
-    "Write self to file."
+    """Write self to file."""
     file.write(str(self))
 
   def pretty_write(self, file, indent='\t', prefix=''):
-    "Write self to file."
+    """Write self to file."""
     file.write(prefix)
     file.write(str(self))
     file.write('\n')
 
 
 class SimpleElement(Element):
-  "A KML element with no children."
+  """A KML element with no children."""
 
   def __init__(self, text=None, **kwargs):
     if text is None:
@@ -54,7 +54,7 @@ class SimpleElement(Element):
     self.attrs = kwargs
 
   def __str__(self):
-    "Return the KML representation of self."
+    """Return the KML representation of self."""
     attrs = ''.join(' %s="%s"' % pair for pair in self.attrs.items())
     if self.text is None:
       return '<%s%s/>' % (self.name(), attrs)
@@ -63,7 +63,7 @@ class SimpleElement(Element):
 
 
 class CompoundElement(Element):
-  "A KML element with children."
+  """A KML element with children."""
 
   def __init__(self, *args, **kwargs):
     self.attrs = {}
@@ -71,17 +71,17 @@ class CompoundElement(Element):
     self.add(*args, **kwargs)
 
   def add_attrs(self, **kwargs):
-    "Add attributes."
+    """Add attributes."""
     self.attrs.update(kwargs)
 
   def add(self, *args, **kwargs):
-    "Add children."
+    """Add children."""
     self.children.extend(list(args))
     for key, value in kwargs.items():
       self.children.append(class_by_name[key](value))
 
   def write(self, file):
-    "Write self to file."
+    """Write self to file."""
     attrs = ''.join(' %s="%s"' % pair for pair in self.attrs.items())
     if len(self.children) == 0:
       file.write('<%s%s/>' % (self.name(), attrs))
@@ -92,7 +92,7 @@ class CompoundElement(Element):
       file.write('</%s>' % self.name())
 
   def pretty_write(self, file, indent='\t', prefix=''):
-    "Write self to file."
+    """Write self to file."""
     attrs = ''.join(' %s="%s"' % pair for pair in self.attrs.items())
     if len(self.children) == 0:
       file.write(prefix)
@@ -109,7 +109,7 @@ class CompoundElement(Element):
       file.write('\n')
 
   def __str__(self):
-    "Return the KML representation of self."
+    """Return the KML representation of self."""
     attrs = ''.join(' %s="%s"' % pair for pair in self.attrs.items())
     if len(self.children) == 0:
       return '<%s%s/>' % (self.name(), attrs)
@@ -118,24 +118,24 @@ class CompoundElement(Element):
 
 
 class CDATA(object):
-  "A KML CDATA."
+  """A KML CDATA."""
 
   def __init__(self, value):
     self.value = value
 
   def __str__(self):
-    "Return the KML representation of self."
+    """Return the KML representation of self."""
     return '<![CDATA[%s]]>' % self.value
 
 
 class dateTime(object):
-  "A KML dateTime."
+  """A KML dateTime."""
 
   def __init__(self, value):
     self.value = value
 
   def __str__(self):
-    "Return the KML representation of self."
+    """Return the KML representation of self."""
     return self.value.strftime('%Y-%m-%dT%H:%M:%SZ')
 
 
@@ -168,7 +168,7 @@ class kml(CompoundElement):
     self.add_attrs(xmlns='http://earth.google.com/kml/%s' % version)
 
   def write(self, file):
-    "Write self to file."
+    """Write self to file."""
     file.write('<?xml version="1.0" encoding="UTF-8"?>')
     CompoundElement.write(self, file)
 
