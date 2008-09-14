@@ -97,7 +97,7 @@ class Track(object):
       right_k[i] = float(t[k] - t[i + 1] - half_period) / (t[k + 1] - t[k])
     s_left = s[left_index] * left_k + s[left_index + 1] * (1.0 - left_k)
     s_right = s[right_index] * right_k + s[right_index + 1] * (1.0 - right_k)
-    self.speed = (s_right - s_left) / (2 * half_period)
+    self.speed = 3.6 * (s_right - s_left) / (2 * half_period)
     self.bounds.speed = bounds(self.speed.__iter__())
     if self.elevation_data:
       ele = make_seq([coord.ele for coord in self.coords])
@@ -135,7 +135,7 @@ class Track(object):
     if self.elevation_data:
       folder.add(self.make_colored_track(hints, map(lambda c: c.ele, self.coords), hints.globals.altitude_scale, 'absolute', visibility=0))
       folder.add(self.make_colored_track(hints, self.climb, hints.globals.climb_scale, 'absolute'))
-    folder.add(self.make_colored_track(hints, 3.6 * self.speed, hints.globals.speed_scale, hints.altitude_mode, visibility=not self.elevation_data))
+    folder.add(self.make_colored_track(hints, self.speed, hints.globals.speed_scale, hints.altitude_mode, visibility=not self.elevation_data))
     folder.add(self.make_solid_track(hints, kml.Style(kml.LineStyle(color=hints.color, width=hints.width)), hints.altitude_mode, name='Solid color', visibility=0))
     return folder
 
@@ -193,6 +193,7 @@ class Track(object):
     folder.add(hints.globals.stock.visible_none_folder)
     folder.add(self.make_graph(hints, self.ele, hints.globals.altitude_scale, 5))
     folder.add(self.make_graph(hints, self.climb, hints.globals.climb_scale, 0.1))
+    folder.add(self.make_graph(hints, self.speed, hints.globals.speed_scale, 1))
     return folder
 
   def kmz(self, hints):
@@ -218,7 +219,7 @@ class Track(object):
       rows.append(('Maximum altitude gain', '%dm' % self.max_dz_positive))
       rows.append(('Maximum climb', '%.1fm/s' % self.bounds.climb.max))
       rows.append(('Maximum sink', '%.1fm/s' % self.bounds.climb.min))
-    rows.append(('Maximum speed', '%.1fkm/h' % (3.6 * self.bounds.speed.max)))
+    rows.append(('Maximum speed', '%.1fkm/h' % self.bounds.speed.max))
     folder.add(kml.description(kml.CDATA('<table>%s</table>' % ''.join('<tr><th align="right">%s</th><td>%s</td></tr>' % row for row in rows))))
     snippet = [self.meta.pilot_name, self.meta.glider_type, (self.times[0] + hints.globals.timezone_offset).strftime('%Y-%m-%d')]
     folder.add(kml.Snippet(', '.join(s for s in snippet if s)))
