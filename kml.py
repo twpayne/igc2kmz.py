@@ -47,6 +47,8 @@ class SimpleElement(Element):
   def __init__(self, text=None, **kwargs):
     if text is None:
       self.text = None
+    elif isinstance(text, bool):
+      self.text = str(int(text))
     else:
       self.text = str(text)
     self.attrs = kwargs
