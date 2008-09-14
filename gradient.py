@@ -1,23 +1,22 @@
 def rgb_to_kml(rgb):
   return 'ff%02x%02x%02x' % (255 * rgb[2], 255 * rgb[1], 255 * rgb[0])
 
-def _h_to_value(p, q, t):
-  if t < 0.0:
-    t += 1.0
-  elif 1.0 < t:
-    t -= 1.0
-  if t < 1.0 / 6.0:
-    return p + 6.0 * (q - p) * t
-  elif t < 0.5:
-    return q
-  elif t < 2.0 / 3.0:
-    return p + 6.0 * (q - p) * (2.0 / 3.0 - t)
-  else:
-    return p
-
 
 def hsl_to_rgb(hsl):
-  "Convert a HSL tuple into a RGB tuple."
+  """Convert a HSL tuple into a RGB tuple."""
+  def h_to_value(p, q, t):
+    if t < 0.0:
+      t += 1.0
+    elif 1.0 < t:
+      t -= 1.0
+    if t < 1.0 / 6.0:
+      return p + 6.0 * (q - p) * t
+    elif t < 0.5:
+      return q
+    elif t < 2.0 / 3.0:
+      return p + 6.0 * (q - p) * (2.0 / 3.0 - t)
+    else:
+      return p
   h, s, l = hsl
   if s == 0:
     return (l, l, l)
@@ -26,14 +25,14 @@ def hsl_to_rgb(hsl):
   else:
     q = l + s - l * s
   p = 2.0 * l - q
-  r = _h_to_value(p, q, h + 1.0 / 3.0)
-  g = _h_to_value(p, q, h)
-  b = _h_to_value(p, q, h - 1.0 / 3.0)
+  r = h_to_value(p, q, h + 1.0 / 3.0)
+  g = h_to_value(p, q, h)
+  b = h_to_value(p, q, h - 1.0 / 3.0)
   return (r, g, b)
 
 
 def hsv_to_rgb(hsv):
-  "Convert a HSV tuple into a ABGR tuple."
+  """Convert a HSV tuple into a ABGR tuple."""
   h, s, v = hsv
   hi = int(h)
   f = h - hi
@@ -55,7 +54,7 @@ def hsv_to_rgb(hsv):
 
 
 def grayscale(value):
-  "Return a gradient from black to white."
+  """Return a gradient from black to white."""
   if value < 0.0:
     return 'ff000000'
   elif 1.0 <= value:
@@ -65,7 +64,7 @@ def grayscale(value):
 
 
 def default(value):
-  "Return a gradient from blue to green to red."
+  """Return a gradient from blue to green to red."""
   if value < 0.0:
     return rgb_to_kml(hsl_to_rgb((2.0 / 3.0, 1.0, 0.5)))
   elif 1.0 <= value:
