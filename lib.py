@@ -1,3 +1,4 @@
+import __builtin__
 import math
 
 
@@ -41,3 +42,17 @@ def douglas_peucker(x, y, epsilon, left=0, right=None):
       stack.append((left, pivot))
       stack.append((pivot, right))
   return sorted(indexes)
+
+
+def bsearch(seq, value, cmp=__builtin__.cmp):
+  left, right = 0, len(seq)
+  while left < right:
+    middle = (left + right) / 2
+    direction = cmp(value, seq[middle])
+    if direction < 0:
+      right = middle - 1
+    elif direction == 0:
+      return middle
+    else:
+      left = middle + 1
+  return None
