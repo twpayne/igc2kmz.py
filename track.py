@@ -76,10 +76,12 @@ class Track(object):
     cos_lat = numpy.cos(lat)
     lon = make_seq([coord.lon for coord in self.coords])
     lon *= math.pi / 180.0
-    ds = 6371000.0 * numpy.arccos(sin_lat[1:-1] * sin_lat[0:-2] + cos_lat[1:-1] * cos_lat[0:-2] * numpy.cos(lon[1:-1] - lon[0:-2]))
+    d = sin_lat[1:-1] * sin_lat[0:-2] + cos_lat[1:-1] * cos_lat[0:-2] * numpy.cos(lon[1:-1] - lon[0:-2])
+    d[d > 1.0] = 1.0
+    ds = 6371000.0 * numpy.arccos(d)
     s = numpy.empty((n + 2,))
-    s[0], s[-1] = 0.0, 0.0
-    s[1:-2] = numpy.add.accumulate(ds)
+    s[1:n + 1] = numpy.add.accumulate(ds)
+    s[0], s[-1] = 0.0, s[-2]
     t = make_seq(self.coords.t, dtype=numpy.int)
     t[0], t[-1] = 0, sys.maxint
     j, k = 0, 1
@@ -102,7 +104,7 @@ class Track(object):
       self.ele = (ele[1:-1] + ele[0:-2]) / 2.0
       dz = ele[1:-1] - ele[0:-2]
       self.max_dz_positive = max(numpy.add.accumulate(dz))
-      self.total_dz_positive = numpy.sum(x for x in dz if x > 0.0)
+      self.total_dz_positive = numpy.sum(dz[dz > 0.0])
       z_left = ele[left_index] * left_k + ele[left_index + 1] * (1.0 - left_k)
       z_right = ele[right_index] * right_k + ele[right_index + 1] * (1.0 - right_k)
       self.climb = (z_right - z_left) / (2 * half_period)
@@ -178,7 +180,6 @@ class Track(object):
     indexes = lib.douglas_peucker(self.coords.t, values, epsilon)
     chart.add_data([self.coords.t[i] for i in indexes])
     chart.add_data([values[i] for i in indexes])
-    print chart.get_url()
     icon = kml.Icon(href=kml.CDATA(chart.get_url()))
     overlay_xy = kml.overlayXY(x=0, y=0, xunits='fraction', yunits='fraction')
     screen_xy = kml.screenXY(x=0, y=16, xunits='fraction', yunits='pixels')
