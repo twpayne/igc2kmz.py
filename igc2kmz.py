@@ -52,7 +52,7 @@ def main(argv):
   globals.timezone_offset = datetime.timedelta(0, 3600 * options.timezone_offset)
   globals.altitude_scale = scale.Scale(bounds.ele.tuple(), title='altitude', gradient=gradient.default)
   globals.climb_scale = scale.ZeroCenteredScale(bounds.climb.tuple(), title='climb', step=0.1, gradient=gradient.bilinear)
-  globals.speed_scale = scale.Scale(bounds.speed.tuple(), title='speed', gradient=gradient.default)
+  globals.speed_scale = scale.Scale(bounds.speed.tuple(), title='ground speed', gradient=gradient.default)
   globals.time_scale = scale.TimeScale(bounds.time.tuple(), timezone_offset=globals.timezone_offset)
   globals.graph_width = 600
   globals.graph_height = 300
