@@ -56,3 +56,39 @@ def bsearch(seq, value, cmp=__builtin__.cmp):
     else:
       left = middle + 1
   return None
+
+
+def salient(seq, epsilon=0):
+  def helper(start, stop):
+    if stop - start < 2:
+      return
+    delta = 0
+    left, right = start, stop
+    if seq[stop] <= seq[stop]:
+      max_index = start
+      for i in xrange(start + 1, stop + 1):
+        if seq[i] > seq[max_index]:
+          max_index = i
+        elif seq[max_index] - seq[i] > delta:
+          left, right = max_index, i
+          delta = seq[max_index] - seq[i]
+    if seq[start] >= seq[stop]:
+      min_index = start
+      for i in xrange(start + 1, stop + 1):
+        if seq[i] < seq[min_index]:
+          min_index = i
+        elif seq[i] - seq[min_index] > delta:
+          left, right = min_index, i
+          delta = seq[i] - seq[min_index]
+    if delta >= epsilon and (left != start or right != stop):
+      result.add(left)
+      result.add(right)
+      helper(start, left)
+      helper(left, right)
+      helper(right, stop)
+  result = set()
+  if seq:
+    result.add(0)
+    result.add(len(seq) - 1)
+    helper(0, len(seq) - 1)
+  return sorted(result)
