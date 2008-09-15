@@ -167,14 +167,23 @@ class Track(object):
     folder.add(placemark)
     return kmz.kmz(folder)
 
+  def make_placemark(self, coord, altitudeMode=None, name=None, styleUrl=None):
+    point = kml.Point(coordinates=[coord], altitudeMode=altitudeMode)
+    placemark = kml.Placemark(point, kml.Snippet(), name=name, styleUrl=styleUrl)
+    return placemark
+
   def make_altitude_marks_folder(self, hints):
     styles = []
     for color in hints.globals.altitude_scale.colors():
       balloon_style = kml.BalloonStyle(text='$[description]')
       icon_style = kml.IconStyle(kml.Icon.palette(4, 24), scale=0.5)
       label_style = kml.LabelStyle(color=color)
-      styles.append(kml.Style(balloon_style, icon_style, label_style)
-    return kmz.kmz().add_roots(*styles)
+      styles.append(kml.Style(balloon_style, icon_style, label_style))
+    folder = kml.Folder(name='Altitude marks', styleUrl=hints.globals.stock.check_hide_children_style.url(), visibility=0)
+    for index in lib.salient(self.ele, 100):
+      coord = self.coords[index]
+      folder.add(self.make_placemark(coord, altitudeMode='absolute', name='%dm' % coord.ele, styleUrl=styles[hints.globals.altitude_scale.discretize(coord.ele)].url()))
+    return kmz.kmz(folder).add_roots(*styles)
 
   def make_graph(self, hints, values, scale, epsilon):
     chart = XYLineChart(hints.globals.graph_width, hints.globals.graph_height, x_range=hints.globals.time_scale.range, y_range=scale.range)
@@ -235,6 +244,7 @@ class Track(object):
     folder.add(self.make_animation(hints))
     folder.add(self.make_track_folder(hints))
     folder.add(self.make_shadow_folder(hints))
-    folder.add(self.make_altitude_marks_folder(hints))
+    if self.elevation_data:
+      folder.add(self.make_altitude_marks_folder(hints))
     folder.add(self.make_graphs_folder(hints))
     return folder
