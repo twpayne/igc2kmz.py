@@ -7,3 +7,4 @@ Soaring analysis
 Correct zip file permissions
 Add photos
 Add time marks
+Optimise salient algorithm (remove monotonic sequences)
