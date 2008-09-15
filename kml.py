@@ -208,6 +208,7 @@ class kml(CompoundElement):
     CompoundElement.write(self, file)
 
 
+class LabelStyle(CompoundElement): pass
 class LineString(CompoundElement): pass
 class LineStyle(CompoundElement): pass
 class ListStyle(CompoundElement): pass
@@ -233,6 +234,7 @@ class Style(CompoundElement):
 
 
 class styleUrl(SimpleElement): pass
+class text(SimpleElement): pass
 class TimeSpan(CompoundElement): pass
 class visibility(SimpleElement): pass
 class when(SimpleElement): pass
