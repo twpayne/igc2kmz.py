@@ -87,7 +87,7 @@ def salient(seq, epsilon=0):
       helper(left, right)
       helper(right, stop)
   result = set()
-  if seq:
+  if len(seq):
     result.add(0)
     result.add(len(seq) - 1)
     helper(0, len(seq) - 1)
