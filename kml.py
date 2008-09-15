@@ -141,6 +141,7 @@ class dateTime(object):
 
 class altitude(SimpleElement): pass
 class altitudeMode(SimpleElement): pass
+class BalloonStyle(CompoundElement): pass
 class begin(SimpleElement): pass
 class color(SimpleElement): pass
 
@@ -157,7 +158,41 @@ class end(SimpleElement): pass
 class extrude(SimpleElement): pass
 class Folder(CompoundElement): pass
 class href(SimpleElement): pass
-class Icon(CompoundElement): pass
+
+class Icon(CompoundElement):
+
+  # FIXME @decorator syntax not supported in python 2.4
+
+  @classmethod
+  def character(cls, c, extra=''):
+    i = ord(c)
+    if ord('1') <= i and i <= ord('9'):
+      return cls.palette(3, (i - ord('1')) % 8 + 16 * ((i - ord('1')) / 8), extra)
+    elif ord('A') <= i and i <= ord('Z'):
+      return cls.palette(5, (i - ord('A')) % 8 + 16 * ((31 - i + ord('A')) / 8), extra)
+    else:
+      return cls.default()
+
+  @classmethod
+  def default(cls):
+    return cls.palette(3, 55)
+
+  @classmethod
+  def palette(cls, pal, icon, extra=''):
+    return cls(href='http://maps.google.com/mapfiles/kml/pal%d/icon%d%s.png' % (pal, icon, extra))
+
+  @classmethod
+  def none(cls):
+    return cls.palette(2, 15)
+
+  @classmethod
+  def number(cls, n, extra=''):
+    if 1 <= n and n <= 10:
+      return cls.palette(3, (n - 1) % 8 + 16 * ((n - 1) / 8), extra)
+    else:
+      return cls.default()
+
+
 class IconStyle(CompoundElement): pass
 
 

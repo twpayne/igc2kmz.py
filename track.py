@@ -167,6 +167,15 @@ class Track(object):
     folder.add(placemark)
     return kmz.kmz(folder)
 
+  def make_altitude_marks_folder(self, hints):
+    styles = []
+    for color in hints.globals.altitude_scale.colors():
+      balloon_style = kml.BalloonStyle(text='$[description]')
+      icon_style = kml.IconStyle(kml.Icon.palette(4, 24), scale=0.5)
+      label_style = kml.LabelStyle(color=color)
+      styles.append(kml.Style(balloon_style, icon_style, label_style)
+    return kmz.kmz().add_roots(*styles)
+
   def make_graph(self, hints, values, scale, epsilon):
     chart = XYLineChart(hints.globals.graph_width, hints.globals.graph_height, x_range=hints.globals.time_scale.range, y_range=scale.range)
     chart.fill_solid(Chart.BACKGROUND, 'ffffff00')
@@ -226,5 +235,6 @@ class Track(object):
     folder.add(self.make_animation(hints))
     folder.add(self.make_track_folder(hints))
     folder.add(self.make_shadow_folder(hints))
+    folder.add(self.make_altitude_marks_folder(hints))
     folder.add(self.make_graphs_folder(hints))
     return folder
