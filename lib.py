@@ -82,7 +82,7 @@ def salient(seq, epsilon=0):
       return
     delta = 0
     left, right = start, stop
-    if seq[stop] <= seq[stop]:
+    if seq[start] <= seq[stop]:
       max_index = start
       for i in xrange(start + 1, stop + 1):
         if seq[i] > seq[max_index]:
