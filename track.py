@@ -7,7 +7,7 @@ import sys
 import time
 
 import numpy
-from pygooglechart import Axis, Chart, XYLineChart
+import pygooglechart
 
 from bounds import bounds, Bounds, BoundsSet
 import kml
@@ -118,6 +118,22 @@ class Track(object):
     folder_options['styleUrl'] = hints.globals.stock.check_hide_children_style.url()
     return kmz.kmz(kml.Folder(placemark, **folder_options))
 
+  def make_scale_chart(self, hints, scale):
+    chart = pygooglechart.SimpleLineChart(50, 200, x_range=(0, 1), y_range=scale.range)
+    chart.fill_solid(pygooglechart.Chart.BACKGROUND, 'ffffff00')
+    chart.fill_solid(pygooglechart.Chart.CHART, 'ffffffcc')
+    for i in xrange(0, 32 + 1):
+      y = i * (scale.range[1] - scale.range[0]) / 32 + scale.range[0]
+      chart.add_data([y, y])
+      chart.set_line_style(i, 0)
+    for i in xrange(0, 32):
+      r, g, b, a = scale.color((i * (scale.range[1] - scale.range[0]) + 0.5) / 32 + scale.range[0])
+      color = '%02x%02x%02x' % (255 * r, 255 * g, 255 * b)
+      chart.add_fill_range(color, i, i + 1)
+    axis_index = chart.set_axis_range(pygooglechart.Axis.LEFT, scale.range[0], scale.range[1])
+    chart.set_axis_style(axis_index, 'ffffff')
+    return chart
+
   def make_colored_track(self, hints, values, scale, altitude_mode, **folder_options):
     folder = kml.Folder(name='Colored by %s' % scale.title, styleUrl=hints.globals.stock.check_hide_children_style.url(), **folder_options)
     styles = [kml.Style(kml.LineStyle(color=color, width=hints.width)) for color in scale.colors()]
@@ -127,6 +143,12 @@ class Track(object):
       style_url = kml.styleUrl(styles[discrete_values[start]].url())
       placemark = kml.Placemark(style_url, line_string)
       folder.add(placemark)
+    icon = kml.Icon(href=kml.CDATA(self.make_scale_chart(hints, scale).get_url()))
+    overlay_xy = kml.overlayXY(x=0, y=1, xunits='fraction', yunits='fraction')
+    screen_xy = kml.screenXY(x=0, y=1, xunits='fraction', yunits='fraction')
+    size = kml.size(x=0, y=0, xunits='fraction', yunits='fraction')
+    screen_overlay = kml.ScreenOverlay(icon, overlay_xy, screen_xy, size)
+    folder.add(screen_overlay)
     return kmz.kmz(folder).add_roots(*styles)
 
   def make_track_folder(self, hints):
@@ -182,21 +204,24 @@ class Track(object):
     else:
       return kmz.kmz()
 
-  def make_graph(self, hints, values, scale):
-    chart = XYLineChart(hints.globals.graph_width, hints.globals.graph_height, x_range=hints.globals.time_scale.range, y_range=scale.range)
-    chart.fill_solid(Chart.BACKGROUND, 'ffffff00')
-    chart.fill_solid(Chart.CHART, 'ffffffcc')
-    axis_index = chart.set_axis_labels(Axis.BOTTOM, hints.globals.time_scale.labels)
+  def make_graph_chart(self, hints, values, scale):
+    chart = pygooglechart.XYLineChart(hints.globals.graph_width, hints.globals.graph_height, x_range=hints.globals.time_scale.range, y_range=scale.range)
+    chart.fill_solid(pygooglechart.Chart.BACKGROUND, 'ffffff00')
+    chart.fill_solid(pygooglechart.Chart.CHART, 'ffffffcc')
+    axis_index = chart.set_axis_labels(pygooglechart.Axis.BOTTOM, hints.globals.time_scale.labels)
     chart.set_axis_positions(axis_index, hints.globals.time_scale.positions)
     chart.set_axis_style(axis_index, 'ffffff')
-    axis_index = chart.set_axis_range(Axis.LEFT, scale.range[0], scale.range[1])
+    axis_index = chart.set_axis_range(pygooglechart.Axis.LEFT, scale.range[0], scale.range[1])
     chart.set_axis_style(axis_index, 'ffffff')
     chart.set_grid(hints.globals.time_scale.grid_step, scale.grid_step, 2, 2)
     y = hints.globals.graph_height * (numpy.array(values) - scale.range[0]) / (scale.range[1] - scale.range[0])
     indexes = lib.incremental_douglas_peucker(hints.time_positions, y, 1, 450)
     chart.add_data([self.coords.t[i] for i in indexes])
     chart.add_data([values[i] for i in indexes])
-    icon = kml.Icon(href=kml.CDATA(chart.get_url()))
+    return chart
+
+  def make_graph(self, hints, values, scale):
+    icon = kml.Icon(href=kml.CDATA(self.make_graph_chart(hints, values, scale).get_url()))
     overlay_xy = kml.overlayXY(x=0, y=0, xunits='fraction', yunits='fraction')
     screen_xy = kml.screenXY(x=0, y=16, xunits='fraction', yunits='pixels')
     size = kml.size(x=0, y=0, xunits='fraction', yunits='fraction')
