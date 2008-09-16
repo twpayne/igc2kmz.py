@@ -58,6 +58,24 @@ def bsearch(seq, value, cmp=__builtin__.cmp):
   return None
 
 
+def find_first_ge(seq, value, cmp=__builtin__.cmp):
+  left = 0
+  right = len(seq)
+  while left < right:
+    middle = (left + right) / 2
+    direction = cmp(value, seq[middle])
+    if direction < 0:
+      right = middle - 1
+    elif direction == 0:
+      right = middle
+    else:
+      left = middle + 1
+  if left == len(seq):
+    return None
+  else:
+    return left
+
+
 def salient(seq, epsilon=0):
   def helper(start, stop):
     if stop - start < 2:

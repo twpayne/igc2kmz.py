@@ -4,7 +4,44 @@ import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from lib import salient
+from lib import find_first_ge, salient
+
+
+class TestFindFirstGE(unittest.TestCase):
+
+  def test_empty(self):
+    self.assertEqual(find_first_ge([], 0), None)
+
+  def test_0(self):
+    self.assertEqual(find_first_ge([0, 2, 4, 6, 8], 0), 0)
+
+  def test_1(self):
+    self.assertEqual(find_first_ge([0, 2, 4, 6, 8], 1), 1)
+
+  def test_2(self):
+    self.assertEqual(find_first_ge([0, 2, 4, 6, 8], 2), 1)
+
+  def test_3(self):
+    self.assertEqual(find_first_ge([0, 2, 4, 6, 8], 3), 2)
+
+  def test_4(self):
+    self.assertEqual(find_first_ge([0, 2, 4, 6, 8], 4), 3)
+
+  def test_5(self):
+    self.assertEqual(find_first_ge([0, 2, 4, 6, 8], 5), 3)
+
+  def test_6(self):
+    self.assertEqual(find_first_ge([0, 2, 4, 6, 8], 6), 4)
+
+  def test_7(self):
+    self.assertEqual(find_first_ge([0, 2, 4, 6, 8], 7), 4)
+
+  def test_8(self):
+    self.assertEqual(find_first_ge([0, 2, 4, 6, 8], 8), 5)
+
+  def test_9(self):
+    self.assertEqual(find_first_ge([0, 2, 4, 6, 8], 9), None)
+
 
 class TestSalient(unittest.TestCase):
 
@@ -70,6 +107,7 @@ class TestSalient(unittest.TestCase):
 
   def test_complex3(self):
     self.assertEqual(salient([0,2,4,6,8,7,6,7,8,7], 3), [0, 9])
+
 
 if __name__ == '__main__':
   unittest.main()
