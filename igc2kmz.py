@@ -8,6 +8,7 @@ import sys
 from bounds import Bounds, BoundsSet
 import gradient
 import igc
+import kml
 import kmz
 from OpenStruct import OpenStruct
 import scale
@@ -51,6 +52,13 @@ def main(argv):
   globals.stock = Stock()
   globals.timezone_offset = datetime.timedelta(0, 3600 * options.timezone_offset)
   globals.altitude_scale = scale.Scale(bounds.ele.tuple(), title='altitude', gradient=gradient.default)
+  globals.altitude_styles = []
+  for color in globals.altitude_scale.colors():
+    balloon_style = kml.BalloonStyle(text='$[description]')
+    icon_style = kml.IconStyle(kml.Icon.palette(4, 24), scale=0.5)
+    label_style = kml.LabelStyle(color=color)
+    globals.altitude_styles.append(kml.Style(balloon_style, icon_style, label_style))
+  globals.stock.kmz.add_roots(*globals.altitude_styles)
   globals.climb_scale = scale.ZeroCenteredScale(bounds.climb.tuple(), title='climb', step=0.1, gradient=gradient.bilinear)
   globals.speed_scale = scale.Scale(bounds.speed.tuple(), title='ground speed', gradient=gradient.default)
   globals.time_scale = scale.TimeScale(bounds.time.tuple(), timezone_offset=globals.timezone_offset)
