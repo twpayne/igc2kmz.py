@@ -155,7 +155,7 @@ class Track(object):
     folder = kmz.kmz(kml.Folder(name='Track', open=1, styleUrl=hints.globals.stock.radio_folder_style.url()))
     folder.add(hints.globals.stock.invisible_none_folder)
     if self.elevation_data:
-      folder.add(self.make_colored_track(hints, map(lambda c: c.ele, self.coords), hints.globals.altitude_scale, 'absolute', visibility=0))
+      folder.add(self.make_colored_track(hints, self.ele, hints.globals.altitude_scale, 'absolute', visibility=0))
       folder.add(self.make_colored_track(hints, self.climb, hints.globals.climb_scale, 'absolute'))
     folder.add(self.make_colored_track(hints, self.speed, hints.globals.speed_scale, hints.altitude_mode, visibility=not self.elevation_data))
     folder.add(self.make_solid_track(hints, kml.Style(kml.LineStyle(color=hints.color, width=hints.width)), hints.altitude_mode, name='Solid color', visibility=0))
