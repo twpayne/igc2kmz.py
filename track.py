@@ -182,7 +182,7 @@ class Track(object):
     else:
       return kmz.kmz()
 
-  def make_graph(self, hints, values, scale, epsilon):
+  def make_graph(self, hints, values, scale):
     chart = XYLineChart(hints.globals.graph_width, hints.globals.graph_height, x_range=hints.globals.time_scale.range, y_range=scale.range)
     chart.fill_solid(Chart.BACKGROUND, 'ffffff00')
     chart.fill_solid(Chart.CHART, 'ffffffcc')
@@ -192,7 +192,8 @@ class Track(object):
     axis_index = chart.set_axis_range(Axis.LEFT, scale.range[0], scale.range[1])
     chart.set_axis_style(axis_index, 'ffffff')
     chart.set_grid(hints.globals.time_scale.grid_step, scale.grid_step, 2, 2)
-    indexes = lib.douglas_peucker(self.coords.t, values, epsilon)
+    y = hints.globals.graph_height * (numpy.array(values) - scale.range[0]) / (scale.range[1] - scale.range[0])
+    indexes = lib.incremental_douglas_peucker(hints.time_positions, y, 1, 450)
     chart.add_data([self.coords.t[i] for i in indexes])
     chart.add_data([values[i] for i in indexes])
     icon = kml.Icon(href=kml.CDATA(chart.get_url()))
@@ -206,9 +207,9 @@ class Track(object):
   def make_graphs_folder(self, hints):
     folder = kmz.kmz(kml.Folder(name='Graphs', open=1, styleUrl=hints.globals.stock.radio_folder_style.url()))
     folder.add(hints.globals.stock.visible_none_folder)
-    folder.add(self.make_graph(hints, self.ele, hints.globals.altitude_scale, 5))
-    folder.add(self.make_graph(hints, self.climb, hints.globals.climb_scale, 0.1))
-    folder.add(self.make_graph(hints, self.speed, hints.globals.speed_scale, 1))
+    folder.add(self.make_graph(hints, [c.ele for c in self.coords], hints.globals.altitude_scale))
+    folder.add(self.make_graph(hints, self.climb, hints.globals.climb_scale))
+    folder.add(self.make_graph(hints, self.speed, hints.globals.speed_scale))
     return folder
 
   def kmz(self, hints):
@@ -238,6 +239,7 @@ class Track(object):
     folder.add(kml.description(kml.CDATA('<table>%s</table>' % ''.join('<tr><th align="right">%s</th><td>%s</td></tr>' % row for row in rows))))
     snippet = [self.meta.pilot_name, self.meta.glider_type, (self.times[0] + hints.globals.timezone_offset).strftime('%Y-%m-%d')]
     folder.add(kml.Snippet(', '.join(s for s in snippet if s)))
+    hints.time_positions = hints.globals.graph_width * (numpy.array(self.coords.t) - hints.globals.time_scale.range[0]) / (hints.globals.time_scale.range[1] - hints.globals.time_scale.range[0])
     folder.add(self.make_animation(hints))
     folder.add(self.make_track_folder(hints))
     folder.add(self.make_shadow_folder(hints))

@@ -1,5 +1,6 @@
 import __builtin__
 import math
+import sys
 
 
 def runs(seq):
@@ -15,15 +16,13 @@ def runs(seq):
   yield (start, index + 1)
 
 
-def douglas_peucker(x, y, epsilon, left=0, right=None):
+def douglas_peucker(x, y, epsilon):
   """
   Implement the Douglas-Peucker line simplification algorithm.
   TODO: implement http://www.cs.ubc.ca/cgi-bin/tr/1992/TR-92-07.ps
   """
-  if right is None:
-    right = len(x) - 1
-  indexes = set([left])
-  stack = [(left, right)]
+  indexes = set([0])
+  stack = [(0, len(x) - 1)]
   while stack:
     left, right = stack.pop()
     indexes.add(right)
@@ -41,6 +40,35 @@ def douglas_peucker(x, y, epsilon, left=0, right=None):
       indexes.add(pivot)
       stack.append((left, pivot))
       stack.append((pivot, right))
+  return sorted(indexes)
+
+
+def incremental_douglas_peucker(x, y, epsilon, max_indexes=sys.maxint):
+  indexes = set([0])
+  queue = [(0, len(x) - 1)]
+  i = 0
+  while i < len(queue):
+    left, right = queue[i]
+    i += 1
+    indexes.add(right)
+    if len(indexes) == max_indexes:
+      break
+    kx, ky = y[left] - y[right], x[right] - x[left]
+    c = x[left] * y[right] - x[right] * y[left]
+    pivot = left + 1
+    max_dist = abs(kx * x[pivot] + ky * y[pivot] + c)
+    for j in xrange(left + 2, right):
+      dist = abs(kx * x[j] + ky * y[j] + c)
+      if dist > max_dist:
+        max_dist = dist
+        pivot = j
+    max_dist /= math.sqrt((x[right] - x[left]) ** 2 + (y[right] - y[left]) ** 2)
+    if max_dist > epsilon:
+      indexes.add(pivot)
+      if len(indexes) == max_indexes:
+        break
+      queue.append((left, pivot))
+      queue.append((pivot, right))
   return sorted(indexes)
 
 
