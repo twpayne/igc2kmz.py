@@ -1,5 +1,6 @@
+import datetime
 from cStringIO import StringIO
-from zipfile import ZipFile, ZipInfo
+import zipfile
 
 import kml
 
@@ -41,14 +42,21 @@ class kmz(object):
     return self
 
   def write(self, filename):
-    zipfile = ZipFile(filename, 'w')
+    date_time = datetime.datetime.now().timetuple()[:6]
+    zf = zipfile.ZipFile(filename, 'w')
     document = kml.Document()
     document.add(*self.roots)
     document.add(*self.elements)
     string_io = StringIO()
     kml.kml('2.1', document).pretty_write(string_io)
-    zipfile.writestr('doc.kml', string_io.getvalue())
+    zi = zipfile.ZipInfo('doc.kml')
+    zi.date_time = date_time
+    zi.external_attr = 0644 << 16
+    zf.writestr(zi, string_io.getvalue())
     string_io.close()
     for key, value in self.files.items():
-      zipfile.writestr(ZipInfo(key), value)
-    zipfile.close()
+      zi = zipfile.ZipInfo(key)
+      zi.date_time = date_time
+      zi.external_attr = 0644 << 16
+      zf.writestr(zi, value)
+    zf.close()
