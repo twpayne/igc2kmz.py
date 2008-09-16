@@ -196,7 +196,7 @@ class Track(object):
 
   def make_altitude_marks_folder(self, hints):
     if self.elevation_data:
-      folder = kml.Folder(name='Altitude marks', styleUrl=hints.globals.stock.check_hide_children_style.url(), visibility=0)
+      folder = kml.Folder(name='Altitude marks', styleUrl=hints.globals.stock.check_hide_children_style.url())
       for index in lib.salient([c.ele for c in self.coords], 100):
         coord = self.coords[index]
         folder.add(self.make_placemark(coord, altitudeMode='absolute', name='%dm' % coord.ele, styleUrl=hints.globals.altitude_styles[hints.globals.altitude_scale.discretize(coord.ele)].url()))
