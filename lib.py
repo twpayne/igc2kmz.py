@@ -46,7 +46,7 @@ def douglas_peucker(x, y, epsilon, left=0, right=None):
 
 def bsearch(seq, value, cmp=__builtin__.cmp):
   left, right = 0, len(seq)
-  while left < right:
+  while left <= right:
     middle = (left + right) / 2
     direction = cmp(value, seq[middle])
     if direction < 0:
