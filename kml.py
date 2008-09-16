@@ -143,7 +143,15 @@ class altitude(SimpleElement): pass
 class altitudeMode(SimpleElement): pass
 class BalloonStyle(CompoundElement): pass
 class begin(SimpleElement): pass
-class color(SimpleElement): pass
+
+
+class color(SimpleElement):
+
+  def __init__(self, rgba):
+    if isinstance(rgba, tuple):
+      r, g, b, a = rgba
+      rgba = '%02x%02x%02x%02x' % (255 * a, 255 * b, 255 * g, 255 * r)
+    SimpleElement.__init__(self, rgba)
 
 
 class coordinates(SimpleElement):
