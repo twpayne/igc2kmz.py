@@ -105,7 +105,7 @@ class TimeScale(Scale):
           self.grid_step = '%.1f' % (100.0 * step.seconds / (upper - lower).seconds)
           self.step = step
           break
-    super(TimeScale, self).__init__(range, title=title, gradient=gradient, step=None)
+    Scale.__init__(self, range, title=title, gradient=gradient, step=None)
     self.labels, self.positions = [], []
     t = datetime.datetime(lower.year, lower.month, lower.day, lower.hour) + self.step
     while t < upper:
