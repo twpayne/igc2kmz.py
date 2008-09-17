@@ -5,3 +5,4 @@ Soaring analysis
 Add photos
 Add time marks
 Optimise salient algorithm (remove monotonic sequences)
+Check floating point use in pygooglechart

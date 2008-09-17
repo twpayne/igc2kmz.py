@@ -62,6 +62,7 @@ def main(argv):
   globals.climb_scale = scale.ZeroCenteredScale(bounds.climb.tuple(), title='climb', step=0.1, gradient=gradient.bilinear)
   globals.speed_scale = scale.Scale(bounds.speed.tuple(), title='ground speed', gradient=gradient.default)
   globals.time_scale = scale.TimeScale(bounds.time.tuple(), timezone_offset=globals.timezone_offset)
+  globals.progress_scale = scale.Scale((0.0, 1.0), title='progress', gradient=gradient.default)
   globals.graph_width = 600
   globals.graph_height = 300
   result = kmz.kmz()

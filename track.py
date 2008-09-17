@@ -62,12 +62,75 @@ class Track(object):
       self.bounds.ele.merge(coord.ele)
     self.bounds.time = Bounds(self.times[0], self.times[-1])
     self.elevation_data = self.bounds.ele.min != 0 or self.bounds.ele.max != 0
+    self.s = [0.0]
+    for i in xrange(1, len(self.coords)):
+      self.s.append(self.s[i - 1] + self.coords[i - 1].distance_to(self.coords[i]))
+
+  def pre(self, dt):
+    coords = []
+    ss = []
+    i0 = 0
+    for i in xrange(0, len(self.coords)):
+      t0 = self.coords.t[i] - dt
+      while self.coords.t[i0] <= t0:
+        i0 += 1
+      if i0 == 0:
+        coord0 = self.coords[0]
+        s0 = self.s[0]
+      else:
+        delta0 = float(t0 - self.coords.t[i0 - 1]) / (self.coords.t[i0] - self.coords.t[i0 - 1])
+        coord0 = self.coords[i0 - 1].interpolate(self.coords[i0], delta0)
+        s0 = (1.0 - delta0) * self.s[i0 - 1] + delta0 * self.s[i0]
+      coords.append(coord0)
+      ss.append(s0)
+    return (coords, ss)
+
+  def post(self, dt):
+    n = len(self.coords)
+    coords = []
+    ss = []
+    i1 = 0
+    for i in xrange(0, len(self.coords)):
+      t1 = self.coords.t[i] + dt
+      while i1 < n and self.coords.t[i1] < t1:
+        i1 += 1
+      if i1 == n:
+        coord1 = self.coords[n - 1]
+        s1 = self.s[n - 1]
+      else:
+        delta1 = float(t1 - self.coords.t[i1 - 1]) / (self.coords.t[i1] - self.coords.t[i1 - 1])
+        coord1 = self.coords[i1 - 1].interpolate(self.coords[i1], delta1)
+        s1 = (1.0 - delta1) * self.s[i1 - 1] + delta1 * self.s[i1]
+      coords.append(coord1)
+      ss.append(s1)
+    return (coords, ss)
+
+  def moving_pre_progress(self, dt=20):
+    result = []
+    i0 = 0
+    for i in xrange(0, len(self.coords)):
+      t0 = self.coords.t[i] - dt
+      while self.coords.t[i0] <= t0:
+        i0 += 1
+      if i0 == 0:
+        coord0 = self.coords[0]
+        s0 = self.s[0]
+      else:
+        delta0 = float(t0 - self.coords.t[i0 - 1]) / (self.coords.t[i0] - self.coords.t[i0 - 1])
+        coord0 = self.coords[i0 - 1].interpolate(self.coords[i0], delta0)
+        s0 = (1.0 - delta0) * self.s[i0 - 1] + delta0 * self.s[i0]
+      dp = coord0.distance_to(self.coords[i])
+      ds = self.s[i] - s0
+      if ds == 0.0:
+        result.append(0.0)
+      elif dp > ds:
+        result.append(1.0)
+      else:
+        result.append(ds and dp / ds or 0.0)
+    return result
 
   def analyse(self, dt=20):
     n = len(self.coords)
-    s = [0.0]
-    for i in xrange(1, n):
-      s.append(s[i - 1] + self.coords[i - 1].distance_to(self.coords[i]))
     self.ele = []
     for i in xrange(1, n):
       self.ele.append((self.coords[i - 1].ele + self.coords[i].ele) / 2.0)
@@ -87,32 +150,78 @@ class Track(object):
     i0 = i1 = 0
     for i in xrange(1, n):
       t0 = (self.coords.t[i - 1] + self.coords.t[i]) / 2 - dt / 2
-      while self.coords.t[i0] < t0:
+      while self.coords.t[i0] <= t0:
         i0 += 1
       if i0 == 0:
         coord0 = self.coords[0]
-        s0 = s[0]
+        s0 = self.s[0]
       else:
-        delta = float(t0 - self.coords.t[i0 - 1]) / (self.coords.t[i0] - self.coords.t[i0 - 1])
-        coord0 = self.coords[i0 - 1].interpolate(self.coords[i0], delta)
-        s0 = (1.0 - delta) * s[i0 - 1] + delta * s[i0]
+        delta0 = float(t0 - self.coords.t[i0 - 1]) / (self.coords.t[i0] - self.coords.t[i0 - 1])
+        coord0 = self.coords[i0 - 1].interpolate(self.coords[i0], delta0)
+        s0 = (1.0 - delta0) * self.s[i0 - 1] + delta0 * self.s[i0]
       t1 = t0 + dt
       while i1 < n and self.coords.t[i1] < t1:
         i1 += 1
       if i1 == n:
         coord1 = self.coords[n - 1]
-        s1 = s[n - 1]
+        s1 = self.s[n - 1]
       else:
-        delta = float(t1 - self.coords.t[i1 - 1]) / (self.coords.t[i1] - self.coords.t[i1 - 1])
-        coord1 = self.coords[i1 - 1].interpolate(self.coords[i1], delta)
-        s1 = (1.0 - delta) * s[i1 - 1] + delta * s[i1]
+        delta1 = float(t1 - self.coords.t[i1 - 1]) / (self.coords.t[i1] - self.coords.t[i1 - 1])
+        coord1 = self.coords[i1 - 1].interpolate(self.coords[i1], delta1)
+        s1 = (1.0 - delta1) * self.s[i1 - 1] + delta1 * self.s[i1]
       ds = s1 - s0
       dz = coord1.ele - coord0.ele
-      dp = coord0.distance_to(coord1)
       self.speed.append(3.6 * ds / dt)
       self.climb.append(dz / dt)
     self.bounds.speed = bounds(self.speed.__iter__())
     self.bounds.climb = bounds(self.climb.__iter__())
+    pre_coords, pre_s = self.pre(20)
+    post_coords, post_s = self.post(20)
+    self.pre_progress = []
+    self.progress = []
+    self.post_progress = []
+    for i in xrange(0, n):
+      pre_dp = pre_coords[i].distance_to(self.coords[i])
+      pre_ds = self.s[i] - pre_s[i]
+      if pre_ds == 0.0:
+        self.pre_progress.append(0.0)
+      elif pre_dp > pre_ds:
+        self.pre_progress.append(1.0)
+      else:
+        self.pre_progress.append(pre_dp / pre_ds)
+      dp = pre_coords[i].distance_to(post_coords[i])
+      ds = post_s[i] - pre_s[i]
+      if ds == 0.0:
+        self.progress.append(0.0)
+      elif dp > ds:
+        self.progress.append(1.0)
+      else:
+        self.progress.append(dp / ds)
+      post_dp = self.coords[i].distance_to(post_coords[i])
+      post_ds = post_s[i] - self.s[i]
+      if post_ds == 0.0:
+        self.post_progress.append(0.0)
+      elif post_dp > post_ds:
+        self.post_progress.append(1.0)
+      else:
+        self.post_progress.append(post_dp / post_ds)
+    self.thermal = [0] * n
+    state = 0
+    for i in xrange(0, n):
+      if state == 0:
+        if self.post_progress[i] < 0.9:
+          start = i
+          state = 1
+      elif state == 1:
+        if self.progress[i] < 0.9:
+          state = 2
+      elif state == 2:
+        if self.progress[i] < 0.9:
+          state = 1
+        elif self.pre_progress[i] >= 0.9:
+          self.thermal[start:i] = [1] * (i - start)
+          state = 0
+
 
   def make_solid_track(self, hints, style, altitude_mode, extrude=None, **folder_options):
     line_string = kml.LineString(coordinates=self.coords, altitudeMode=altitude_mode)
@@ -162,6 +271,10 @@ class Track(object):
       folder.add(self.make_colored_track(hints, self.ele, hints.globals.altitude_scale, 'absolute', visibility=0))
       folder.add(self.make_colored_track(hints, self.climb, hints.globals.climb_scale, 'absolute'))
     folder.add(self.make_colored_track(hints, self.speed, hints.globals.speed_scale, hints.altitude_mode, visibility=not self.elevation_data))
+    folder.add(self.make_colored_track(hints, self.pre_progress, hints.globals.progress_scale, hints.altitude_mode, visibility=0))
+    folder.add(self.make_colored_track(hints, self.progress, hints.globals.progress_scale, hints.altitude_mode, visibility=0))
+    folder.add(self.make_colored_track(hints, self.post_progress, hints.globals.progress_scale, hints.altitude_mode, visibility=0))
+    folder.add(self.make_colored_track(hints, self.thermal, hints.globals.progress_scale, hints.altitude_mode, visibility=0))
     folder.add(self.make_solid_track(hints, kml.Style(kml.LineStyle(color=hints.color, width=hints.width)), hints.altitude_mode, name='Solid color', visibility=0))
     return folder
 
@@ -239,6 +352,10 @@ class Track(object):
     folder.add(self.make_graph(hints, [c.ele for c in self.coords], hints.globals.altitude_scale))
     #folder.add(self.make_graph(hints, self.climb, hints.globals.climb_scale))
     #folder.add(self.make_graph(hints, self.speed, hints.globals.speed_scale))
+    folder.add(self.make_graph(hints, self.pre_progress, hints.globals.progress_scale))
+    folder.add(self.make_graph(hints, self.progress, hints.globals.progress_scale))
+    folder.add(self.make_graph(hints, self.post_progress, hints.globals.progress_scale))
+    folder.add(self.make_graph(hints, self.thermal, hints.globals.progress_scale))
     return folder
 
   def kmz(self, hints):
