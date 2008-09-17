@@ -63,52 +63,56 @@ class Track(object):
     self.bounds.time = Bounds(self.times[0], self.times[-1])
     self.elevation_data = self.bounds.ele.min != 0 or self.bounds.ele.max != 0
 
-  def analyse(self, half_period=10):
+  def analyse(self, dt=20):
     n = len(self.coords)
-    def make_seq(seq, dtype=numpy.float):
-      result = numpy.empty((len(seq) + 2,), dtype=dtype)
-      result[0], result[-1] = seq[0], seq[-1]
-      result[1:len(seq) + 1] = seq
-      return result
-    lat = make_seq([coord.lat for coord in self.coords])
-    lat *= math.pi / 180.0
-    sin_lat = numpy.sin(lat)
-    cos_lat = numpy.cos(lat)
-    lon = make_seq([coord.lon for coord in self.coords])
-    lon *= math.pi / 180.0
-    d = sin_lat[1:-1] * sin_lat[0:-2] + cos_lat[1:-1] * cos_lat[0:-2] * numpy.cos(lon[1:-1] - lon[0:-2])
-    d[d > 1.0] = 1.0
-    ds = 6371000.0 * numpy.arccos(d)
-    s = numpy.empty((n + 2,))
-    s[1:n + 1] = numpy.add.accumulate(ds)
-    s[0], s[-1] = 0.0, s[-2]
-    t = make_seq(self.coords.t, dtype=numpy.int)
-    t[0], t[-1] = 0, sys.maxint
-    j, k = 0, 1
-    left_index, right_index = numpy.empty((n,), dtype=numpy.int), numpy.empty((n,), dtype=numpy.int)
-    left_k, right_k = numpy.empty((n,)), numpy.empty((n,))
-    for i in xrange(0, n):
-      while t[j + 1] <= t[i + 1] - half_period:
-        j += 1
-      while t[k + 1] <= t[i + 1] + half_period:
-        k += 1
-      left_index[i], right_index[i] = j, k
-      left_k[i] = float(t[j + 1] - t[i + 1] + half_period) / (t[j + 1] - t[j])
-      right_k[i] = float(t[k] - t[i + 1] - half_period) / (t[k + 1] - t[k])
-    s_left = s[left_index] * left_k + s[left_index + 1] * (1.0 - left_k)
-    s_right = s[right_index] * right_k + s[right_index + 1] * (1.0 - right_k)
-    self.speed = 3.6 * (s_right - s_left) / (2 * half_period)
+    s = [0.0]
+    for i in xrange(1, n):
+      s.append(s[i - 1] + self.coords[i - 1].distance_to(self.coords[i]))
+    self.ele = []
+    for i in xrange(1, n):
+      self.ele.append((self.coords[i - 1].ele + self.coords[i].ele) / 2.0)
+    self.total_dz_positive = 0
+    self.max_dz_positive = 0
+    min_ele = self.coords[0].ele
+    for i in xrange(1, n):
+      dz = self.coords[i].ele - self.coords[i - 1].ele
+      if dz > 0:
+        self.total_dz_positive += dz
+      if self.coords[i].ele < min_ele:
+        min_ele = self.coords[i].ele
+      elif self.coords[i].ele - min_ele > self.max_dz_positive:
+        self.max_dz_positive = self.coords[i].ele - min_ele
+    self.speed = []
+    self.climb = []
+    i0 = i1 = 0
+    for i in xrange(1, n):
+      t0 = (self.coords.t[i - 1] + self.coords.t[i]) / 2 - dt / 2
+      while self.coords.t[i0] < t0:
+        i0 += 1
+      if i0 == 0:
+        coord0 = self.coords[0]
+        s0 = s[0]
+      else:
+        delta = float(t0 - self.coords.t[i0 - 1]) / (self.coords.t[i0] - self.coords.t[i0 - 1])
+        coord0 = self.coords[i0 - 1].interpolate(self.coords[i0], delta)
+        s0 = (1.0 - delta) * s[i0 - 1] + delta * s[i0]
+      t1 = t0 + dt
+      while i1 < n and self.coords.t[i1] < t1:
+        i1 += 1
+      if i1 == n:
+        coord1 = self.coords[n - 1]
+        s1 = s[n - 1]
+      else:
+        delta = float(t1 - self.coords.t[i1 - 1]) / (self.coords.t[i1] - self.coords.t[i1 - 1])
+        coord1 = self.coords[i1 - 1].interpolate(self.coords[i1], delta)
+        s1 = (1.0 - delta) * s[i1 - 1] + delta * s[i1]
+      ds = s1 - s0
+      dz = coord1.ele - coord0.ele
+      dp = coord0.distance_to(coord1)
+      self.speed.append(3.6 * ds / dt)
+      self.climb.append(dz / dt)
     self.bounds.speed = bounds(self.speed.__iter__())
-    if self.elevation_data:
-      ele = make_seq([coord.ele for coord in self.coords])
-      self.ele = (ele[1:-1] + ele[0:-2]) / 2.0
-      dz = ele[1:-1] - ele[0:-2]
-      self.max_dz_positive = max(numpy.add.accumulate(dz))
-      self.total_dz_positive = numpy.sum(dz[dz > 0.0])
-      z_left = ele[left_index] * left_k + ele[left_index + 1] * (1.0 - left_k)
-      z_right = ele[right_index] * right_k + ele[right_index + 1] * (1.0 - right_k)
-      self.climb = (z_right - z_left) / (2 * half_period)
-      self.bounds.climb = bounds(self.climb.__iter__())
+    self.bounds.climb = bounds(self.climb.__iter__())
 
   def make_solid_track(self, hints, style, altitude_mode, extrude=None, **folder_options):
     line_string = kml.LineString(coordinates=self.coords, altitudeMode=altitude_mode)
@@ -233,8 +237,8 @@ class Track(object):
     folder = kmz.kmz(kml.Folder(name='Graphs', open=1, styleUrl=hints.globals.stock.radio_folder_style.url()))
     folder.add(hints.globals.stock.visible_none_folder)
     folder.add(self.make_graph(hints, [c.ele for c in self.coords], hints.globals.altitude_scale))
-    folder.add(self.make_graph(hints, self.climb, hints.globals.climb_scale))
-    folder.add(self.make_graph(hints, self.speed, hints.globals.speed_scale))
+    #folder.add(self.make_graph(hints, self.climb, hints.globals.climb_scale))
+    #folder.add(self.make_graph(hints, self.speed, hints.globals.speed_scale))
     return folder
 
   def kmz(self, hints):
