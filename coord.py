@@ -1,4 +1,4 @@
-from math import acos, atan2, cos, pi, sin, sqrt
+from math import acos, asin, atan2, cos, pi, sin, sqrt
 
 R = 6371000.0
 
@@ -19,7 +19,7 @@ class Coord(object):
     return 'Coord(%f, %f, %f)' % (self.lat, self.lon, self.ele)
 
   def distance_to(self, other):
-    "Return the distance from self to other."
+    """Return the distance from self to other."""
     lat1 = _deg_to_rad(self.lat)
     lon1 = _deg_to_rad(self.lon)
     lat2 = _deg_to_rad(other.lat)
@@ -31,7 +31,7 @@ class Coord(object):
       return 0.0
 
   def halfway_to(self, other):
-    "Return the point halfway between self and other."
+    """Return the point halfway between self and other."""
     lat1 = _deg_to_rad(self.lat)
     lon1 = _deg_to_rad(self.lon)
     lat2 = _deg_to_rad(other.lat)
@@ -43,3 +43,28 @@ class Coord(object):
     lon = _rad_to_deg(lon1 + atan2(by, cos_lat1_plus_bx))
     ele = (self.ele + other.ele) / 2.0
     return Coord(lat, lon, ele)
+
+  def interpolate(self, other, delta):
+    """Return the point delta between self and other."""
+    lat1 = _deg_to_rad(self.lat)
+    lon1 = _deg_to_rad(self.lon)
+    lat2 = _deg_to_rad(other.lat)
+    lon2 = _deg_to_rad(other.lon)
+    cos_lat1 = cos(lat1)
+    sin_lat1 = sin(lat1)
+    cos_lat2 = cos(lat2)
+    sin_lat2 = sin(lat2)
+    lon = lon2 - lon1
+    cos_lon = cos(lon)
+    d = sin_lat1 * sin_lat2 + cos_lat1 * cos_lat2 * cos_lon
+    if d < 1.0:
+      d = delta * acos(d)
+    else:
+      d = 0.0
+    theta = atan2(sin(lon) * cos_lat2, cos_lat1 * sin_lat2 - sin_lat1 * cos_lat2 * cos_lon)
+    cos_d = cos(d)
+    sin_d = sin(d)
+    lat3 = _rad_to_deg(asin(sin_lat1 * cos_d + cos_lat1 * sin_d * cos(theta)))
+    lon3 = _rad_to_deg(lon1 + atan2(sin(theta) * sin_d * cos_lat1, cos_d - sin_lat1 * sin(lat3)))
+    ele3 = (1.0 - delta) * self.ele + delta * other.ele
+    return Coord(lat3, lon3, ele3)
