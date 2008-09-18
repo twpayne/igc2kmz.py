@@ -1,11 +1,12 @@
 HIGH
-Thermal and glide classification
-Thermal analysis
+Merge adjacent small thermals
+Glide classification
 Glide analysis
 Soaring analysis
 Check floating point use in pygooglechart
 
 MEDIUM
+Graphical thermal analysis
 Add XC folder
 Add photos
 Add time marks

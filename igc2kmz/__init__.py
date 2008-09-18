@@ -1,4 +1,5 @@
 import datetime
+import math
 
 import pygooglechart
 
@@ -26,6 +27,12 @@ class Stock(object):
     self.kmz.add_roots(self.radio_folder_style)
     self.check_hide_children_style = kml.Style(kml.ListStyle(listItemType='checkHideChildren'))
     self.kmz.add_roots(self.check_hide_children_style)
+    balloon_style = kml.BalloonStyle(text=kml.CDATA('<h3>$[name]</h3>$[description]'))
+    icon_style = kml.IconStyle(kml.Icon.palette(4, 24), scale=0.5)
+    label_style = kml.LabelStyle(color='880033ff', scale=math.sqrt(0.8))
+    line_style = kml.LineStyle(color='880033ff', width=4)
+    self.thermal_style = kml.Style(balloon_style, icon_style, label_style, line_style)
+    self.kmz.add_roots(self.thermal_style)
     self.pixel_url = 'images/pixel.png'
     self.kmz.add_files({self.pixel_url: open(self.pixel_url).read()})
     self.visible_none_folder = self.make_none_folder(1)
@@ -54,7 +61,6 @@ class Globals(object):
     self.climb_scale = scale.ZeroCenteredScale(self.bounds.climb.tuple(), title='climb', step=0.1, gradient=color.bilinear_gradient)
     self.speed_scale = scale.Scale(self.bounds.speed.tuple(), title='ground speed', gradient=color.default_gradient)
     self.time_scale = scale.TimeScale(self.bounds.time.tuple(), timezone_offset=self.timezone_offset)
-    self.progress_scale = scale.Scale((0.0, 1.0), title='progress', gradient=color.default_gradient)
     self.graph_width = 600
     self.graph_height = 300
 
@@ -115,8 +121,6 @@ def make_track_folder(track, hints):
     folder.add(make_colored_track(track, hints, track.ele, hints.globals.altitude_scale, 'absolute', visibility=0))
     folder.add(make_colored_track(track, hints, track.climb, hints.globals.climb_scale, 'absolute'))
   folder.add(make_colored_track(track, hints, track.speed, hints.globals.speed_scale, hints.altitude_mode, visibility=not track.elevation_data))
-  folder.add(make_colored_track(track, hints, track.progress, hints.globals.progress_scale, hints.altitude_mode, visibility=0))
-  folder.add(make_colored_track(track, hints, track.thermal, hints.globals.progress_scale, hints.altitude_mode, visibility=0))
   folder.add(make_solid_track(track, hints, kml.Style(kml.LineStyle(color=hints.color, width=hints.width)), hints.altitude_mode, name='Solid color', visibility=0))
   return folder
 
@@ -159,6 +163,75 @@ def make_altitude_marks_folder(track, hints):
     for index in util.salient([c.ele for c in track.coords], 100):
       coord = track.coords[index]
       folder.add(make_placemark(track, coord, altitudeMode='absolute', name='%dm' % coord.ele, styleUrl=hints.globals.altitude_styles[hints.globals.altitude_scale.discretize(coord.ele)].url()))
+    return kmz.kmz(folder)
+  else:
+    return kmz.kmz()
+
+def make_climb_chart(track, hints, climb):
+  chart = pygooglechart.GoogleOMeterChart(100, 100, x_range=(0, 100 * track.bounds.climb.max))
+  chart.add_data([100.0 * climb])
+  colors = []
+  for i in xrange(0, 16 + 1):
+    r, g, b, a = hints.globals.climb_scale.color(i * track.bounds.climb.max / 16)
+    colors.append('%02x%02x%02x' % (255 * r, 255 * g, 255 * b))
+  chart.set_colours(colors)
+  chart.set_pie_labels(['%.1fm/s' % climb])
+  return chart
+
+def make_thermals_folder(track, hints):
+  if track.elevation_data:
+    folder = kml.Folder(name='Thermals', styleUrl=hints.globals.stock.check_hide_children_style.url(), visibility=0)
+    for start, end in util.runs(track.thermal):
+      if track.thermal[start] != 1.0:
+        continue
+      coord = track.coords[start].halfway_to(track.coords[end + 1])
+      point = kml.Point(coordinates=[coord], altitudeMode='absolute')
+      line_string = kml.LineString(coordinates=[track.coords[start], track.coords[end + 1]], altitudeMode='absolute')
+      multi_geometry = kml.MultiGeometry(point, line_string)
+      total_dz_positive = 0
+      total_dz_negative = 0
+      max_climb = 0.0
+      climb_hist_data = [0] * (int(track.bounds.climb.max / 0.5) + 1)
+      for i in xrange(start, end):
+        dz = track.coords[i + 1].ele - track.coords[i].ele
+        if dz > 0:
+          total_dz_positive += dz
+        elif dz < 0:
+          total_dz_negative += dz
+        if track.climb[i] > max_climb:
+          max_climb = track.climb[i]
+        climb_hist_data[int(track.climb[i] / 0.5)] += 1
+      dz = float(track.coords[end + 1].ele - track.coords[start].ele)
+      dt = track.coords.t[end + 1] - track.coords.t[start]
+      rows = []
+      rows.append(('Altitude gain', '%dm' % dz))
+      rows.append(('Average climb', '%.1fm/s' % (dz / dt)))
+      rows.append(('Maximum climb', '%.1fm/s' % max_climb))
+      rows.append(('Start altitude', '%dm' % track.coords[start].ele))
+      rows.append(('Finish alitude', '%dm' % track.coords[end + 1].ele))
+      rows.append(('Start time', (track.times[start] + hints.globals.timezone_offset).strftime('%H:%M:%S')))
+      rows.append(('Finish time', (track.times[end + 1] + hints.globals.timezone_offset).strftime('%H:%M:%S')))
+      rows.append(('Duration', '%d:%02d' % divmod(track.coords.t[end + 1] - track.coords.t[start], 60)))
+      rows.append(('Accumulated altitude gain', '%dm' % total_dz_positive))
+      rows.append(('Accumulated altitude loss', '%dm' % total_dz_negative))
+      if dt * max_climb != 0.0: # FIXME
+        rows.append(('Efficiency', '%d%%' % (100.0 * dz / (dt * max_climb))))
+      analysis_table = '<table>%s</table>' % ''.join('<tr><th align="right">%s</th><td>%s</td></tr>' % row for row in rows)
+      #average_climb_chart = make_climb_chart(track, hints, dz / dt)
+      #max_climb_chart = make_climb_chart(track, hints, max_climb)
+      #climb_hist_chart = pygooglechart.StackedVerticalBarChart(100, 40, y_range=(0, max(climb_hist_data)))
+      #climb_hist_chart.set_bar_width(5)
+      #climb_hist_chart.add_data(climb_hist_data)
+      #rows = []
+      #rows.append('%s<center>%s</center>' % (average_climb_chart.get_html_img(), 'Average climb'))
+      #rows.append('%s<center>%s</center>' % (max_climb_chart.get_html_img(), 'Maximum climb'))
+      #rows.append('%s<center>%s</center>' % (climb_hist_chart.get_html_img(), 'Climb histogram'))
+      #graphs_table = '<table>%s</table>' % ''.join('<tr><th>%s</th></tr>' % row for row in rows)
+      #description = kml.description(kml.CDATA('<table><tr>%s</tr></table>' % ''.join('<td valign="top">%s<td>' % t for t in [graphs_table, analysis_table])))
+      description = kml.description(kml.CDATA(analysis_table))
+      name = '%dm at %.1fm/s' % (dz, dz / dt)
+      placemark = kml.Placemark(multi_geometry, description, kml.Snippet(), name=name, styleUrl=hints.globals.stock.thermal_style.url())
+      folder.add(placemark)
     return kmz.kmz(folder)
   else:
     return kmz.kmz()
@@ -228,5 +301,6 @@ def track2kmz(track, hints):
   folder.add(make_track_folder(track, hints))
   folder.add(make_shadow_folder(track, hints))
   folder.add(make_altitude_marks_folder(track, hints))
+  folder.add(make_thermals_folder(track, hints))
   folder.add(make_graphs_folder(track, hints))
   return folder
