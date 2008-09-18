@@ -1,5 +1,5 @@
 def hsl_to_rgba(hsl, a=1.0):
-  """Convert a HSL tuple into a RGB tuple."""
+  """Convert a HSL tuple into a RGBA tuple."""
   def h_to_value(p, q, t):
     if t < 0.0:
       t += 1.0
@@ -28,7 +28,7 @@ def hsl_to_rgba(hsl, a=1.0):
 
 
 def hsv_to_rgb(hsv):
-  """Convert a HSV tuple into a ABGR tuple."""
+  """Convert a HSV tuple into a RGBA tuple."""
   h, s, v = hsv
   hi = int(h)
   f = h - hi
@@ -52,11 +52,11 @@ def hsv_to_rgb(hsv):
 def grayscale_gradient(value):
   """Return a gradient from black to white."""
   if value < 0.0:
-    return (1.0, 0.0, 0.0, 0.0)
+    return (0.0, 0.0, 0.0, 1.0)
   elif 1.0 <= value:
     return (1.0, 1.0, 1.0, 1.0)
   else:
-    return (1.0, value, value, value)
+    return (value, value, value, 1.0)
 
 
 def default_gradient(value):
