@@ -23,13 +23,14 @@ class Stock(object):
 
   def __init__(self):
     self.kmz = kmz.kmz()
+    self.label_scales = [math.sqrt(x) for x in [0.8, 0.6, 0.4]]
     self.radio_folder_style = kml.Style(kml.ListStyle(listItemType='radioFolder'))
     self.kmz.add_roots(self.radio_folder_style)
     self.check_hide_children_style = kml.Style(kml.ListStyle(listItemType='checkHideChildren'))
     self.kmz.add_roots(self.check_hide_children_style)
     balloon_style = kml.BalloonStyle(text=kml.CDATA('<h3>$[name]</h3>$[description]'))
     icon_style = kml.IconStyle(kml.Icon.palette(4, 24), scale=0.5)
-    label_style = kml.LabelStyle(color='880033ff', scale=math.sqrt(0.8))
+    label_style = kml.LabelStyle(color='880033ff', scale=self.label_scales[1])
     line_style = kml.LineStyle(color='880033ff', width=4)
     self.thermal_style = kml.Style(balloon_style, icon_style, label_style, line_style)
     self.kmz.add_roots(self.thermal_style)
@@ -55,7 +56,7 @@ class Globals(object):
     for c in self.altitude_scale.colors():
       balloon_style = kml.BalloonStyle(text='$[description]')
       icon_style = kml.IconStyle(kml.Icon.palette(4, 24), scale=0.5)
-      label_style = kml.LabelStyle(color=c)
+      label_style = kml.LabelStyle(color=c, scale=self.stock.label_scales[1])
       self.altitude_styles.append(kml.Style(balloon_style, icon_style, label_style))
     self.stock.kmz.add_roots(*self.altitude_styles)
     self.climb_scale = scale.ZeroCenteredScale(self.bounds.climb.tuple(), title='climb', step=0.1, gradient=color.bilinear_gradient)
