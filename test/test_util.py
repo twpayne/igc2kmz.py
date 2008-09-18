@@ -4,7 +4,7 @@ import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from lib import find_first_ge, salient
+from igc2kmz.util import find_first_ge, salient
 
 
 class TestFindFirstGE(unittest.TestCase):

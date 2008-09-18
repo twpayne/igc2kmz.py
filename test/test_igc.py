@@ -5,12 +5,12 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-import igc
+import igc2kmz.igc
 
 def main(argv):
   for arg in argv[1:]:
     try:
-      igc.IGC(arg)
+      igc2kmz.igc.IGC(arg)
     except igc.SyntaxError, line:
       print "%s: %s" % (arg, line)
 

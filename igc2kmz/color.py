@@ -49,7 +49,7 @@ def hsv_to_rgb(hsv):
     return (v, p, q)
 
 
-def grayscale(value):
+def grayscale_gradient(value):
   """Return a gradient from black to white."""
   if value < 0.0:
     return (1.0, 0.0, 0.0, 0.0)
@@ -59,7 +59,7 @@ def grayscale(value):
     return (1.0, value, value, value)
 
 
-def default(value):
+def default_gradient(value):
   """Return a gradient from blue to green to red."""
   if value < 0.0:
     return hsl_to_rgba((2.0 / 3.0, 1.0, 0.5))
@@ -70,7 +70,7 @@ def default(value):
     return hsl_to_rgba((h, 1.0, 0.5))
 
 
-def bilinear(value):
+def bilinear_gradient(value):
   """Return a bilinear gradient from blue to green to red."""
   if value < 0.0:
     h = 2.0 / 3.0
