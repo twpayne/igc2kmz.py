@@ -1,4 +1,4 @@
-import igc2kmz.util
+import util
 
 
 class Track(object):
@@ -11,11 +11,11 @@ class Track(object):
 
   def analyse(self, dt):
     n = len(self.coords)
-    self.bounds = igc2kmz.util.BoundsSet()
-    self.bounds.ele = igc2kmz.util.Bounds(self.coords[0].ele)
+    self.bounds = util.BoundsSet()
+    self.bounds.ele = util.Bounds(self.coords[0].ele)
     for coord in self.coords:
       self.bounds.ele.merge(coord.ele)
-    self.bounds.time = igc2kmz.util.Bounds((self.times[0], self.times[-1]))
+    self.bounds.time = util.Bounds((self.times[0], self.times[-1]))
     self.elevation_data = self.bounds.ele.min != 0 or self.bounds.ele.max != 0
     self.s = [0.0]
     for i in xrange(1, n):
@@ -84,5 +84,5 @@ class Track(object):
       self.climb.append(dz / dt)
       self.progress.append(progress)
       self.thermal.append(thermal)
-    self.bounds.speed = igc2kmz.util.Bounds(self.speed)
-    self.bounds.climb = igc2kmz.util.Bounds(self.climb)
+    self.bounds.speed = util.Bounds(self.speed)
+    self.bounds.climb = util.Bounds(self.climb)

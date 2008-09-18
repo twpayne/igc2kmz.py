@@ -3,11 +3,11 @@ import datetime
 import numpy
 import pygooglechart
 
-import igc2kmz.color
-import igc2kmz.kml
-import igc2kmz.kmz
-import igc2kmz.scale
-import igc2kmz.util
+import color
+import kml
+import kmz
+import scale
+import util
 
 
 class Stock(object):
@@ -39,23 +39,23 @@ class Stock(object):
 class Globals(object):
 
   def __init__(self, options, tracks):
-    self.stock = igc2kmz.Stock()
-    self.bounds = igc2kmz.util.BoundsSet()
+    self.stock = Stock()
+    self.bounds = util.BoundsSet()
     for track in tracks:
       self.bounds.merge(track.bounds)
     self.timezone_offset = datetime.timedelta(0, 3600 * options.timezone_offset)
-    self.altitude_scale = igc2kmz.scale.Scale(self.bounds.ele.tuple(), title='altitude', gradient=igc2kmz.color.default_gradient)
+    self.altitude_scale = scale.Scale(self.bounds.ele.tuple(), title='altitude', gradient=color.default_gradient)
     self.altitude_styles = []
-    for color in self.altitude_scale.colors():
+    for c in self.altitude_scale.colors():
       balloon_style = kml.BalloonStyle(text='$[description]')
       icon_style = kml.IconStyle(kml.Icon.palette(4, 24), scale=0.5)
-      label_style = kml.LabelStyle(color=color)
+      label_style = kml.LabelStyle(color=c)
       self.altitude_styles.append(kml.Style(balloon_style, icon_style, label_style))
     self.stock.kmz.add_roots(*self.altitude_styles)
-    self.climb_scale = igc2kmz.scale.ZeroCenteredScale(self.bounds.climb.tuple(), title='climb', step=0.1, gradient=igc2kmz.color.bilinear_gradient)
-    self.speed_scale = igc2kmz.scale.Scale(self.bounds.speed.tuple(), title='ground speed', gradient=igc2kmz.color.default_gradient)
-    self.time_scale = igc2kmz.scale.TimeScale(self.bounds.time.tuple(), timezone_offset=self.timezone_offset)
-    self.progress_scale = igc2kmz.scale.Scale((0.0, 1.0), title='progress', gradient=igc2kmz.color.default_gradient)
+    self.climb_scale = scale.ZeroCenteredScale(self.bounds.climb.tuple(), title='climb', step=0.1, gradient=color.bilinear_gradient)
+    self.speed_scale = scale.Scale(self.bounds.speed.tuple(), title='ground speed', gradient=color.default_gradient)
+    self.time_scale = scale.TimeScale(self.bounds.time.tuple(), timezone_offset=self.timezone_offset)
+    self.progress_scale = scale.Scale((0.0, 1.0), title='progress', gradient=color.default_gradient)
     self.graph_width = 600
     self.graph_height = 300
 

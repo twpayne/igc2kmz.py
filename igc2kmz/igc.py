@@ -4,9 +4,9 @@ import time
 import re
 import sys
 
-import igc2kmz.coord
-import igc2kmz.util
-import igc2kmz.track
+import coord
+import util
+import track
 
 
 A_RECORD_RE = re.compile(r'A(.*)\Z')
@@ -179,18 +179,18 @@ class IGC(object):
         break
     else:
       ele = 'alt'
-    coords = igc2kmz.util.TimeSeries()
+    coords = util.TimeSeries()
     for record in self.records:
       if isinstance(record, BRecord):
-        coords.append(igc2kmz.coord.Coord(record.lat, record.lon, getattr(record, ele)))
+        coords.append(coord.Coord(record.lat, record.lon, getattr(record, ele)))
         times.append(record.dt)
         t.append(int(time.mktime(record.dt.timetuple())))
     coords.t = t
-    meta = igc2kmz.util.OpenStruct(name=os.path.basename(self.filename), pilot_name=None, glider_type=None, glider_id=None)
+    meta = util.OpenStruct(name=os.path.basename(self.filename), pilot_name=None, glider_type=None, glider_id=None)
     if 'plt' in self.h and not NOT_SET_RE.match(self.h['plt']):
       meta.pilot_name = self.h['plt'].strip()
     if 'gty' in self.h and not NOT_SET_RE.match(self.h['gty']):
       meta.glider_type = self.h['gty'].strip()
     if 'gid' in self.h and not NOT_SET_RE.match(self.h['gid']):
       meta.glider_id = self.h['gid'].strip()
-    return igc2kmz.track.Track(meta, times, coords)
+    return track.Track(meta, times, coords)
