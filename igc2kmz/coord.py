@@ -36,8 +36,8 @@ class Coord(object):
     lon1 = _deg_to_rad(self.lon)
     lat2 = _deg_to_rad(other.lat)
     lon2 = _deg_to_rad(other.lon)
-    bx = cos(lat2) * cos(lon1 - lon2)
-    by = cos(lat2) * sin(lon1 - lon2)
+    bx = cos(lat2) * cos(lon2 - lon1)
+    by = cos(lat2) * sin(lon2 - lon1)
     cos_lat1_plus_bx = cos(lat1) + bx
     lat = _rad_to_deg(atan2(sin(lat1) + sin(lat2), sqrt(cos_lat1_plus_bx * cos_lat1_plus_bx + by * by)))
     lon = _rad_to_deg(lon1 + atan2(by, cos_lat1_plus_bx))
