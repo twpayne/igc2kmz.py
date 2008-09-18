@@ -4,6 +4,7 @@ Glide classification
 Glide analysis
 Soaring analysis
 Check floating point use in pygooglechart
+Move altitude graph to top level.
 
 MEDIUM
 Graphical thermal analysis
