@@ -1,6 +1,5 @@
 #!/usr/bin/python
 
-import datetime
 import optparse
 import sys
 
