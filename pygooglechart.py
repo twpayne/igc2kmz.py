@@ -377,6 +377,13 @@ class Chart(object):
             url_bits.append('chg=%s' % self.grid)
         return url_bits
 
+    # HTML generation
+    # -------------------------------------------------------------------------
+
+    def get_html_img(self):
+        return '<img alt="%s" height="%d" width="%d" src="%s" />' % \
+                (self.title, self.height, self.width, self.get_url())
+
     # Downloading
     # -------------------------------------------------------------------------
 
