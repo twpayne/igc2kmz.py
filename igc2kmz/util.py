@@ -5,12 +5,23 @@ import sys
 
 class Bounds(object):
 
-  def __init__(self, min, max=None):
-    self.min = min
-    self.max = max or min
+  def __init__(self, value):
+    if isinstance(value, list):
+      self.min = value[0]
+      self.max = value[0]
+      for i in xrange(1, len(value)):
+        if value[i] < self.min:
+          self.min = value[i]
+        elif value[i] > self.max:
+          self.max = value[i]
+    elif isinstance(value, tuple):
+      self.min, self.max = value
+    else:
+      self.min = value
+      self.max = value
 
   def __repr__(self):
-    return 'Bounds(%(min)s, %(max)s)' % self.__dict__
+    return 'Bounds((%(min)s, %(max)s))' % self.__dict__
 
   def merge(self, value):
     if isinstance(value, Bounds):
@@ -35,7 +46,7 @@ class BoundsSet(object):
       if hasattr(self, key):
         getattr(self, key).merge(value)
       else:
-        setattr(self, key, Bounds(value.min, value.max))
+        setattr(self, key, value)
 
 
 class OpenStruct(object):
@@ -52,16 +63,6 @@ class OpenStruct(object):
 
 class TimeSeries(list):
   pass
-
-
-def bounds(seq):
-  min = max = seq[0]
-  for i in xrange(1, len(seq)):
-    if seq[i] < min:
-      min = seq[i]
-    if seq[i] > max:
-      max = seq[i]
-  return Bounds(min, max)
 
 
 def runs(seq):
