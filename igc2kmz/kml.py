@@ -221,6 +221,7 @@ class LineString(CompoundElement): pass
 class LineStyle(CompoundElement): pass
 class ListStyle(CompoundElement): pass
 class listItemType(SimpleElement): pass
+class MultiGeometry(CompoundElement): pass
 class name(SimpleElement): pass
 class open(SimpleElement): pass
 class overlayXY(SimpleElement): pass
