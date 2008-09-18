@@ -1,6 +1,5 @@
 import datetime
 
-import numpy
 import pygooglechart
 
 import color
@@ -174,7 +173,7 @@ def make_graph_chart(track, hints, values, scale):
   axis_index = chart.set_axis_range(pygooglechart.Axis.LEFT, scale.range[0], scale.range[1])
   chart.set_axis_style(axis_index, 'ffffff')
   chart.set_grid(hints.globals.time_scale.grid_step, scale.grid_step, 2, 2)
-  y = hints.globals.graph_height * (numpy.array(values) - scale.range[0]) / (scale.range[1] - scale.range[0])
+  y = [hints.globals.graph_height * (v - scale.range[0]) / (scale.range[1] - scale.range[0]) for v in values]
   indexes = util.incremental_douglas_peucker(hints.time_positions, y, 1, 450)
   chart.add_data([track.coords.t[i] for i in indexes])
   chart.add_data([values[i] for i in indexes])
@@ -224,7 +223,7 @@ def track2kmz(track, hints):
   folder.add(kml.description(kml.CDATA('<table>%s</table>' % ''.join('<tr><th align="right">%s</th><td>%s</td></tr>' % row for row in rows))))
   snippet = [track.meta.pilot_name, track.meta.glider_type, (track.times[0] + hints.globals.timezone_offset).strftime('%Y-%m-%d')]
   folder.add(kml.Snippet(', '.join(s for s in snippet if s)))
-  hints.time_positions = hints.globals.graph_width * (numpy.array(track.coords.t) - hints.globals.time_scale.range[0]) / (hints.globals.time_scale.range[1] - hints.globals.time_scale.range[0])
+  hints.time_positions = [hints.globals.graph_width * (t - hints.globals.time_scale.range[0]) / (hints.globals.time_scale.range[1] - hints.globals.time_scale.range[0]) for t in track.coords.t]
   folder.add(make_animation(track, hints))
   folder.add(make_track_folder(track, hints))
   folder.add(make_shadow_folder(track, hints))
