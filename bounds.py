@@ -33,11 +33,11 @@ class BoundsSet(object):
         setattr(self, key, Bounds(value.min, value.max))
 
 
-def bounds(iterable):
-  min = max = iterable.next()
-  for value in iterable:
-    if value < min:
-      min = value
-    if value > max:
-      max = value
+def bounds(seq):
+  min = max = seq[0]
+  for i in xrange(1, len(seq)):
+    if seq[i] < min:
+      min = seq[i]
+    if seq[i] > max:
+      max = seq[i]
   return Bounds(min, max)

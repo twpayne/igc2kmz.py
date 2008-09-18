@@ -132,8 +132,8 @@ class Track(object):
       self.climb.append(dz / dt)
       self.progress.append(progress)
       self.thermal.append(thermal)
-    self.bounds.speed = bounds(self.speed.__iter__())
-    self.bounds.climb = bounds(self.climb.__iter__())
+    self.bounds.speed = bounds(self.speed)
+    self.bounds.climb = bounds(self.climb)
 
   def make_solid_track(self, hints, style, altitude_mode, extrude=None, **folder_options):
     line_string = kml.LineString(coordinates=self.coords, altitudeMode=altitude_mode)
