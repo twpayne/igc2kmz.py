@@ -33,7 +33,7 @@ class Track(object):
     self.bounds = util.BoundsSet()
     self.bounds.ele = util.Bounds(self.coords[0].ele)
     for coord in self.coords:
-      self.bounds.ele.merge(coord.ele)
+      self.bounds.ele.update(coord.ele)
     self.bounds.time = util.Bounds((self.times[0], self.times[-1]))
     self.elevation_data = self.bounds.ele.min != 0 or self.bounds.ele.max != 0
     self.s = [0.0]

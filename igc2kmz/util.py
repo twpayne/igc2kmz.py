@@ -23,7 +23,7 @@ class Bounds(object):
   def __repr__(self):
     return 'Bounds((%(min)s, %(max)s))' % self.__dict__
 
-  def merge(self, value):
+  def update(self, value):
     if isinstance(value, Bounds):
       if value.min < self.min:
         self.min = value.min
@@ -41,10 +41,10 @@ class Bounds(object):
 
 class BoundsSet(object):
 
-  def merge(self, other):
+  def update(self, other):
     for key, value in other.__dict__.items():
       if hasattr(self, key):
-        getattr(self, key).merge(value)
+        getattr(self, key).update(value)
       else:
         setattr(self, key, value)
 
