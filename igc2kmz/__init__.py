@@ -182,9 +182,7 @@ def make_climb_chart(track, hints, climb):
 def make_thermals_folder(track, hints):
   if track.elevation_data:
     folder = kml.Folder(name='Thermals', styleUrl=hints.globals.stock.check_hide_children_style.url(), visibility=0)
-    for start, end in util.runs(track.thermal):
-      if track.thermal[start] != 1.0:
-        continue
+    for start, end in track.thermals:
       coord = track.coords[start].halfway_to(track.coords[end + 1])
       point = kml.Point(coordinates=[coord], altitudeMode='absolute')
       line_string = kml.LineString(coordinates=[track.coords[start], track.coords[end + 1]], altitudeMode='absolute')

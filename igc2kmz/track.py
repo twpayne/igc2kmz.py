@@ -1,6 +1,11 @@
 import util
 
 
+def do_set(seq, pairs, value):
+  for pair in pairs:
+    seq[pair[0]:pair[1]] = [value] * (pair[1] - pair[0])
+
+
 class Track(object):
 
   def __init__(self, meta, times, coords):
@@ -8,6 +13,20 @@ class Track(object):
     self.times = times
     self.coords = coords
     self.analyse(20)
+
+  def merge_adjacent_sequences(self, seq, delta):
+    left0, right0 = seq[0]
+    result = []
+    for i in xrange(1, len(seq)):
+      left1, right1 = seq[i]
+      if self.coords.t[left1] - self.coords.t[right0] < delta:
+        right0 = right1
+      else:
+        if delta < self.coords.t[right0] - self.coords.t[left0]:
+          result.append((left0, right0))
+        left0, right0 = left1, right1
+    result.append((left0, right0))
+    return result
 
   def analyse(self, dt):
     n = len(self.coords)
@@ -37,7 +56,6 @@ class Track(object):
     self.speed = []
     self.climb = []
     self.progress = []
-    self.thermal = []
     i0 = i1 = 0
     for i in xrange(1, n):
       t0 = (self.coords.t[i - 1] + self.coords.t[i]) / 2 - dt / 2
@@ -70,19 +88,16 @@ class Track(object):
         progress = 1.0
       else:
         progress = dp / ds
-      if climb >= 0.0:
-        if progress < 0.9:
-          thermal = 1.0
-        else:
-          thermal = 0.75
-      else:
-        if progress < 0.9:
-          thermal = 0.5
-        else:
-          thermal = 0.0
       self.speed.append(3.6 * ds / dt)
       self.climb.append(dz / dt)
       self.progress.append(progress)
-      self.thermal.append(thermal)
     self.bounds.speed = util.Bounds(self.speed)
     self.bounds.climb = util.Bounds(self.climb)
+    thermal = [self.progress[i] < 0.9 and self.climb[i] >= 0.0 for i in xrange(0, n - 1)]
+    #self.dive = [self.progress[i] < 0.9 and self.climb[i] < 0.0 for i in xrange(0, n - 1)]
+    thermal_pairs = [(left, right) for left, right in util.runs(thermal) if thermal[left]]
+    self.thermals = self.merge_adjacent_sequences(thermal_pairs, 60)
+    #dive_pairs = self.merge_adjacent_sequences(self.dive, 60)
+    self.state = [0] * (n - 1)
+    #do_set(self.state, dive_pairs, -1)
+    do_set(self.state, thermal_pairs, 1)
