@@ -9,7 +9,7 @@ import igc2kmz
 import igc2kmz.igc
 
 def add_flight(option, opt, value, parser):
-  parser.values.flights.append(igc2kmz.Flight(igc2kmz.igc.IGC(value).track()))
+  parser.values.flights.append(igc2kmz.Flight(igc2kmz.igc.IGC(open(value)).track()))
 
 def add_flight_option(option, opt, value, parser):
   setattr(parser.values.flights[-1], option.dest, value)

@@ -155,15 +155,18 @@ class LRecord(Record):
 
 class IGC(object):
 
-  def __init__(self, filename):
-    self.filename = filename
+  def __init__(self, file):
+    try:
+      self.filename = file.name
+    except AttributeError:
+      self.filename = '(unknown)'
     self.c = []
     self.g = []
     self.h = {}
     self.i = None
     self.l = []
     self.records = []
-    for line in open(filename):
+    for line in file:
       try:
         line = line.rstrip()
         if line[0] in class_by_letter:
