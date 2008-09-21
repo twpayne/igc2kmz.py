@@ -172,8 +172,8 @@ class IGC(object):
         pass
 
   def track(self):
-    for r in self.records:
-      if isinstance(r, BRecord) and r.ele:
+    for record in self.records:
+      if isinstance(record, BRecord) and record.ele:
         ele = 'ele'
         break
     else:
