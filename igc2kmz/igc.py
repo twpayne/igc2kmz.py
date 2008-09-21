@@ -183,7 +183,7 @@ class IGC(object):
         break
     else:
       ele = 'alt'
-    coords = [coord.Coord(r.lat, r.lon, getattr(r, ele), r.dt) for r in self.records if isinstance(r, BRecord)]
+    coords = [coord.Coord.deg(r.lat, r.lon, getattr(r, ele), r.dt) for r in self.records if isinstance(r, BRecord)]
     kwargs = {}
     kwargs['filename'] = os.path.basename(self.filename)
     if 'plt' in self.h and not NOT_SET_RE.match(self.h['plt']):
