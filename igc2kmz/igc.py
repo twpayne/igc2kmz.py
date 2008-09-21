@@ -166,7 +166,8 @@ class IGC(object):
     self.records = []
     for line in open(filename):
       try:
-        self.records.append(class_by_letter.get(line[0], ignore)(line.rstrip(), self))
+        if line[0] in class_by_letter:
+          self.records.append(class_by_letter[line[0]](line.rstrip(), self))
       except SyntaxError:
         pass
 
