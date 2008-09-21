@@ -1,4 +1,5 @@
 import datetime
+import logging
 import os.path
 import re
 
@@ -12,7 +13,7 @@ C_RECORD_RE = re.compile(r'C(\d{2})(\d{5})([NS])(\d{3})(\d{5})([EW])(.*)\Z')
 G_RECORD_RE = re.compile(r'G(.*)\Z')
 HFDTE_RECORD_RE = re.compile(r'H(F)(DTE)(\d\d)(\d\d)(\d\d)\Z')
 HFFXA_RECORD_RE = re.compile(r'H(F)(FXA)(\d+)\Z')
-H_RECORD_RE = re.compile(r'H([FOP])([A-Z]{3})[A-Z]*:(.*)\Z')
+H_RECORD_RE = re.compile(r'H([FOP])([A-Z]{3}).*?:(.*)\Z')
 I_RECORD_RE = re.compile(r'(\d{2})(\d{2})(\w{3})\Z')
 L_RECORD_RE = re.compile(r'L(.*)\Z')
 
@@ -127,6 +128,8 @@ class HRecord(Record):
       if m:
         f()
         break
+    else:
+      raise SyntaxError, line
 
 
 class IRecord(Record):
@@ -159,14 +162,16 @@ class IGC(object):
     self.h = {}
     self.i = None
     self.l = []
-    ignore = lambda l, s: l
     self.records = []
     for line in open(filename):
       try:
+        line = line.rstrip()
         if line[0] in class_by_letter:
-          self.records.append(class_by_letter[line[0]](line.rstrip(), self))
+          self.records.append(class_by_letter[line[0]](line, self))
+        else:
+          logging.warning('%s: unknown record %s' % (self.filename, repr(line)))
       except SyntaxError:
-        pass
+        logging.warning('%s: invalid record %s' % (self.filename, repr(line)))
 
   def track(self):
     for record in self.records:
