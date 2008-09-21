@@ -3,9 +3,11 @@ Glide classification
 Glide analysis
 Soaring analysis
 Check floating point use in pygooglechart
-Move altitude graph to top level.
+Move altitude graph to top level
+Open up top level kml Document
 
 MEDIUM
+Improve drift/windspeed algorithm
 Graphical thermal analysis
 Add XC folder
 Add photos

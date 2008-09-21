@@ -8,10 +8,13 @@ def do_set(seq, pairs, value):
 
 class Track(object):
 
-  def __init__(self, meta, times, coords):
-    self.meta = meta
+  def __init__(self, times, coords, **kwargs):
     self.times = times
     self.coords = coords
+    self.pilot_name = None
+    self.glider_type = None
+    self.glider_id = None
+    self.__dict__.update(kwargs)
     self.analyse(20)
 
   def merge_adjacent_sequences(self, seq, delta):

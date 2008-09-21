@@ -186,11 +186,12 @@ class IGC(object):
         times.append(record.dt)
         t.append(int(time.mktime(record.dt.timetuple())))
     coords.t = t
-    meta = util.OpenStruct(name=os.path.basename(self.filename), pilot_name=None, glider_type=None, glider_id=None)
+    kwargs = {}
+    kwargs['filename'] = os.path.basename(self.filename)
     if 'plt' in self.h and not NOT_SET_RE.match(self.h['plt']):
-      meta.pilot_name = self.h['plt'].strip()
+      kwargs['pilot_name'] = self.h['plt'].strip()
     if 'gty' in self.h and not NOT_SET_RE.match(self.h['gty']):
-      meta.glider_type = self.h['gty'].strip()
+      kwargs['glider_type'] = self.h['gty'].strip()
     if 'gid' in self.h and not NOT_SET_RE.match(self.h['gid']):
-      meta.glider_id = self.h['gid'].strip()
-    return track.Track(meta, times, coords)
+      kwargs['glider_id'] = self.h['gid'].strip()
+    return track.Track(times, coords, **kwargs)

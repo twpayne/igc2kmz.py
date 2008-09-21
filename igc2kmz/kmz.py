@@ -50,12 +50,14 @@ class kmz(object):
     string_io = StringIO()
     kml.kml('2.1', document).pretty_write(string_io)
     zi = zipfile.ZipInfo('doc.kml')
+    zi.compress_type = zipfile.ZIP_DEFLATED
     zi.date_time = date_time
     zi.external_attr = 0644 << 16
     zf.writestr(zi, string_io.getvalue())
     string_io.close()
     for key, value in self.files.items():
       zi = zipfile.ZipInfo(key)
+      zi.compress_type = zipfile.ZIP_DEFLATED
       zi.date_time = date_time
       zi.external_attr = 0644 << 16
       zf.writestr(zi, value)
