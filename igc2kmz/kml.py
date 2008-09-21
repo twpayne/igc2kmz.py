@@ -1,5 +1,5 @@
 import coord
-import datetime
+import math
 
 
 class_by_name = {}
@@ -157,7 +157,7 @@ class color(SimpleElement):
 class coordinates(SimpleElement):
 
   def __init__(self, coords):
-    SimpleElement.__init__(self, ' '.join('%f,%f,%d' % (180.0 * coord.lon / pi, 180.0 * coord.lat / pi, coord.ele) for coord in coords))
+    SimpleElement.__init__(self, ' '.join('%f,%f,%d' % (180.0 * coord.lon / math.pi, 180.0 * coord.lat / math.pi, coord.ele) for coord in coords))
 
 
 class description(SimpleElement): pass
