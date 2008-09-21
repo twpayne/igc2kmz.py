@@ -1,3 +1,5 @@
+import time
+
 import util
 
 
@@ -8,9 +10,9 @@ def do_set(seq, pairs, value):
 
 class Track(object):
 
-  def __init__(self, times, coords, **kwargs):
-    self.times = times
+  def __init__(self, coords, **kwargs):
     self.coords = coords
+    self.t = [int(time.mktime(c.dt.timetuple())) for c in self.coords]
     self.pilot_name = None
     self.glider_type = None
     self.glider_id = None
@@ -22,10 +24,10 @@ class Track(object):
     result = []
     for i in xrange(1, len(seq)):
       left1, right1 = seq[i]
-      if self.coords.t[left1] - self.coords.t[right0] < delta:
+      if self.t[left1] - self.t[right0] < delta:
         right0 = right1
       else:
-        if delta < self.coords.t[right0] - self.coords.t[left0]:
+        if delta < self.t[right0] - self.t[left0]:
           result.append((left0, right0))
         left0, right0 = left1, right1
     result.append((left0, right0))
@@ -37,7 +39,7 @@ class Track(object):
     self.bounds.ele = util.Bounds(self.coords[0].ele)
     for coord in self.coords:
       self.bounds.ele.update(coord.ele)
-    self.bounds.time = util.Bounds((self.times[0], self.times[-1]))
+    self.bounds.time = util.Bounds((self.coords[0].dt, self.coords[-1].dt))
     self.elevation_data = self.bounds.ele.min != 0 or self.bounds.ele.max != 0
     self.s = [0.0]
     for i in xrange(1, n):
@@ -61,24 +63,24 @@ class Track(object):
     self.progress = []
     i0 = i1 = 0
     for i in xrange(1, n):
-      t0 = (self.coords.t[i - 1] + self.coords.t[i]) / 2 - dt / 2
-      while self.coords.t[i0] <= t0:
+      t0 = (self.t[i - 1] + self.t[i]) / 2 - dt / 2
+      while self.t[i0] <= t0:
         i0 += 1
       if i0 == 0:
         coord0 = self.coords[0]
         s0 = self.s[0]
       else:
-        delta0 = float(t0 - self.coords.t[i0 - 1]) / (self.coords.t[i0] - self.coords.t[i0 - 1])
+        delta0 = float(t0 - self.t[i0 - 1]) / (self.t[i0] - self.t[i0 - 1])
         coord0 = self.coords[i0 - 1].interpolate(self.coords[i0], delta0)
         s0 = (1.0 - delta0) * self.s[i0 - 1] + delta0 * self.s[i0]
       t1 = t0 + dt
-      while i1 < n and self.coords.t[i1] < t1:
+      while i1 < n and self.t[i1] < t1:
         i1 += 1
       if i1 == n:
         coord1 = self.coords[n - 1]
         s1 = self.s[n - 1]
       else:
-        delta1 = float(t1 - self.coords.t[i1 - 1]) / (self.coords.t[i1] - self.coords.t[i1 - 1])
+        delta1 = float(t1 - self.t[i1 - 1]) / (self.t[i1] - self.t[i1 - 1])
         coord1 = self.coords[i1 - 1].interpolate(self.coords[i1], delta1)
         s1 = (1.0 - delta1) * self.s[i1 - 1] + delta1 * self.s[i1]
       ds = s1 - s0

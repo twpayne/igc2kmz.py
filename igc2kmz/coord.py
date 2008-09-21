@@ -10,13 +10,16 @@ def _rad_to_deg(rad):
 
 class Coord(object):
 
-  __slots__ = ('lat', 'lon', 'ele')
+  __slots__ = ('lat', 'lon', 'ele', 'dt')
 
-  def __init__(self, lat, lon, ele):
-    self.lat, self.lon, self.ele = lat, lon, ele
+  def __init__(self, lat, lon, ele, dt=None):
+    self.lat = lat
+    self.lon = lon
+    self.ele = ele
+    self.dt = dt
 
   def __repr__(self):
-    return 'Coord(%f, %f, %f)' % (self.lat, self.lon, self.ele)
+    return 'Coord(%f, %f, %f, %s)' % (self.lat, self.lon, self.ele, self.dt)
 
   def distance_to(self, other):
     """Return the distance from self to other."""

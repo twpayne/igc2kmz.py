@@ -63,9 +63,9 @@ class Flight(object):
       rows.append(('Glider type', self.glider_type))
     if self.glider_id:
       rows.append(('Glider ID', self.glider_id))
-    rows.append(('Take-off time', (self.track.times[0] + globals.timezone_offset).strftime('%H:%M:%S')))
-    rows.append(('Landing time', (self.track.times[-1] + globals.timezone_offset).strftime('%H:%M:%S')))
-    hour, seconds = divmod((self.track.times[-1] - self.track.times[0]).seconds, 3600)
+    rows.append(('Take-off time', (self.track.bounds.time.min + globals.timezone_offset).strftime('%H:%M:%S')))
+    rows.append(('Landing time', (self.track.bounds.time.max + globals.timezone_offset).strftime('%H:%M:%S')))
+    hour, seconds = divmod((self.track.bounds.time.max - self.track.bounds.time.min).seconds, 3600)
     minute, second = divmod(seconds, 60)
     rows.append(('Duration', '%d:%02d:%02d' % (hour, minute, second)))
     if self.track.elevation_data:
@@ -82,7 +82,7 @@ class Flight(object):
     return kmz.kmz(description)
 
   def make_snippet(self, globals):
-    strings = [self.track.pilot_name, self.track.glider_type, (self.track.times[0] + globals.timezone_offset).strftime('%Y-%m-%d')]
+    strings = [self.track.pilot_name, self.track.glider_type, (self.track.bounds.time.min + globals.timezone_offset).strftime('%Y-%m-%d')]
     snippet = kml.Snippet(', '.join(s for s in strings if s))
     return kmz.kmz(snippet)
 
@@ -151,16 +151,16 @@ class Flight(object):
     style = kml.Style(kml.IconStyle(globals.stock.animation_icon, color=self.color, scale=0.5))
     folder = kml.Folder(style, name='Animation', open=0, styleUrl=globals.stock.check_hide_children_style.url())
     point = kml.Point(coordinates=[self.track.coords[0]], altitudeMode=self.altitude_mode)
-    timespan = kml.TimeSpan(end=kml.dateTime(self.track.times[0]))
+    timespan = kml.TimeSpan(end=kml.dateTime(self.track.coords[0].dt))
     placemark = kml.Placemark(point, timespan, styleUrl=style.url())
     folder.add(placemark)
     for i in xrange(1, len(self.track.coords)):
       point = kml.Point(coordinates=[self.track.coords[i - 1].halfway_to(self.track.coords[i])], altitudeMode=self.altitude_mode)
-      timespan = kml.TimeSpan(begin=kml.dateTime(self.track.times[i - 1]), end=kml.dateTime(self.track.times[i]))
+      timespan = kml.TimeSpan(begin=kml.dateTime(self.track.coords[i - 1].dt), end=kml.dateTime(self.track.coords[i].dt))
       placemark = kml.Placemark(point, timespan, styleUrl=style.url())
       folder.add(placemark)
     point = kml.Point(coordinates=[self.track.coords[-1]], altitudeMode=self.altitude_mode)
-    timespan = kml.TimeSpan(begin=kml.dateTime(self.track.times[-1]))
+    timespan = kml.TimeSpan(begin=kml.dateTime(self.track.coords[-1].dt))
     placemark = kml.Placemark(point, timespan, styleUrl=style.url())
     folder.add(placemark)
     return kmz.kmz(folder)
@@ -213,7 +213,7 @@ class Flight(object):
             max_climb = self.track.climb[i]
           climb_hist_data[int(self.track.climb[i] / 0.5)] += 1
         dz = float(self.track.coords[end + 1].ele - self.track.coords[start].ele)
-        dt = self.track.coords.t[end + 1] - self.track.coords.t[start]
+        dt = self.track.t[end + 1] - self.track.t[start]
         dp = self.track.coords[start].distance_to(self.track.coords[end + 1])
         rows = []
         rows.append(('Altitude gain', '%dm' % dz))
@@ -221,9 +221,9 @@ class Flight(object):
         rows.append(('Maximum climb', '%.1fm/s' % max_climb))
         rows.append(('Start altitude', '%dm' % self.track.coords[start].ele))
         rows.append(('Finish alitude', '%dm' % self.track.coords[end + 1].ele))
-        rows.append(('Start time', (self.track.times[start] + globals.timezone_offset).strftime('%H:%M:%S')))
-        rows.append(('Finish time', (self.track.times[end + 1] + globals.timezone_offset).strftime('%H:%M:%S')))
-        rows.append(('Duration', '%d:%02d' % divmod(self.track.coords.t[end + 1] - self.track.coords.t[start], 60)))
+        rows.append(('Start time', (self.track.coords[start].dt + globals.timezone_offset).strftime('%H:%M:%S')))
+        rows.append(('Finish time', (self.track.coords[end + 1].dt + globals.timezone_offset).strftime('%H:%M:%S')))
+        rows.append(('Duration', '%d:%02d' % divmod(self.track.t[end + 1] - self.track.t[start], 60)))
         rows.append(('Accumulated altitude gain', '%dm' % total_dz_positive))
         rows.append(('Accumulated altitude loss', '%dm' % total_dz_negative))
         rows.append(('Drift', '%.1fkm/h' % (3.6 * dp / dt)))
@@ -261,7 +261,7 @@ class Flight(object):
     chart.set_grid(globals.time_scale.grid_step, scale.grid_step, 2, 2)
     y = [globals.graph_height * (v - scale.range[0]) / (scale.range[1] - scale.range[0]) for v in values]
     indexes = util.incremental_douglas_peucker(self.time_positions, y, 1, 450)
-    chart.add_data([self.track.coords.t[i] for i in indexes])
+    chart.add_data([self.track.t[i] for i in indexes])
     chart.add_data([values[i] for i in indexes])
     return chart
 
@@ -283,7 +283,7 @@ class Flight(object):
     return folder
 
   def to_kmz(self, globals):
-    self.time_positions = [globals.graph_width * (t - globals.time_scale.range[0]) / (globals.time_scale.range[1] - globals.time_scale.range[0]) for t in self.track.coords.t]
+    self.time_positions = [globals.graph_width * (t - globals.time_scale.range[0]) / (globals.time_scale.range[1] - globals.time_scale.range[0]) for t in self.track.t]
     folder = kmz.kmz(kml.Folder(name=self.track.filename, open=1))
     folder.add(self.make_description(globals))
     folder.add(self.make_snippet(globals))

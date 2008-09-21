@@ -171,21 +171,13 @@ class IGC(object):
         pass
 
   def track(self):
-    times = []
-    t = []
-    for record in self.records:
-      if isinstance(record, BRecord) and record.ele:
+    for r in self.records:
+      if isinstance(r, BRecord) and r.ele:
         ele = 'ele'
         break
     else:
       ele = 'alt'
-    coords = util.TimeSeries()
-    for record in self.records:
-      if isinstance(record, BRecord):
-        coords.append(coord.Coord(record.lat, record.lon, getattr(record, ele)))
-        times.append(record.dt)
-        t.append(int(time.mktime(record.dt.timetuple())))
-    coords.t = t
+    coords = [coord.Coord(r.lat, r.lon, getattr(r, ele), r.dt) for r in self.records if isinstance(r, BRecord)]
     kwargs = {}
     kwargs['filename'] = os.path.basename(self.filename)
     if 'plt' in self.h and not NOT_SET_RE.match(self.h['plt']):
@@ -194,4 +186,4 @@ class IGC(object):
       kwargs['glider_type'] = self.h['gty'].strip()
     if 'gid' in self.h and not NOT_SET_RE.match(self.h['gid']):
       kwargs['glider_id'] = self.h['gid'].strip()
-    return track.Track(times, coords, **kwargs)
+    return track.Track(coords, **kwargs)
