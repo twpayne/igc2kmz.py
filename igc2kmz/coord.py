@@ -21,6 +21,13 @@ class Coord(object):
   def __repr__(self):
     return 'Coord(%f, %f, %f, %s)' % (self.lat, self.lon, self.ele, self.dt)
 
+  def bearing_to(self, other):
+    lat1 = _deg_to_rad(self.lat)
+    lon1 = _deg_to_rad(self.lon)
+    lat2 = _deg_to_rad(other.lat)
+    lon2 = _deg_to_rad(other.lon)
+    return _rad_to_deg(atan2(sin(lon2 - lon1) * cos(lat2), cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(lon)))
+
   def distance_to(self, other):
     """Return the distance from self to other."""
     lat1 = _deg_to_rad(self.lat)
