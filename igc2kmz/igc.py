@@ -1,11 +1,8 @@
 import datetime
 import os.path
-import time
 import re
-import sys
 
 import coord
-import util
 import track
 
 
