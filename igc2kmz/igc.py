@@ -74,9 +74,8 @@ class BRecord(Record):
     self.validity = m.group(10)
     self.alt = int(m.group(11))
     self.ele = int(m.group(12))
-    if igc.i:
-      for key, value in igc.i.fields.items():
-        setattr(self, key, int(line[value[0]:value[1]]))
+    for key, value in igc.i.items():
+      setattr(self, key, int(line[value]))
 
 
 class CRecord(Record):
@@ -135,13 +134,11 @@ class HRecord(Record):
 class IRecord(Record):
 
   def __init__(self, line, igc):
-    self.fields = {}
     for i in xrange(0, int(line[1:3])):
       m = I_RECORD_RE.match(line, 3 + 7 * i, 10 + 7 * i)
       if not m:
         raise SyntaxError, line
-      self.fields[m.group(3).lower()] = (int(m.group(1)), int(m.group(2)) + 1)
-    igc.i = self
+      igc.i[m.group(3).lower()] = slice(int(m.group(1)), int(m.group(2)) + 1)
 
 
 class LRecord(Record):
@@ -163,7 +160,7 @@ class IGC(object):
     self.c = []
     self.g = []
     self.h = {}
-    self.i = None
+    self.i = {}
     self.l = []
     self.records = []
     for line in file:
