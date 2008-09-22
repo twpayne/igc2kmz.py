@@ -82,7 +82,7 @@ class Flight(object):
     return kmz.kmz(description)
 
   def make_snippet(self, globals):
-    strings = [self.track.pilot_name, self.track.glider_type, (self.track.bounds.time.min + globals.timezone_offset).strftime('%Y-%m-%d')]
+    strings = [self.pilot_name, self.glider_type, (self.track.bounds.time.min + globals.timezone_offset).strftime('%Y-%m-%d')]
     snippet = kml.Snippet(', '.join(s for s in strings if s))
     return kmz.kmz(snippet)
 
