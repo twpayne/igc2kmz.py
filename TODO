@@ -16,5 +16,8 @@ Add photos
 Add time marks
 
 LOW
+Support Aircotec TNC files
+Determine thermal efficiency in global context
+Add competition efficiency
 Add competition folder
 Optimise salient algorithm (remove monotonic sequences)
