@@ -63,19 +63,26 @@ class BRecord(Record):
     m = B_RECORD_RE.match(line)
     if not m:
       raise SyntaxError, line
+    for key, value in igc.i.items():
+      setattr(self, key, int(line[value]))
     time = datetime.time(*map(int, m.group(1, 2, 3)))
     self.dt = datetime.datetime.combine(igc.hfdterecord.date, time)
     self.lat = int(m.group(4)) + int(m.group(5)) / 60000.0
+    if 'lad' in igc.i:
+      self.lat += int(line[igc.i['lad']]) / 6000000.0
     if m.group(6) == 'S':
       self.lat *= -1
     self.lon = int(m.group(7)) + int(m.group(8)) / 60000.0
+    if 'lod' in igc.i:
+      self.lon += int(line[igc.i['lod']]) / 6000000.0
     if m.group(9) == 'W':
       self.lat *= -1
     self.validity = m.group(10)
     self.alt = int(m.group(11))
     self.ele = int(m.group(12))
-    for key, value in igc.i.items():
-      setattr(self, key, int(line[value]))
+    if igc.b and igc.b[-1].dt > self.dt:
+      raise Error, '%s: decreasing time stamps %s to %s' % (igc.filename, igc.b[-1].dt, self.dt)
+    igc.b.append(self)
 
 
 class CRecord(Record):
@@ -157,6 +164,7 @@ class IGC(object):
       self.filename = file.name
     except AttributeError:
       self.filename = '(unknown)'
+    self.b = []
     self.c = []
     self.g = []
     self.h = {}
@@ -174,13 +182,13 @@ class IGC(object):
         logging.warning('%s: invalid record %s' % (self.filename, repr(line)))
 
   def track(self):
-    for record in self.records:
-      if isinstance(record, BRecord) and record.ele:
+    for brecord in self.b:
+      if brecord.ele:
         ele = 'ele'
         break
     else:
       ele = 'alt'
-    coords = [coord.Coord.deg(r.lat, r.lon, getattr(r, ele), r.dt) for r in self.records if isinstance(r, BRecord)]
+    coords = [coord.Coord.deg(b.lat, b.lon, getattr(b, ele), b.dt) for b in self.b]
     kwargs = {}
     kwargs['filename'] = os.path.basename(self.filename)
     if 'plt' in self.h and not NOT_SET_RE.match(self.h['plt']):
