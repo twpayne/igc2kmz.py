@@ -44,7 +44,7 @@ class kmz(object):
   def write(self, filename):
     date_time = datetime.datetime.now().timetuple()[:6]
     zf = zipfile.ZipFile(filename, 'w')
-    document = kml.Document()
+    document = kml.Document(open=1)
     document.add(*self.roots)
     document.add(*self.elements)
     string_io = StringIO()
