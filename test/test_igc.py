@@ -10,7 +10,7 @@ import igc2kmz.igc
 def main(argv):
   for arg in argv[1:]:
     try:
-      igc2kmz.igc.IGC(arg)
+      igc2kmz.igc.IGC(open(arg))
     except igc.SyntaxError, line:
       print "%s: %s" % (arg, line)
 
