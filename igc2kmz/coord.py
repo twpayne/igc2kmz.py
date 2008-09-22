@@ -2,6 +2,14 @@ from math import acos, asin, atan2, cos, pi, sin, sqrt
 
 R = 6371000.0
 
+compass = 'N NNE NE ENE E ESE SE SSE S SSW SW WSW W WNW NW NNW'.split()
+
+def rad_to_compass(rad):
+  while rad < 0.0:
+    rad += 2 * pi
+  return compass[int(8 * rad / pi + 0.5) % 16]
+
+
 class Coord(object):
 
   __slots__ = ('lat', 'lon', 'ele', 'dt')
@@ -16,8 +24,8 @@ class Coord(object):
   def deg(cls, lat, lon, ele, dt=None):
     return cls(pi * lat / 180.0, pi * lon / 180.0, ele, dt)
 
-  def bearing_to(self, other):
-    return atan2(sin(other.lon - self.lon) * cos(other.lat), cos(self.lat) * sin(other.lat) - sin(self.lat) * cos(other.lat) * cos(lon))
+  def initial_bearing_to(self, other):
+    return atan2(sin(other.lon - self.lon) * cos(other.lat), cos(self.lat) * sin(other.lat) - sin(self.lat) * cos(other.lat) * cos(other.lon - self.lon))
 
   def distance_to(self, other):
     """Return the distance from self to other."""
