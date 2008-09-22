@@ -195,8 +195,8 @@ class Flight(object):
     if self.track.elevation_data:
       folder = kml.Folder(name='Thermals', styleUrl=globals.stock.check_hide_children_style.url(), visibility=0)
       for start, end in self.track.thermals:
-        coord = self.track.coords[start].halfway_to(self.track.coords[end + 1])
-        point = kml.Point(coordinates=[coord], altitudeMode='absolute')
+        c = self.track.coords[start].halfway_to(self.track.coords[end + 1])
+        point = kml.Point(coordinates=[c], altitudeMode='absolute')
         line_string = kml.LineString(coordinates=[self.track.coords[start], self.track.coords[end + 1]], altitudeMode='absolute')
         multi_geometry = kml.MultiGeometry(point, line_string)
         total_dz_positive = 0
@@ -215,6 +215,7 @@ class Flight(object):
         dz = float(self.track.coords[end + 1].ele - self.track.coords[start].ele)
         dt = self.track.t[end + 1] - self.track.t[start]
         dp = self.track.coords[start].distance_to(self.track.coords[end + 1])
+        theta = self.track.coords[start].initial_bearing_to(self.track.coords[end + 1])
         rows = []
         rows.append(('Altitude gain', '%dm' % dz))
         rows.append(('Average climb', '%.1fm/s' % (dz / dt)))
@@ -226,7 +227,7 @@ class Flight(object):
         rows.append(('Duration', '%d:%02d' % divmod(self.track.t[end + 1] - self.track.t[start], 60)))
         rows.append(('Accumulated altitude gain', '%dm' % total_dz_positive))
         rows.append(('Accumulated altitude loss', '%dm' % total_dz_negative))
-        rows.append(('Drift', '%.1fkm/h' % (3.6 * dp / dt)))
+        rows.append(('Drift', '%.1fkm/h %s' % (3.6 * dp / dt, coord.rad_to_compass(theta + math.pi))))
         if dt * max_climb != 0.0: # FIXME
           rows.append(('Efficiency', '%d%%' % (100.0 * dz / (dt * max_climb))))
         analysis_table = '<table>%s</table>' % ''.join('<tr><th align="right">%s</th><td>%s</td></tr>' % row for row in rows)

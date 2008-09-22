@@ -5,7 +5,6 @@ Glide analysis
 Dive analysis
 Check floating point use in pygooglechart
 Parameterise icon scaling
-Add drift direction
 
 MEDIUM
 Add graphs and tracks of other variables (e.g. airspeed)
