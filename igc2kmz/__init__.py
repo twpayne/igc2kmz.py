@@ -23,13 +23,14 @@ class Stock(object):
 
   def __init__(self):
     self.kmz = kmz.kmz()
+    self.icon_scale = 0.5
     self.label_scales = [math.sqrt(x) for x in [0.8, 0.6, 0.4]]
     self.radio_folder_style = kml.Style(kml.ListStyle(listItemType='radioFolder'))
     self.kmz.add_roots(self.radio_folder_style)
     self.check_hide_children_style = kml.Style(kml.ListStyle(listItemType='checkHideChildren'))
     self.kmz.add_roots(self.check_hide_children_style)
     balloon_style = kml.BalloonStyle(text=kml.CDATA('<h3>$[name]</h3>$[description]'))
-    icon_style = kml.IconStyle(kml.Icon.palette(4, 24), scale=0.5)
+    icon_style = kml.IconStyle(kml.Icon.palette(4, 24), scale=self.icon_scale)
     label_style = kml.LabelStyle(color='880033ff', scale=self.label_scales[1])
     line_style = kml.LineStyle(color='880033ff', width=4)
     self.thermal_style = kml.Style(balloon_style, icon_style, label_style, line_style)
@@ -148,7 +149,7 @@ class Flight(object):
     return folder
 
   def make_animation(self, globals):
-    style = kml.Style(kml.IconStyle(globals.stock.animation_icon, color=self.color, scale=0.5))
+    style = kml.Style(kml.IconStyle(globals.stock.animation_icon, color=self.color, scale=globals.stock.icon_scale))
     folder = kml.Folder(style, name='Animation', open=0, styleUrl=globals.stock.check_hide_children_style.url())
     point = kml.Point(coordinates=[self.track.coords[0]], altitudeMode=self.altitude_mode)
     timespan = kml.TimeSpan(end=kml.dateTime(self.track.coords[0].dt))
@@ -308,7 +309,7 @@ def flights2kmz(flights, timezone_offset=0):
   globals.altitude_styles = []
   for c in globals.altitude_scale.colors():
     balloon_style = kml.BalloonStyle(text='$[description]')
-    icon_style = kml.IconStyle(kml.Icon.palette(4, 24), scale=0.5)
+    icon_style = kml.IconStyle(kml.Icon.palette(4, 24), scale=globals.stock.icon_scale)
     label_style = kml.LabelStyle(color=c, scale=globals.stock.label_scales[1])
     globals.altitude_styles.append(kml.Style(balloon_style, icon_style, label_style))
   stock.kmz.add_roots(*globals.altitude_styles)
