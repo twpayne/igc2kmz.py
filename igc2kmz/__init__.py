@@ -172,7 +172,7 @@ class Flight(object):
 
   def make_altitude_marks_folder(self, globals):
     if self.track.elevation_data:
-      folder = kml.Folder(name='Altitude marks', styleUrl=globals.stock.check_hide_children_style.url())
+      folder = kml.Folder(name='Altitude marks', styleUrl=globals.stock.check_hide_children_style.url(), visibility=0)
       for index in util.salient([c.ele for c in self.track.coords], 100):
         coord = self.track.coords[index]
         folder.add(self.make_placemark(globals, coord, altitudeMode='absolute', name='%dm' % coord.ele, styleUrl=globals.altitude_styles[globals.altitude_scale.discretize(coord.ele)].url()))
