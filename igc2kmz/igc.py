@@ -17,7 +17,7 @@ H_RECORD_RE = re.compile(r'H([FOP])([A-Z]{3}).*?:(.*)\Z')
 I_RECORD_RE = re.compile(r'(\d{2})(\d{2})(\w{3})\Z')
 L_RECORD_RE = re.compile(r'L(.*)\Z')
 
-NOT_SET_RE = re.compile(r'\s*(not\s+set)?\s*\Z')
+NOT_SET_RE = re.compile(r'\s*(not\s+set|n/?a)?\s*\Z', re.I)
 
 
 class_by_letter = {}
