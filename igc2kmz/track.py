@@ -40,6 +40,8 @@ class Track(object):
     for coord in self.coords:
       self.bounds.ele.update(coord.ele)
     self.bounds.time = util.Bounds((self.coords[0].dt, self.coords[-1].dt))
+    if hasattr(self, 'tas'):
+      self.bounds.tas = util.Bounds(self.tas)
     self.elevation_data = self.bounds.ele.min != 0 or self.bounds.ele.max != 0
     self.s = [0.0]
     for i in xrange(1, n):

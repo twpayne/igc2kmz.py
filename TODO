@@ -8,6 +8,7 @@ Refactor runs to return slices
 
 MEDIUM
 Add graphs and tracks of other variables (e.g. airspeed)
+Clean up air speed track (average)
 Support Ulric's enhanced accuracy IGC files
 Improve drift/windspeed algorithm
 Graphical thermal analysis

@@ -135,6 +135,8 @@ class Flight(object):
       folder.add(self.make_colored_track(globals, self.track.ele, globals.altitude_scale, 'absolute', visibility=0))
       folder.add(self.make_colored_track(globals, self.track.climb, globals.climb_scale, 'absolute'))
     folder.add(self.make_colored_track(globals, self.track.speed, globals.speed_scale, self.altitude_mode, visibility=not self.track.elevation_data))
+    if hasattr(self.track, 'tas'):
+      folder.add(self.make_colored_track(globals, self.track.tas, globals.tas_scale, self.altitude_mode, visibility=0))
     folder.add(self.make_solid_track(globals, kml.Style(kml.LineStyle(color=self.color, width=self.width)), self.altitude_mode, name='Solid color', visibility=0))
     return folder
 
@@ -316,6 +318,8 @@ def flights2kmz(flights, timezone_offset=0):
   globals.climb_scale = scale.ZeroCenteredScale(globals.bounds.climb.tuple(), title='climb', step=0.1, gradient=color.bilinear_gradient)
   globals.speed_scale = scale.Scale(globals.bounds.speed.tuple(), title='ground speed', gradient=color.default_gradient)
   globals.time_scale = scale.TimeScale(globals.bounds.time.tuple(), timezone_offset=globals.timezone_offset)
+  if hasattr(globals.bounds, 'tas'):
+    globals.tas_scale = scale.Scale(globals.bounds.tas.tuple(), title='air speed', gradient=color.default_gradient)
   globals.graph_width = 600
   globals.graph_height = 300
   result = kmz.kmz()
