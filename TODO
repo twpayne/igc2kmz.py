@@ -4,6 +4,7 @@ Glide classification
 Glide analysis
 Dive analysis
 Check floating point use in pygooglechart
+Refactor runs to return slices
 
 MEDIUM
 Add graphs and tracks of other variables (e.g. airspeed)
@@ -17,6 +18,7 @@ Add time marks
 LOW
 Support Aircotec TNC files
 Determine thermal efficiency in global context
+Determine overall competition/XC efficiency (efficient moves are towards glideslope to goal)
 Add competition efficiency
 Add competition folder
 Optimise salient algorithm (remove monotonic sequences)
