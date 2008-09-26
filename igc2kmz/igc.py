@@ -193,5 +193,6 @@ class IGC(object):
     if 'gid' in self.h and not NOT_SET_RE.match(self.h['gid']):
       kwargs['glider_id'] = self.h['gid'].strip()
     for k in self.i.keys():
-      kwargs[k] = [getattr(b, k) for b in self.b]
+      if any(getattr(b, k) for b in self.b):
+        kwargs[k] = [getattr(b, k) for b in self.b]
     return track.Track(coords, **kwargs)
