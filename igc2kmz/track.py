@@ -35,9 +35,7 @@ class Track(object):
   def analyse(self, dt):
     n = len(self.coords)
     self.bounds = util.BoundsSet()
-    self.bounds.ele = util.Bounds(self.coords[0].ele)
-    for coord in self.coords:
-      self.bounds.ele.update(coord.ele)
+    self.bounds.ele = util.Bounds([coord.ele for coord in self.coords])
     self.bounds.time = util.Bounds((self.coords[0].dt, self.coords[-1].dt))
     if hasattr(self, 'tas'):
       self.bounds.tas = util.Bounds(self.tas)
@@ -45,9 +43,7 @@ class Track(object):
     self.s = [0.0]
     for i in xrange(1, n):
       self.s.append(self.s[i - 1] + self.coords[i - 1].distance_to(self.coords[i]))
-    self.ele = []
-    for i in xrange(1, n):
-      self.ele.append((self.coords[i - 1].ele + self.coords[i].ele) / 2.0)
+    self.ele = [(self.coords[i - 1].ele + self.coords[i].ele) / 2.0 for i in xrange(1, n)]
     self.total_dz_positive = 0
     self.max_dz_positive = 0
     min_ele = self.coords[0].ele
