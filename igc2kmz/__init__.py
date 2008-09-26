@@ -132,8 +132,8 @@ class Flight(object):
     folder = kmz.kmz(kml.Folder(name='Track', open=1, styleUrl=globals.stock.radio_folder_style.url()))
     folder.add(globals.stock.invisible_none_folder)
     if self.track.elevation_data:
-      folder.add(self.make_colored_track(globals, self.track.ele, globals.scales.altitude, 'absolute', visibility=0))
       folder.add(self.make_colored_track(globals, self.track.climb, globals.scales.climb, 'absolute'))
+      folder.add(self.make_colored_track(globals, self.track.ele, globals.scales.altitude, 'absolute', visibility=0))
     folder.add(self.make_colored_track(globals, self.track.speed, globals.scales.speed, self.altitude_mode, visibility=not self.track.elevation_data))
     if hasattr(self.track, 'tas'):
       folder.add(self.make_colored_track(globals, self.track.tas, globals.scales.tas, self.altitude_mode, visibility=0))
