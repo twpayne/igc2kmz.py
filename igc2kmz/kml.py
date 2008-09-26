@@ -169,14 +169,12 @@ class href(SimpleElement): pass
 
 class Icon(CompoundElement):
 
-  # FIXME @decorator syntax not supported in python 2.4
-
   @classmethod
   def character(cls, c, extra=''):
     i = ord(c)
-    if ord('1') <= i and i <= ord('9'):
+    if ord('1') <= i <= ord('9'):
       return cls.palette(3, (i - ord('1')) % 8 + 16 * ((i - ord('1')) / 8), extra)
-    elif ord('A') <= i and i <= ord('Z'):
+    elif ord('A') <= i <= ord('Z'):
       return cls.palette(5, (i - ord('A')) % 8 + 16 * ((31 - i + ord('A')) / 8), extra)
     else:
       return cls.default()
@@ -195,7 +193,7 @@ class Icon(CompoundElement):
 
   @classmethod
   def number(cls, n, extra=''):
-    if 1 <= n and n <= 10:
+    if 1 <= n <= 10:
       return cls.palette(3, (n - 1) % 8 + 16 * ((n - 1) / 8), extra)
     else:
       return cls.default()
