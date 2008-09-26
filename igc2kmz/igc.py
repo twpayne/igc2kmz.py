@@ -182,12 +182,7 @@ class IGC(object):
         logging.warning('%s: invalid record %s' % (self.filename, repr(line)))
 
   def track(self):
-    for brecord in self.b:
-      if brecord.ele:
-        ele = 'ele'
-        break
-    else:
-      ele = 'alt'
+    ele = 'ele' if any(b.ele for b in self.b) else 'alt'
     coords = [coord.Coord.deg(b.lat, b.lon, getattr(b, ele), b.dt) for b in self.b]
     kwargs = {}
     kwargs['filename'] = os.path.basename(self.filename)
