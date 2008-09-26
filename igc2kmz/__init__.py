@@ -231,7 +231,7 @@ class Flight(object):
       rows.append(('Duration', '%d:%02d' % divmod(self.track.t[end + 1] - self.track.t[start], 60)))
       rows.append(('Accumulated altitude gain', '%dm' % total_dz_positive))
       rows.append(('Accumulated altitude loss', '%dm' % total_dz_negative))
-      rows.append(('Drift', '%.1fkm/h %s' % (3.6 * dp / dt, coord.rad_to_compass(theta + math.pi))))
+      rows.append(('Drift', '%.1fkm/h %s' % (3.6 * dp / dt, coord.rad_to_compass(theta))))
       if dt * max_climb != 0.0: # FIXME
         rows.append(('Efficiency', '%d%%' % (100.0 * dz / (dt * max_climb))))
       analysis_table = '<table>%s</table>' % ''.join('<tr><th align="right">%s</th><td>%s</td></tr>' % row for row in rows)
