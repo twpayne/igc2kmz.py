@@ -4,12 +4,13 @@ Glide classification
 Glide analysis
 Dive analysis
 Check floating point use in pygooglechart
+Check indexes in thermal folder
+Check indexes in colored tracklogs
 
 MEDIUM
 Add nice thermal and glide icons
 Add graphs and tracks of other variables (e.g. airspeed)
 Clean up air speed track (average)
-Support Ulric's enhanced accuracy IGC files
 Improve drift/windspeed algorithm
 Graphical thermal analysis
 Add XC folder
