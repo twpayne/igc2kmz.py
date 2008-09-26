@@ -25,15 +25,13 @@ class Coord(object):
     return cls(pi * lat / 180.0, pi * lon / 180.0, ele, dt)
 
   def initial_bearing_to(self, other):
+    """Return the initial bearing from self to other."""
     return atan2(sin(other.lon - self.lon) * cos(other.lat), cos(self.lat) * sin(other.lat) - sin(self.lat) * cos(other.lat) * cos(other.lon - self.lon))
 
   def distance_to(self, other):
     """Return the distance from self to other."""
     d = sin(self.lat) * sin(other.lat) + cos(self.lat) * cos(other.lat) * cos(self.lon - other.lon)
-    if d < 1.0:
-      return R * acos(d)
-    else:
-      return 0.0
+    return R * acos(d) if d < 1.0 else 0.0
 
   def halfway_to(self, other):
     """Return the point halfway between self and other."""
@@ -48,10 +46,7 @@ class Coord(object):
   def interpolate(self, other, delta):
     """Return the point delta between self and other."""
     d = sin(self.lat) * sin(other.lat) + cos(self.lat) * cos(other.lat) * cos(other.lon - self.lon)
-    if d < 1.0:
-      d = delta * acos(d)
-    else:
-      d = 0.0
+    d = delta * acos(d) if d < 1.0 else 0.0
     theta = atan2(sin(other.lon - self.lon) * cos(other.lat), cos(self.lat) * sin(other.lat) - sin(self.lat) * cos(other.lat) * cos(other.lon - self.lon))
     lat3 = asin(sin(self.lat) * cos(d) + cos(self.lat) * sin(d) * cos(theta))
     lon3 = self.lon + atan2(sin(theta) * sin(d) * cos(self.lat), cos(d) - sin(self.lat) * sin(lat3))
