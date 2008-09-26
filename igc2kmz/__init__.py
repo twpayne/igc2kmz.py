@@ -115,9 +115,9 @@ class Flight(object):
     folder = kml.Folder(name='Colored by %s' % scale.title, styleUrl=globals.stock.check_hide_children_style.url(), **folder_options)
     styles = [kml.Style(kml.LineStyle(color=color, width=self.width)) for color in scale.colors()]
     discrete_values = map(scale.discretize, values)
-    for start, end in util.runs(discrete_values):
-      line_string = kml.LineString(coordinates=self.track.coords[start:end + 1], altitudeMode=self.altitude_mode)
-      style_url = kml.styleUrl(styles[discrete_values[start]].url())
+    for sl in util.runs(discrete_values):
+      line_string = kml.LineString(coordinates=self.track.coords[sl.start:sl.stop + 1], altitudeMode=self.altitude_mode)
+      style_url = kml.styleUrl(styles[discrete_values[sl.start]].url())
       placemark = kml.Placemark(style_url, line_string)
       folder.add(placemark)
     icon = kml.Icon(href=kml.CDATA(self.make_scale_chart(globals, scale).get_url()))
@@ -198,16 +198,16 @@ class Flight(object):
     if not self.track.elevation_data:
       return kmz.kmz()
     folder = kml.Folder(name='Thermals', styleUrl=globals.stock.check_hide_children_style.url(), visibility=0)
-    for start, end in self.track.thermals:
-      c = self.track.coords[start].halfway_to(self.track.coords[end + 1])
+    for sl in self.track.thermals:
+      c = self.track.coords[sl.start].halfway_to(self.track.coords[sl.stop])
       point = kml.Point(coordinates=[c], altitudeMode='absolute')
-      line_string = kml.LineString(coordinates=[self.track.coords[start], self.track.coords[end + 1]], altitudeMode='absolute')
+      line_string = kml.LineString(coordinates=[self.track.coords[sl.start], self.track.coords[sl.stop]], altitudeMode='absolute')
       multi_geometry = kml.MultiGeometry(point, line_string)
       total_dz_positive = 0
       total_dz_negative = 0
       max_climb = 0.0
       climb_hist_data = [0] * (int(self.track.bounds.climb.max / 0.5) + 1)
-      for i in xrange(start, end):
+      for i in xrange(sl.start, sl.stop):
         dz = self.track.coords[i + 1].ele - self.track.coords[i].ele
         if dz > 0:
           total_dz_positive += dz
@@ -216,19 +216,19 @@ class Flight(object):
         if self.track.climb[i] > max_climb:
           max_climb = self.track.climb[i]
         climb_hist_data[int(self.track.climb[i] / 0.5)] += 1
-      dz = float(self.track.coords[end + 1].ele - self.track.coords[start].ele)
-      dt = self.track.t[end + 1] - self.track.t[start]
-      dp = self.track.coords[start].distance_to(self.track.coords[end + 1])
-      theta = self.track.coords[start].initial_bearing_to(self.track.coords[end + 1])
+      dz = float(self.track.coords[sl.stop].ele - self.track.coords[sl.start].ele)
+      dt = self.track.t[sl.stop] - self.track.t[sl.start]
+      dp = self.track.coords[sl.start].distance_to(self.track.coords[sl.stop])
+      theta = self.track.coords[sl.start].initial_bearing_to(self.track.coords[sl.stop])
       rows = []
       rows.append(('Altitude gain', '%dm' % dz))
       rows.append(('Average climb', '%.1fm/s' % (dz / dt)))
       rows.append(('Maximum climb', '%.1fm/s' % max_climb))
-      rows.append(('Start altitude', '%dm' % self.track.coords[start].ele))
-      rows.append(('Finish alitude', '%dm' % self.track.coords[end + 1].ele))
-      rows.append(('Start time', (self.track.coords[start].dt + globals.timezone_offset).strftime('%H:%M:%S')))
-      rows.append(('Finish time', (self.track.coords[end + 1].dt + globals.timezone_offset).strftime('%H:%M:%S')))
-      rows.append(('Duration', '%d:%02d' % divmod(self.track.t[end + 1] - self.track.t[start], 60)))
+      rows.append(('Start altitude', '%dm' % self.track.coords[sl.start].ele))
+      rows.append(('Finish alitude', '%dm' % self.track.coords[sl.stop].ele))
+      rows.append(('Start time', (self.track.coords[sl.start].dt + globals.timezone_offset).strftime('%H:%M:%S')))
+      rows.append(('Finish time', (self.track.coords[sl.stop].dt + globals.timezone_offset).strftime('%H:%M:%S')))
+      rows.append(('Duration', '%d:%02d' % divmod(self.track.t[sl.stop] - self.track.t[sl.start], 60)))
       rows.append(('Accumulated altitude gain', '%dm' % total_dz_positive))
       rows.append(('Accumulated altitude loss', '%dm' % total_dz_negative))
       rows.append(('Drift', '%.1fkm/h %s' % (3.6 * dp / dt, coord.rad_to_compass(theta))))

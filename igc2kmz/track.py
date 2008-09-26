@@ -3,9 +3,9 @@ import time
 import util
 
 
-def do_set(seq, pairs, value):
-  for pair in pairs:
-    seq[pair[0]:pair[1]] = [value] * (pair[1] - pair[0])
+def do_set(seq, slices, value):
+  for sl in slices:
+    seq[sl] = [value] * (sl.stop - sl.start)
 
 
 class Track(object):
@@ -20,17 +20,16 @@ class Track(object):
     self.analyse(20)
 
   def merge_adjacent_sequences(self, seq, delta):
-    left0, right0 = seq[0]
+    start, stop = seq[0].start, seq[0].stop
     result = []
     for i in xrange(1, len(seq)):
-      left1, right1 = seq[i]
-      if self.t[left1] - self.t[right0] < delta:
-        right0 = right1
+      if self.t[seq[i].start] - self.t[stop] < delta:
+        stop = seq[i].stop
       else:
-        if delta < self.t[right0] - self.t[left0]:
-          result.append((left0, right0))
-        left0, right0 = left1, right1
-    result.append((left0, right0))
+        if delta < self.t[stop] - self.t[start]:
+          result.append(slice(start, stop))
+        start, stop = seq[i].start, seq[i].stop
+    result.append(slice(start, stop))
     return result
 
   def analyse(self, dt):
@@ -102,7 +101,7 @@ class Track(object):
     self.bounds.climb = util.Bounds(self.climb)
     thermal = [self.progress[i] < 0.9 and self.climb[i] >= 0.0 for i in xrange(0, n - 1)]
     #self.dive = [self.progress[i] < 0.9 and self.climb[i] < 0.0 for i in xrange(0, n - 1)]
-    thermal_pairs = [(left, right) for left, right in util.runs(thermal) if thermal[left]]
+    thermal_pairs = [sl for sl in util.runs(thermal) if thermal[sl.start]]
     self.thermals = self.merge_adjacent_sequences(thermal_pairs, 60)
     #dive_pairs = self.merge_adjacent_sequences(self.dive, 60)
     self.state = [0] * (n - 1)

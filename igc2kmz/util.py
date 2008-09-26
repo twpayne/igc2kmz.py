@@ -73,9 +73,9 @@ def runs(seq):
     return
   for index, element in generator:
     if element != current:
-      yield (start, index)
+      yield slice(start, index)
       start, current = index, element
-  yield (start, index + 1)
+  yield slice(start, index + 1)
 
 
 def douglas_peucker(x, y, epsilon):
