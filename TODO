@@ -5,7 +5,6 @@ Glide analysis
 Dive analysis
 Check floating point use in pygooglechart
 Refactor runs to return slices
-Refactor global scales to be a dict
 
 MEDIUM
 Add nice thermal and glide icons

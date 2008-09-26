@@ -132,11 +132,11 @@ class Flight(object):
     folder = kmz.kmz(kml.Folder(name='Track', open=1, styleUrl=globals.stock.radio_folder_style.url()))
     folder.add(globals.stock.invisible_none_folder)
     if self.track.elevation_data:
-      folder.add(self.make_colored_track(globals, self.track.ele, globals.altitude_scale, 'absolute', visibility=0))
-      folder.add(self.make_colored_track(globals, self.track.climb, globals.climb_scale, 'absolute'))
-    folder.add(self.make_colored_track(globals, self.track.speed, globals.speed_scale, self.altitude_mode, visibility=not self.track.elevation_data))
+      folder.add(self.make_colored_track(globals, self.track.ele, globals.scales.altitude, 'absolute', visibility=0))
+      folder.add(self.make_colored_track(globals, self.track.climb, globals.scales.climb, 'absolute'))
+    folder.add(self.make_colored_track(globals, self.track.speed, globals.scales.speed, self.altitude_mode, visibility=not self.track.elevation_data))
     if hasattr(self.track, 'tas'):
-      folder.add(self.make_colored_track(globals, self.track.tas, globals.tas_scale, self.altitude_mode, visibility=0))
+      folder.add(self.make_colored_track(globals, self.track.tas, globals.scales.tas, self.altitude_mode, visibility=0))
     folder.add(self.make_solid_track(globals, kml.Style(kml.LineStyle(color=self.color, width=self.width)), self.altitude_mode, name='Solid color', visibility=0))
     return folder
 
@@ -178,7 +178,7 @@ class Flight(object):
       folder = kml.Folder(name='Altitude marks', styleUrl=globals.stock.check_hide_children_style.url(), visibility=0)
       for index in util.salient([c.ele for c in self.track.coords], 100):
         coord = self.track.coords[index]
-        folder.add(self.make_placemark(globals, coord, altitudeMode='absolute', name='%dm' % coord.ele, styleUrl=globals.altitude_styles[globals.altitude_scale.discretize(coord.ele)].url()))
+        folder.add(self.make_placemark(globals, coord, altitudeMode='absolute', name='%dm' % coord.ele, styleUrl=globals.altitude_styles[globals.scales.altitude.discretize(coord.ele)].url()))
       return kmz.kmz(folder)
     else:
       return kmz.kmz()
@@ -188,7 +188,7 @@ class Flight(object):
     chart.add_data([100.0 * climb])
     colors = []
     for i in xrange(0, 16 + 1):
-      r, g, b, a = globals.climb_scale.color(i * self.track.bounds.climb.max / 16)
+      r, g, b, a = globals.scales.climb.color(i * self.track.bounds.climb.max / 16)
       colors.append('%02x%02x%02x' % (255 * r, 255 * g, 255 * b))
     chart.set_colours(colors)
     chart.set_pie_labels(['%.1fm/s' % climb])
@@ -253,15 +253,15 @@ class Flight(object):
     return kmz.kmz(folder)
 
   def make_graph_chart(self, globals, values, scale):
-    chart = pygooglechart.XYLineChart(globals.graph_width, globals.graph_height, x_range=globals.time_scale.range, y_range=scale.range)
+    chart = pygooglechart.XYLineChart(globals.graph_width, globals.graph_height, x_range=globals.scales.time.range, y_range=scale.range)
     chart.fill_solid(pygooglechart.Chart.BACKGROUND, 'ffffff00')
     chart.fill_solid(pygooglechart.Chart.CHART, 'ffffffcc')
-    axis_index = chart.set_axis_labels(pygooglechart.Axis.BOTTOM, globals.time_scale.labels)
-    chart.set_axis_positions(axis_index, globals.time_scale.positions)
+    axis_index = chart.set_axis_labels(pygooglechart.Axis.BOTTOM, globals.scales.time.labels)
+    chart.set_axis_positions(axis_index, globals.scales.time.positions)
     chart.set_axis_style(axis_index, 'ffffff')
     axis_index = chart.set_axis_range(pygooglechart.Axis.LEFT, scale.range[0], scale.range[1])
     chart.set_axis_style(axis_index, 'ffffff')
-    chart.set_grid(globals.time_scale.grid_step, scale.grid_step, 2, 2)
+    chart.set_grid(globals.scales.time.grid_step, scale.grid_step, 2, 2)
     y = [globals.graph_height * (v - scale.range[0]) / (scale.range[1] - scale.range[0]) for v in values]
     indexes = util.incremental_douglas_peucker(self.time_positions, y, 1, 450)
     chart.add_data([self.track.t[i] for i in indexes])
@@ -280,13 +280,13 @@ class Flight(object):
   def make_graphs_folder(self, globals):
     folder = kmz.kmz(kml.Folder(name='Graphs', open=1, styleUrl=globals.stock.radio_folder_style.url()))
     folder.add(globals.stock.visible_none_folder)
-    folder.add(self.make_graph(globals, [c.ele for c in self.track.coords], globals.altitude_scale))
-    #folder.add(self.make_graph(globals, self.track.climb, globals.climb_scale))
-    #folder.add(self.make_graph(globals, self.track.speed, globals.speed_scale))
+    folder.add(self.make_graph(globals, [c.ele for c in self.track.coords], globals.scales.altitude))
+    #folder.add(self.make_graph(globals, self.track.climb, globals.scales.climb))
+    #folder.add(self.make_graph(globals, self.track.speed, globals.scales.speed))
     return folder
 
   def to_kmz(self, globals):
-    self.time_positions = [globals.graph_width * (t - globals.time_scale.range[0]) / (globals.time_scale.range[1] - globals.time_scale.range[0]) for t in self.track.t]
+    self.time_positions = [globals.graph_width * (t - globals.scales.time.range[0]) / (globals.scales.time.range[1] - globals.scales.time.range[0]) for t in self.track.t]
     folder = kmz.kmz(kml.Folder(name=self.track.filename, open=1))
     folder.add(self.make_description(globals))
     folder.add(self.make_snippet(globals))
@@ -306,19 +306,20 @@ def flights2kmz(flights, timezone_offset=0):
   for flight in flights:
     globals.bounds.update(flight.track.bounds)
   globals.timezone_offset = datetime.timedelta(0, 3600 * timezone_offset)
-  globals.altitude_scale = scale.Scale(globals.bounds.ele.tuple(), title='altitude', gradient=color.default_gradient)
+  globals.scales = util.OpenStruct()
+  globals.scales.altitude = scale.Scale(globals.bounds.ele.tuple(), title='altitude', gradient=color.default_gradient)
   globals.altitude_styles = []
-  for c in globals.altitude_scale.colors():
+  for c in globals.scales.altitude.colors():
     balloon_style = kml.BalloonStyle(text='$[description]')
     icon_style = kml.IconStyle(kml.Icon.palette(4, 24), scale=globals.stock.icon_scale)
     label_style = kml.LabelStyle(color=c, scale=globals.stock.label_scales[1])
     globals.altitude_styles.append(kml.Style(balloon_style, icon_style, label_style))
   stock.kmz.add_roots(*globals.altitude_styles)
-  globals.climb_scale = scale.ZeroCenteredScale(globals.bounds.climb.tuple(), title='climb', step=0.1, gradient=color.bilinear_gradient)
-  globals.speed_scale = scale.Scale(globals.bounds.speed.tuple(), title='ground speed', gradient=color.default_gradient)
-  globals.time_scale = scale.TimeScale(globals.bounds.time.tuple(), timezone_offset=globals.timezone_offset)
+  globals.scales.climb = scale.ZeroCenteredScale(globals.bounds.climb.tuple(), title='climb', step=0.1, gradient=color.bilinear_gradient)
+  globals.scales.speed = scale.Scale(globals.bounds.speed.tuple(), title='ground speed', gradient=color.default_gradient)
+  globals.scales.time = scale.TimeScale(globals.bounds.time.tuple(), timezone_offset=globals.timezone_offset)
   if hasattr(globals.bounds, 'tas'):
-    globals.tas_scale = scale.Scale(globals.bounds.tas.tuple(), title='air speed', gradient=color.default_gradient)
+    globals.scales.tas = scale.Scale(globals.bounds.tas.tuple(), title='air speed', gradient=color.default_gradient)
   globals.graph_width = 600
   globals.graph_height = 300
   result = kmz.kmz()
