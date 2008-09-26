@@ -195,63 +195,62 @@ class Flight(object):
     return chart
 
   def make_thermals_folder(self, globals):
-    if self.track.elevation_data:
-      folder = kml.Folder(name='Thermals', styleUrl=globals.stock.check_hide_children_style.url(), visibility=0)
-      for start, end in self.track.thermals:
-        c = self.track.coords[start].halfway_to(self.track.coords[end + 1])
-        point = kml.Point(coordinates=[c], altitudeMode='absolute')
-        line_string = kml.LineString(coordinates=[self.track.coords[start], self.track.coords[end + 1]], altitudeMode='absolute')
-        multi_geometry = kml.MultiGeometry(point, line_string)
-        total_dz_positive = 0
-        total_dz_negative = 0
-        max_climb = 0.0
-        climb_hist_data = [0] * (int(self.track.bounds.climb.max / 0.5) + 1)
-        for i in xrange(start, end):
-          dz = self.track.coords[i + 1].ele - self.track.coords[i].ele
-          if dz > 0:
-            total_dz_positive += dz
-          elif dz < 0:
-            total_dz_negative += dz
-          if self.track.climb[i] > max_climb:
-            max_climb = self.track.climb[i]
-          climb_hist_data[int(self.track.climb[i] / 0.5)] += 1
-        dz = float(self.track.coords[end + 1].ele - self.track.coords[start].ele)
-        dt = self.track.t[end + 1] - self.track.t[start]
-        dp = self.track.coords[start].distance_to(self.track.coords[end + 1])
-        theta = self.track.coords[start].initial_bearing_to(self.track.coords[end + 1])
-        rows = []
-        rows.append(('Altitude gain', '%dm' % dz))
-        rows.append(('Average climb', '%.1fm/s' % (dz / dt)))
-        rows.append(('Maximum climb', '%.1fm/s' % max_climb))
-        rows.append(('Start altitude', '%dm' % self.track.coords[start].ele))
-        rows.append(('Finish alitude', '%dm' % self.track.coords[end + 1].ele))
-        rows.append(('Start time', (self.track.coords[start].dt + globals.timezone_offset).strftime('%H:%M:%S')))
-        rows.append(('Finish time', (self.track.coords[end + 1].dt + globals.timezone_offset).strftime('%H:%M:%S')))
-        rows.append(('Duration', '%d:%02d' % divmod(self.track.t[end + 1] - self.track.t[start], 60)))
-        rows.append(('Accumulated altitude gain', '%dm' % total_dz_positive))
-        rows.append(('Accumulated altitude loss', '%dm' % total_dz_negative))
-        rows.append(('Drift', '%.1fkm/h %s' % (3.6 * dp / dt, coord.rad_to_compass(theta + math.pi))))
-        if dt * max_climb != 0.0: # FIXME
-          rows.append(('Efficiency', '%d%%' % (100.0 * dz / (dt * max_climb))))
-        analysis_table = '<table>%s</table>' % ''.join('<tr><th align="right">%s</th><td>%s</td></tr>' % row for row in rows)
-        #average_climb_chart = self.make_climb_chart(globals, dz / dt)
-        #max_climb_chart = self.make_climb_chart(globals, max_climb)
-        #climb_hist_chart = pygooglechart.StackedVerticalBarChart(100, 40, y_range=(0, max(climb_hist_data)))
-        #climb_hist_chart.set_bar_width(5)
-        #climb_hist_chart.add_data(climb_hist_data)
-        #rows = []
-        #rows.append('%s<center>%s</center>' % (average_climb_chart.get_html_img(), 'Average climb'))
-        #rows.append('%s<center>%s</center>' % (max_climb_chart.get_html_img(), 'Maximum climb'))
-        #rows.append('%s<center>%s</center>' % (climb_hist_chart.get_html_img(), 'Climb histogram'))
-        #graphs_table = '<table>%s</table>' % ''.join('<tr><th>%s</th></tr>' % row for row in rows)
-        #description = kml.description(kml.CDATA('<table><tr>%s</tr></table>' % ''.join('<td valign="top">%s<td>' % t for t in [graphs_table, analysis_table])))
-        description = kml.description(kml.CDATA(analysis_table))
-        name = '%dm at %.1fm/s' % (dz, dz / dt)
-        placemark = kml.Placemark(multi_geometry, description, kml.Snippet(), name=name, styleUrl=globals.stock.thermal_style.url())
-        folder.add(placemark)
-      return kmz.kmz(folder)
-    else:
+    if not self.track.elevation_data:
       return kmz.kmz()
+    folder = kml.Folder(name='Thermals', styleUrl=globals.stock.check_hide_children_style.url(), visibility=0)
+    for start, end in self.track.thermals:
+      c = self.track.coords[start].halfway_to(self.track.coords[end + 1])
+      point = kml.Point(coordinates=[c], altitudeMode='absolute')
+      line_string = kml.LineString(coordinates=[self.track.coords[start], self.track.coords[end + 1]], altitudeMode='absolute')
+      multi_geometry = kml.MultiGeometry(point, line_string)
+      total_dz_positive = 0
+      total_dz_negative = 0
+      max_climb = 0.0
+      climb_hist_data = [0] * (int(self.track.bounds.climb.max / 0.5) + 1)
+      for i in xrange(start, end):
+        dz = self.track.coords[i + 1].ele - self.track.coords[i].ele
+        if dz > 0:
+          total_dz_positive += dz
+        elif dz < 0:
+          total_dz_negative += dz
+        if self.track.climb[i] > max_climb:
+          max_climb = self.track.climb[i]
+        climb_hist_data[int(self.track.climb[i] / 0.5)] += 1
+      dz = float(self.track.coords[end + 1].ele - self.track.coords[start].ele)
+      dt = self.track.t[end + 1] - self.track.t[start]
+      dp = self.track.coords[start].distance_to(self.track.coords[end + 1])
+      theta = self.track.coords[start].initial_bearing_to(self.track.coords[end + 1])
+      rows = []
+      rows.append(('Altitude gain', '%dm' % dz))
+      rows.append(('Average climb', '%.1fm/s' % (dz / dt)))
+      rows.append(('Maximum climb', '%.1fm/s' % max_climb))
+      rows.append(('Start altitude', '%dm' % self.track.coords[start].ele))
+      rows.append(('Finish alitude', '%dm' % self.track.coords[end + 1].ele))
+      rows.append(('Start time', (self.track.coords[start].dt + globals.timezone_offset).strftime('%H:%M:%S')))
+      rows.append(('Finish time', (self.track.coords[end + 1].dt + globals.timezone_offset).strftime('%H:%M:%S')))
+      rows.append(('Duration', '%d:%02d' % divmod(self.track.t[end + 1] - self.track.t[start], 60)))
+      rows.append(('Accumulated altitude gain', '%dm' % total_dz_positive))
+      rows.append(('Accumulated altitude loss', '%dm' % total_dz_negative))
+      rows.append(('Drift', '%.1fkm/h %s' % (3.6 * dp / dt, coord.rad_to_compass(theta + math.pi))))
+      if dt * max_climb != 0.0: # FIXME
+        rows.append(('Efficiency', '%d%%' % (100.0 * dz / (dt * max_climb))))
+      analysis_table = '<table>%s</table>' % ''.join('<tr><th align="right">%s</th><td>%s</td></tr>' % row for row in rows)
+      #average_climb_chart = self.make_climb_chart(globals, dz / dt)
+      #max_climb_chart = self.make_climb_chart(globals, max_climb)
+      #climb_hist_chart = pygooglechart.StackedVerticalBarChart(100, 40, y_range=(0, max(climb_hist_data)))
+      #climb_hist_chart.set_bar_width(5)
+      #climb_hist_chart.add_data(climb_hist_data)
+      #rows = []
+      #rows.append('%s<center>%s</center>' % (average_climb_chart.get_html_img(), 'Average climb'))
+      #rows.append('%s<center>%s</center>' % (max_climb_chart.get_html_img(), 'Maximum climb'))
+      #rows.append('%s<center>%s</center>' % (climb_hist_chart.get_html_img(), 'Climb histogram'))
+      #graphs_table = '<table>%s</table>' % ''.join('<tr><th>%s</th></tr>' % row for row in rows)
+      #description = kml.description(kml.CDATA('<table><tr>%s</tr></table>' % ''.join('<td valign="top">%s<td>' % t for t in [graphs_table, analysis_table])))
+      description = kml.description(kml.CDATA(analysis_table))
+      name = '%dm at %.1fm/s' % (dz, dz / dt)
+      placemark = kml.Placemark(multi_geometry, description, kml.Snippet(), name=name, styleUrl=globals.stock.thermal_style.url())
+      folder.add(placemark)
+    return kmz.kmz(folder)
 
   def make_graph_chart(self, globals, values, scale):
     chart = pygooglechart.XYLineChart(globals.graph_width, globals.graph_height, x_range=globals.time_scale.range, y_range=scale.range)
