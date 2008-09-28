@@ -6,6 +6,7 @@ Dive analysis
 Check floating point use in pygooglechart
 Check indexes in thermal folder
 Check indexes in colored tracklogs
+Don't display thermal folder if no thermals!
 
 MEDIUM
 Add nice thermal and glide icons
