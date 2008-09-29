@@ -13,6 +13,8 @@ def main(argv):
       igc2kmz.igc.IGC(open(arg))
     except igc2kmz.igc.SyntaxError, line:
       print "%s: %s" % (arg, line)
+    except igc2kmz.igc.Error, error:
+      print error
 
 if __name__ == '__main__':
   main(sys.argv)
