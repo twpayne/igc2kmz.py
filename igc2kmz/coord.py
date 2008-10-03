@@ -1,8 +1,26 @@
+#   igc2kmz/coord.py  igc2kmz coordinate functions
+#   Copyright (C) 2008  Tom Payne
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
 from math import acos, asin, atan2, cos, pi, sin, sqrt
 
-R = 6371000.0
 
+R = 6371000.0
 compass = 'N NNE NE ENE E ESE SE SSE S SSW SW WSW W WNW NW NNW'.split()
+
 
 def rad_to_compass(rad):
   while rad < 0.0:

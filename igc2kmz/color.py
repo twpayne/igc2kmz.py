@@ -1,3 +1,20 @@
+#   igc2kmz/color.py  igc2kmz color functions
+#   Copyright (C) 2008  Tom Payne
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
 def hsl_to_rgba(hsl, a=1.0):
   """Convert a HSL tuple into a RGBA tuple."""
   def h_to_value(p, q, t):
