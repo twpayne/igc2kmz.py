@@ -171,16 +171,14 @@ def find_first_ge(seq, value, cmp=__builtin__.cmp):
   while left < right:
     middle = (left + right) / 2
     direction = cmp(value, seq[middle])
-    if direction < 0:
-      right = middle - 1
-    elif direction == 0:
+    if direction <= 0:
       right = middle
     else:
       left = middle + 1
   if left == len(seq):
     return None
   else:
-    return left
+    return right
 
 
 def salient(seq, epsilon=0):
