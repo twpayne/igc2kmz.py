@@ -31,6 +31,9 @@ class TestFindFirstGE(unittest.TestCase):
   def test_empty(self):
     self.assertEqual(find_first_ge([], 0), None)
 
+  def test_minus1(self):
+    self.assertEqual(find_first_ge([0, 2, 4, 6, 8], -1), 0)
+
   def test_0(self):
     self.assertEqual(find_first_ge([0, 2, 4, 6, 8], 0), 0)
 
@@ -44,19 +47,19 @@ class TestFindFirstGE(unittest.TestCase):
     self.assertEqual(find_first_ge([0, 2, 4, 6, 8], 3), 2)
 
   def test_4(self):
-    self.assertEqual(find_first_ge([0, 2, 4, 6, 8], 4), 3)
+    self.assertEqual(find_first_ge([0, 2, 4, 6, 8], 4), 2)
 
   def test_5(self):
     self.assertEqual(find_first_ge([0, 2, 4, 6, 8], 5), 3)
 
   def test_6(self):
-    self.assertEqual(find_first_ge([0, 2, 4, 6, 8], 6), 4)
+    self.assertEqual(find_first_ge([0, 2, 4, 6, 8], 6), 3)
 
   def test_7(self):
     self.assertEqual(find_first_ge([0, 2, 4, 6, 8], 7), 4)
 
   def test_8(self):
-    self.assertEqual(find_first_ge([0, 2, 4, 6, 8], 8), 5)
+    self.assertEqual(find_first_ge([0, 2, 4, 6, 8], 8), 4)
 
   def test_9(self):
     self.assertEqual(find_first_ge([0, 2, 4, 6, 8], 9), None)
