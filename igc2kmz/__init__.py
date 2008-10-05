@@ -125,7 +125,7 @@ class Flight(object):
     return kmz.kmz(kml.Folder(placemark, **folder_options))
 
   def make_scale_chart(self, globals, scale):
-    chart = pygooglechart.SimpleLineChart(50, 200, x_range=(0, 1), y_range=scale.range)
+    chart = pygooglechart.SimpleLineChart(40, 200, x_range=(0, 1), y_range=scale.range)
     chart.fill_solid(pygooglechart.Chart.BACKGROUND, 'ffffff00')
     chart.fill_solid(pygooglechart.Chart.CHART, 'ffffffcc')
     for i in xrange(0, 32 + 1):
@@ -136,7 +136,7 @@ class Flight(object):
       r, g, b, a = scale.color((i * (scale.range[1] - scale.range[0]) + 0.5) / 32 + scale.range[0])
       color = '%02x%02x%02x' % (255 * r, 255 * g, 255 * b)
       chart.add_fill_range(color, i, i + 1)
-    axis_index = chart.set_axis_range(pygooglechart.Axis.LEFT, scale.range[0], scale.range[1])
+    axis_index = chart.set_axis_range(pygooglechart.Axis.RIGHT, scale.range[0], scale.range[1])
     chart.set_axis_style(axis_index, 'ffffff')
     return chart
 
