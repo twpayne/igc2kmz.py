@@ -20,11 +20,6 @@ import time
 import util
 
 
-def do_set(seq, slices, value):
-  for sl in slices:
-    seq[sl] = [value] * (sl.stop - sl.start)
-
-
 class Track(object):
 
   def __init__(self, coords, **kwargs):
@@ -50,6 +45,9 @@ class Track(object):
     return result
 
   def analyse(self, dt):
+    def do_set(seq, slices, value):
+      for sl in slices:
+        seq[sl] = [value] * (sl.stop - sl.start)
     n = len(self.coords)
     self.bounds = util.BoundsSet()
     self.bounds.ele = util.Bounds([coord.ele for coord in self.coords])
@@ -112,11 +110,28 @@ class Track(object):
       self.progress.append(progress)
     self.bounds.speed = util.Bounds(self.speed)
     self.bounds.climb = util.Bounds(self.climb)
+    state = [0] * (n - 1)
+    glide = [self.progress[i] >= 0.8 for i in xrange(0, n - 1)]
+    glide_pairs = [sl for sl in util.runs(glide) if glide[sl.start]]
+    glide_pairs = self.merge_adjacent_sequences(glide_pairs, 60)
+    do_set(state, glide_pairs, 3)
+    dive = [self.progress[i] < 0.9 and self.climb[i] < 0.0 for i in xrange(0, n - 1)]
+    dive_pairs = [sl for sl in util.runs(dive) if dive[sl.start]]
+    dive_pairs = self.merge_adjacent_sequences(dive_pairs, 30)
+    do_set(state, dive_pairs, 2)
     thermal = [self.progress[i] < 0.9 and self.climb[i] >= 0.0 for i in xrange(0, n - 1)]
-    #self.dive = [self.progress[i] < 0.9 and self.climb[i] < 0.0 for i in xrange(0, n - 1)]
     thermal_pairs = [sl for sl in util.runs(thermal) if thermal[sl.start]]
-    self.thermals = self.merge_adjacent_sequences(thermal_pairs, 60)
-    #dive_pairs = self.merge_adjacent_sequences(self.dive, 60)
-    self.state = [0] * (n - 1)
-    #do_set(self.state, dive_pairs, -1)
-    do_set(self.state, thermal_pairs, 1)
+    thermal_pairs = self.merge_adjacent_sequences(thermal_pairs, 60)
+    do_set(state, thermal_pairs, 1)
+    self.thermals = []
+    self.glides = []
+    self.dives = []
+    for sl in util.runs(state):
+      if state[sl.start] == 1 and self.t[sl.stop] - self.t[sl.start] >= 60:
+        self.thermals.append(sl)
+      elif state[sl.start] == 2 and (self.coords[sl.stop].ele - self.coords[sl.start].ele) / (self.t[sl.stop] - self.t[sl.start]) < -3:
+        self.dives.append(sl)
+      elif state[sl.start] == 3 and self.t[sl.stop] - self.t[sl.start] >= 60:
+        self.glides.append(sl)
+      else:
+        pass
