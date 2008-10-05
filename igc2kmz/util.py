@@ -78,10 +78,6 @@ class OpenStruct(object):
     return 'OpenStruct(%s)' % ', '.join('%s=%s' % (key, repr(value)) for key, value in self)
 
 
-class TimeSeries(list):
-  pass
-
-
 def runs(seq):
   generator = enumerate(seq)
   try:
