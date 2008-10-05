@@ -233,12 +233,15 @@ class Flight(object):
       line_string = kml.LineString(coordinates=[self.track.coords[sl.start], self.track.coords[sl.stop]], altitudeMode='absolute')
       multi_geometry = kml.MultiGeometry(point, line_string)
       total_dz_positive = total_dz_negative = 0
+      peak_climb = util.Bounds(0.0)
       for i in xrange(sl.start, sl.stop):
         dz = self.track.coords[i + 1].ele - self.track.coords[i].ele
+        dt = self.track.t[i + 1] - self.track.t[i]
         if dz > 0:
           total_dz_positive += dz
         elif dz < 0:
           total_dz_negative += dz
+        peak_climb.update(float(dz) / dt)
       climb = util.Bounds(self.track.climb[sl])
       dz = float(self.track.coords[sl.stop].ele - self.track.coords[sl.start].ele)
       dt = self.track.t[sl.stop] - self.track.t[sl.start]
@@ -249,6 +252,7 @@ class Flight(object):
         rows.append(('Altitude gain', '%dm' % dz))
         rows.append(('Average climb', '%.1fm/s' % (dz / dt)))
         rows.append(('Maximum climb', '%.1fm/s' % climb.max))
+        rows.append(('Peak climb', '%.1fm/s' % peak_climb.max))
         rows.append(('Efficiency', '%d%%' % (100.0 * dz / (dt * climb.max))))
       elif title == 'glide':
         rows.append(('Altitude loss', '%dm' % dz))
@@ -259,6 +263,7 @@ class Flight(object):
         rows.append(('Altitude loss', '%dm' % dz))
         rows.append(('Average descent', '%.1fm/s' % (dz / dt)))
         rows.append(('Maximum descent', '%.1fm/s' % climb.min))
+        rows.append(('Peak descent', '%.1fm/s' % peak_climb.min))
       rows.append(('Start altitude', '%dm' % self.track.coords[sl.start].ele))
       rows.append(('Finish alitude', '%dm' % self.track.coords[sl.stop].ele))
       rows.append(('Start time', (self.track.coords[sl.start].dt + globals.timezone_offset).strftime('%H:%M:%S')))
