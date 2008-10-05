@@ -303,15 +303,7 @@ class Flight(object):
     screen_xy = kml.screenXY(x=0, y=16, xunits='fraction', yunits='pixels')
     size = kml.size(x=0, y=0, xunits='fraction', yunits='fraction')
     screen_overlay = kml.ScreenOverlay(icon, overlay_xy, screen_xy, size)
-    folder = kml.Folder(screen_overlay, name=scale.title.capitalize(), styleUrl=globals.stock.check_hide_children_style.url(), visibility=0)
-    return folder
-
-  def make_graphs_folder(self, globals):
-    folder = kmz.kmz(kml.Folder(name='Graphs', open=1, styleUrl=globals.stock.radio_folder_style.url()))
-    folder.add(globals.stock.visible_none_folder)
-    folder.add(self.make_graph(globals, [c.ele for c in self.track.coords], globals.scales.altitude))
-    #folder.add(self.make_graph(globals, self.track.climb, globals.scales.climb))
-    #folder.add(self.make_graph(globals, self.track.speed, globals.scales.speed))
+    folder = kml.Folder(screen_overlay, name=scale.title.capitalize() + " graph", styleUrl=globals.stock.check_hide_children_style.url(), visibility=0)
     return folder
 
   def to_kmz(self, globals):
@@ -323,10 +315,11 @@ class Flight(object):
     folder.add(self.make_track_folder(globals))
     folder.add(self.make_shadow_folder(globals))
     folder.add(self.make_altitude_marks_folder(globals))
+    if self.track.elevation_data:
+      folder.add(self.make_graph(globals, [c.ele for c in self.track.coords], globals.scales.altitude))
     folder.add(self.make_analysis_folder(globals, 'thermal', self.track.thermals, globals.stock.thermal_style.url()))
     folder.add(self.make_analysis_folder(globals, 'glide', self.track.glides, globals.stock.glide_style.url()))
     folder.add(self.make_analysis_folder(globals, 'dive', self.track.dives, globals.stock.dive_style.url()))
-    folder.add(self.make_graphs_folder(globals))
     return folder
 
 def flights2kmz(flights, timezone_offset=0):
