@@ -254,7 +254,7 @@ class Flight(object):
       elif title == 'glide':
         rows.append(('Altitude loss', '%dm' % dz))
         rows.append(('Distance', '%.1fkm' % (dp / 1000.0)))
-        rows.append(('Average glide angle', '%.1f:1' % (-dp / dz)))
+        rows.append(('Average glide ratio', '%.1f:1' % (-dp / dz) if dz < 0 else 'infinity:1'))
         rows.append(('Average speed', '%.1fkm/h' % (3.6 * dp / dt)))
       elif title == 'dive':
         rows.append(('Altitude loss', '%dm' % dz))
@@ -274,7 +274,8 @@ class Flight(object):
       if title == 'thermal':
         name = '%dm at %.1fm/s' % (dz, dz / dt)
       elif title == 'glide':
-        name = '%.1fkm at %.1f:1, %dkm/h' % (dp / 1000.0, -dp / dz, 3.6 * dp / dt)
+        ld = '%.1f:`' % (-dp / dz) if dz < 0 else 'inf:1'
+        name = '%.1fkm at %s, %dkm/h' % (dp / 1000.0, ld, 3.6 * dp / dt)
       elif title == 'dive':
         name = '%dm at %.1fm/s' % (-dz, dz / dt)
       placemark = kml.Placemark(multi_geometry, description, kml.Snippet(), name=name, styleUrl=styleUrl)
