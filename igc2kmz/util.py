@@ -88,6 +88,7 @@ def runs(seq):
     start, current = generator.next()
   except StopIteration:
     return
+  index = 0
   for index, element in generator:
     if element != current:
       yield slice(start, index)
@@ -101,6 +102,7 @@ def runs_where(seq):
     start, current = generator.next()
   except StopIteration:
     return
+  index = 0
   for index, element in generator:
     if element != current:
       if current:

@@ -23,7 +23,7 @@ import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from igc2kmz.util import find_first_ge, salient
+from igc2kmz.util import find_first_ge, salient, runs_where
 
 
 class TestFindFirstGE(unittest.TestCase):
@@ -129,6 +129,24 @@ class TestSalient(unittest.TestCase):
 
   def test_complex3(self):
     self.assertEqual(salient([0,2,4,6,8,7,6,7,8,7], 3), [0, 9])
+
+
+class TestRunsWhere(unittest.TestCase):
+
+  def test_1(self):
+    self.assertEqual(list(runs_where([])), [])
+
+  def test_2(self):
+    self.assertEqual(list(runs_where([True])), [slice(0, 1)])
+
+  def test_3(self):
+    self.assertEqual(list(runs_where([False])), [])
+
+  def test_4(self):
+    self.assertEqual(list(runs_where([True, False])), [slice(0, 1)])
+
+  def test_5(self):
+    self.assertEqual(list(runs_where([False, True])), [slice(1, 2)])
 
 
 if __name__ == '__main__':
