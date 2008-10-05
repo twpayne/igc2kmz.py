@@ -95,6 +95,36 @@ def runs(seq):
   yield slice(start, index + 1)
 
 
+def runs_where(seq):
+  generator = enumerate(seq)
+  try:
+    start, current = generator.next()
+  except StopIteration:
+    return
+  for index, element in generator:
+    if element != current:
+      if current:
+        yield slice(start, index)
+      start, current = index, element
+  if current:
+    yield slice(start, index + 1)
+
+
+def condense(seq, t, delta):
+  try:
+    sl = seq.next()
+    start, stop = sl.start, sl.stop
+  except StopIteration:
+    return
+  for sl in seq:
+    if t[sl.start] - t[stop] < delta:
+      stop = sl.stop
+    else:
+      yield slice(start, stop)
+      start, stop = sl.start, sl.stop
+  yield slice(start, stop)
+
+
 def douglas_peucker(x, y, epsilon):
   """
   Implement the Douglas-Peucker line simplification algorithm.
