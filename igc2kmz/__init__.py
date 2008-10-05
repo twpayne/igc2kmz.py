@@ -17,6 +17,7 @@
 
 import datetime
 import math
+import time
 
 import pygooglechart
 
@@ -40,30 +41,36 @@ class Stock(object):
 
   def __init__(self):
     self.kmz = kmz.kmz()
-    self.icon_scale = 0.5
-    self.label_scales = [math.sqrt(x) for x in [0.8, 0.6, 0.4]]
+    self.icon_scales = [math.sqrt(x) for x in [0.8, 0.6, 0.4, 0.2]]
+    self.icons = [kml.Icon.palette(4, i) for i in [27, 26, 25, 24]]
+    self.label_scales = [math.sqrt(x) for x in [0.8, 0.6, 0.4, 0.2]]
     self.radio_folder_style = kml.Style(kml.ListStyle(listItemType='radioFolder'))
     self.kmz.add_roots(self.radio_folder_style)
     self.check_hide_children_style = kml.Style(kml.ListStyle(listItemType='checkHideChildren'))
     self.kmz.add_roots(self.check_hide_children_style)
     balloon_style = kml.BalloonStyle(text=kml.CDATA('<h3>$[name]</h3>$[description]'))
-    icon_style = kml.IconStyle(kml.Icon.palette(4, 24), scale=self.icon_scale)
+    icon_style = kml.IconStyle(self.icons[0], scale=self.icon_scales[0])
     label_style = kml.LabelStyle(color='993333ff', scale=self.label_scales[1])
     line_style = kml.LineStyle(color='993333ff', width=4)
     self.thermal_style = kml.Style(balloon_style, icon_style, label_style, line_style)
     self.kmz.add_roots(self.thermal_style)
     balloon_style = kml.BalloonStyle(text=kml.CDATA('<h3>$[name]</h3>$[description]'))
-    icon_style = kml.IconStyle(kml.Icon.palette(4, 24), scale=self.icon_scale)
+    icon_style = kml.IconStyle(self.icons[0], scale=self.icon_scales[0])
     label_style = kml.LabelStyle(color='99ff3333', scale=self.label_scales[1])
     line_style = kml.LineStyle(color='99ff3333', width=4)
     self.dive_style = kml.Style(balloon_style, icon_style, label_style, line_style)
     self.kmz.add_roots(self.dive_style)
     balloon_style = kml.BalloonStyle(text=kml.CDATA('<h3>$[name]</h3>$[description]'))
-    icon_style = kml.IconStyle(kml.Icon.palette(4, 24), scale=self.icon_scale)
+    icon_style = kml.IconStyle(self.icons[0], scale=self.icon_scales[0])
     label_style = kml.LabelStyle(color='9933ff33', scale=self.label_scales[1])
     line_style = kml.LineStyle(color='9933ff33', width=4)
     self.glide_style = kml.Style(balloon_style, icon_style, label_style, line_style)
-    self.kmz.add_roots(self.glide_style)
+    self.time_mark_styles = []
+    for i in xrange(0, len(self.icons)):
+      icon_style = kml.IconStyle(self.icons[i], scale=self.icon_scales[i])
+      label_style = kml.LabelStyle(color='99ffff33', scale=self.label_scales[i])
+      self.time_mark_styles.append(kml.Style(icon_style, label_style))
+    self.kmz.add_roots(*self.time_mark_styles)
     self.pixel_url = 'images/pixel.png'
     self.kmz.add_files({self.pixel_url: open(self.pixel_url).read()})
     self.visible_none_folder = self.make_none_folder(1)
@@ -180,7 +187,7 @@ class Flight(object):
     return folder
 
   def make_animation(self, globals):
-    style = kml.Style(kml.IconStyle(globals.stock.animation_icon, color=self.color, scale=globals.stock.icon_scale))
+    style = kml.Style(kml.IconStyle(globals.stock.animation_icon, color=self.color, scale=globals.stock.icon_scales[0]))
     folder = kml.Folder(style, name='Animation', open=0, styleUrl=globals.stock.check_hide_children_style.url())
     point = kml.Point(coordinates=[self.track.coords[0]], altitudeMode=self.altitude_mode)
     timespan = kml.TimeSpan(end=kml.dateTime(self.track.coords[0].dt))
@@ -311,6 +318,37 @@ class Flight(object):
     folder = kml.Folder(screen_overlay, name=scale.title.capitalize() + " graph", styleUrl=globals.stock.check_hide_children_style.url(), visibility=0)
     return folder
 
+  def make_time_mark(self, globals, coord, dt, styleUrl):
+    point = kml.Point(coordinates=[coord], altitudeMode=self.altitude_mode)
+    name = (dt + globals.timezone_offset).strftime('%H:%M')
+    return kml.Placemark(point, name=name, styleUrl=styleUrl)
+
+  def make_time_marks_folder(self, globals, step=datetime.timedelta(0, 900)):
+    folder = kml.Folder(name='Time marks', styleUrl=globals.stock.check_hide_children_style.url(), visibility=0)
+    folder.add(self.make_time_mark(globals, self.track.coords[0], self.track.coords[0].dt, globals.stock.time_mark_styles[0].url()))
+    dt = util.datetime_floor(self.track.coords[0].dt, step)
+    while dt < self.track.coords[0].dt:
+      dt += step
+    while True:
+      t = int(time.mktime(dt.timetuple()))
+      index = util.find_first_ge(self.track.t, t)
+      if index is None:
+        break
+      delta = float(self.track.t[index] - t) / (self.track.t[index] - self.track.t[index - 1])
+      coord = self.track.coords[index - 1].interpolate(self.track.coords[0], delta)
+      if dt.minute == 0:
+        style_index = 0
+      elif dt.minute == 30:
+        style_index = 1
+      elif dt.minute == 15 or dt.minute == 45:
+        style_index = 2
+      else:
+        style_index = 3
+      folder.add(self.make_time_mark(globals, coord, dt, globals.stock.time_mark_styles[style_index].url()))
+      dt += step
+    folder.add(self.make_time_mark(globals, self.track.coords[-1], self.track.coords[-1].dt, globals.stock.time_mark_styles[0].url()))
+    return folder
+
   def to_kmz(self, globals):
     self.time_positions = [globals.graph_width * (t - globals.scales.time.range[0]) / (globals.scales.time.range[1] - globals.scales.time.range[0]) for t in self.track.t]
     folder = kmz.kmz(kml.Folder(name=self.track.filename, open=1))
@@ -325,6 +363,7 @@ class Flight(object):
     folder.add(self.make_analysis_folder(globals, 'thermal', self.track.thermals, globals.stock.thermal_style.url()))
     folder.add(self.make_analysis_folder(globals, 'glide', self.track.glides, globals.stock.glide_style.url()))
     folder.add(self.make_analysis_folder(globals, 'dive', self.track.dives, globals.stock.dive_style.url()))
+    folder.add(self.make_time_marks_folder(globals))
     return folder
 
 def flights2kmz(flights, timezone_offset=0):
@@ -340,7 +379,7 @@ def flights2kmz(flights, timezone_offset=0):
   globals.altitude_styles = []
   for c in globals.scales.altitude.colors():
     balloon_style = kml.BalloonStyle(text='$[description]')
-    icon_style = kml.IconStyle(kml.Icon.palette(4, 24), scale=globals.stock.icon_scale)
+    icon_style = kml.IconStyle(globals.stock.icons[0], scale=globals.stock.icon_scales[0])
     label_style = kml.LabelStyle(color=c, scale=globals.stock.label_scales[1])
     globals.altitude_styles.append(kml.Style(balloon_style, icon_style, label_style))
   stock.kmz.add_roots(*globals.altitude_styles)
