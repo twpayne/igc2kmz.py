@@ -1,6 +1,7 @@
 HIGH
 Check indexes in thermal folder
 Check indexes in colored tracklogs
+Replace 'infinty' with Unicode character
 
 MEDIUM
 Add nice thermal and glide icons

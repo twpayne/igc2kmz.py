@@ -249,8 +249,7 @@ class Flight(object):
         rows.append(('Altitude gain', '%dm' % dz))
         rows.append(('Average climb', '%.1fm/s' % (dz / dt)))
         rows.append(('Maximum climb', '%.1fm/s' % climb.max))
-        if dt * climb.max != 0.0: # FIXME
-          rows.append(('Efficiency', '%d%%' % (100.0 * dz / (dt * climb.max))))
+        rows.append(('Efficiency', '%d%%' % (100.0 * dz / (dt * climb.max))))
       elif title == 'glide':
         rows.append(('Altitude loss', '%dm' % dz))
         rows.append(('Distance', '%.1fkm' % (dp / 1000.0)))

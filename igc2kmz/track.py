@@ -20,9 +20,10 @@ import time
 import util
 
 
-THERMAL = 0
-GLIDE = 1
-DIVE = 2
+UNKNOWN = 0
+THERMAL = 1
+GLIDE = 2
+DIVE = 3
 
 
 class Track(object):
@@ -95,22 +96,21 @@ class Track(object):
       self.progress.append(progress)
     self.bounds.speed = util.Bounds(self.speed)
     self.bounds.climb = util.Bounds(self.climb)
-    state = [0] * (n - 1)
-    for sl in util.condense(util.runs_where(0.8 < self.progress[i] for i in xrange(0, n - 1)), self.t, 60):
+    state = [UNKNOWN] * (n - 1)
+    for sl in util.condense(util.runs_where(self.progress[i] >= 0.9 for i in xrange(0, n - 1)), self.t, 60):
       state[sl] = [GLIDE] * (sl.stop - sl.start)
     for sl in util.condense(util.runs_where(self.progress[i] < 0.9 and self.climb[i] < 0.0 for i in xrange(0, n - 1)), self.t, 30):
       state[sl] = [DIVE] * (sl.stop - sl.start)
-    for sl in util.condense(util.runs_where(self.progress[i] < 0.9 and 0.0 < self.climb[i] for i in xrange(0, n - 1)), self.t, 60):
-      print self.coords[sl.stop].ele - self.coords[sl.start].ele
+    for sl in util.condense(util.runs_where(self.progress[i] < 0.9 and self.climb[i] > 0.0 for i in xrange(0, n - 1)), self.t, 60):
       state[sl] = [THERMAL] * (sl.stop - sl.start)
     self.thermals, self.glides, self.dives = [], [], []
     for sl in util.runs(state):
       if state[sl.start] == THERMAL:
         if self.t[sl.stop] - self.t[sl.start] >= 60 and self.coords[sl.stop].ele - self.coords[sl.start].ele > 10:
           self.thermals.append(sl)
+      elif state[sl.start] == GLIDE:
+        if 300 < self.t[sl.stop] - self.t[sl.start]:
+          self.glides.append(sl)
       elif state[sl.start] == DIVE:
         if (self.coords[sl.stop].ele - self.coords[sl.start].ele) / (self.t[sl.stop] - self.t[sl.start]) < -3:
           self.dives.append(sl)
-      elif state[sl.start] == GLIDE:
-        if self.t[sl.stop] - self.t[sl.start] >= 60:
-          self.glides.append(sl)
