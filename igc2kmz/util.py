@@ -16,6 +16,7 @@
 
 
 import __builtin__
+import datetime
 import math
 import sys
 
@@ -243,3 +244,14 @@ def salient(seq, epsilon=0):
     result.add(len(seq) - 1)
     helper(0, len(seq) - 1)
   return sorted(result)
+
+
+def datetime_floor(dt, delta):
+  if delta.seconds >= 3600:
+    return dt.replace(minute=0, second=0) - datetime.timedelta(0, 3600 * (dt.hour % int(delta.seconds / 3600)))
+  elif delta.seconds >= 60:
+    return dt.replace(second=0) - datetime.timedelta(0, 60 * (dt.minute % int(delta.seconds / 60)))
+  elif delta.seconds >= 1:
+    return dt - datetime.timedelta(0, dt.second % delta.seconds)
+  else:
+    return dt

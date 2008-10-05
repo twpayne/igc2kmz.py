@@ -19,6 +19,8 @@ import datetime
 import itertools
 import time
 
+import util
+
 
 class Scale(object):
   """A linear scale."""
@@ -102,19 +104,10 @@ class TimeScale(Scale):
     def steps(step=None):
       steps = [1, 5, 15, 30, 60, 5 * 60, 15 * 60, 30 * 60, 3600, 3 * 3600, 6 * 3600, 12 * 3600]
       return itertools.imap(lambda seconds: datetime.timedelta(0, seconds), itertools.dropwhile(lambda s: s < step, steps))
-    def floor(dt, delta):
-      if delta.seconds >= 3600:
-        return dt.replace(minute=0, second=0) - datetime.timedelta(0, 3600 * (dt.hour % int(delta.seconds / 3600)))
-      elif delta.seconds >= 60:
-        return dt.replace(second=0) - datetime.timedelta(0, 60 * (dt.minute % int(delta.seconds / 60)))
-      elif delta.seconds >= 1:
-        return dt - datetime.timedelta(0, dt.second % delta.seconds)
-      else:
-        return dt
     lower, upper = range
     if step:
       for step in steps(step):
-        lower, upper = floor(range[0], step), floor(range[1], step)
+        lower, upper = util.datetime_floor(range[0], step), util.datetime_floor(range[1], step)
         if upper < range[1]:
           upper += step
         if (upper - lower).seconds / step.seconds < max_divisions:
