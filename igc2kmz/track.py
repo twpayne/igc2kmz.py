@@ -127,7 +127,7 @@ class Track(object):
     self.glides = []
     self.dives = []
     for sl in util.runs(state):
-      if state[sl.start] == 1 and self.t[sl.stop] - self.t[sl.start] >= 60:
+      if state[sl.start] == 1 and self.t[sl.stop] - self.t[sl.start] >= 60 and self.coords[sl.stop].ele - self.coords[sl.start].ele > 10:
         self.thermals.append(sl)
       elif state[sl.start] == 2 and (self.coords[sl.stop].ele - self.coords[sl.start].ele) / (self.t[sl.stop] - self.t[sl.start]) < -3:
         self.dives.append(sl)
