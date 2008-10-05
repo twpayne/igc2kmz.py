@@ -19,6 +19,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
+from __future__ import division
 
 import os
 import urllib
@@ -32,7 +33,7 @@ import copy
 # Helper variables and functions
 # -----------------------------------------------------------------------------
 
-__version__ = '0.2.1'
+__version__ = '0.2.2'
 __author__ = 'Gerald Kaszuba'
 
 reo_colour = re.compile('^([A-Fa-f0-9]{2,2}){3,4}$')
@@ -100,7 +101,7 @@ class Data(object):
     def float_scale_value(cls, value, range):
         lower, upper = range
         assert(upper > lower)
-        scaled = (value - lower) * (float(cls.max_value) / (upper - lower))
+        scaled = (value - lower) * (cls.max_value / (upper - lower))
         return scaled
 
     @classmethod
@@ -347,7 +348,8 @@ class Chart(object):
         if self.title:
             url_bits.append('chtt=%s' % self.title)
         if self.title_colour and self.title_font_size:
-            url_bits.append('chts=%s,%s' % (self.title_colour, self.title_font_size))
+            url_bits.append('chts=%s,%s' % (self.title_colour, \
+                self.title_font_size))
         if self.legend:
             url_bits.append('chdl=%s' % '%7c'.join(self.legend))
         if self.legend_position:
@@ -692,10 +694,13 @@ class Chart(object):
         self.markers.append(('r', colour, '0', str(start), str(stop)))
 
     def add_data_line(self, colour, data_set, size, priority=0):
-        self.markers.append(('D', colour, str(data_set), '0', str(size), str(priority)))
+        self.markers.append(('D', colour, str(data_set), '0', str(size), \
+            str(priority)))
 
-    def add_marker_text(self, string, colour, data_set, data_point, size, priority=0):
-        self.markers.append((str(string), colour, str(data_set), str(data_point), str(size), str(priority)))        
+    def add_marker_text(self, string, colour, data_set, data_point, size, \
+            priority=0):
+        self.markers.append((str(string), colour, str(data_set), \
+            str(data_point), str(size), str(priority)))        
 
     def add_vertical_range(self, colour, start, stop):
         self.markers.append(('R', colour, '0', str(start), str(stop)))

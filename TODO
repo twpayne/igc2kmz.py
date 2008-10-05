@@ -1,13 +1,6 @@
 HIGH
-Dive classification
-Glide classification
-Glide analysis
-Dive analysis
-Check floating point use in pygooglechart
 Check indexes in thermal folder
 Check indexes in colored tracklogs
-Filter out non-thermals
-Don't display thermal folder if no thermals!
 
 MEDIUM
 Add nice thermal and glide icons

@@ -184,15 +184,15 @@ class extrude(SimpleElement): pass
 class Folder(CompoundElement): pass
 class href(SimpleElement): pass
 
+
 class Icon(CompoundElement):
 
   @classmethod
   def character(cls, c, extra=''):
-    i = ord(c)
-    if ord('1') <= i <= ord('9'):
-      return cls.palette(3, (i - ord('1')) % 8 + 16 * ((i - ord('1')) / 8), extra)
-    elif ord('A') <= i <= ord('Z'):
-      return cls.palette(5, (i - ord('A')) % 8 + 16 * ((31 - i + ord('A')) / 8), extra)
+    if ord('1') <= ord(c) <= ord('9'):
+      return cls.palette(3, (ord(c) - ord('1')) % 8 + 16 * ((ord(c) - ord('1')) / 8), extra)
+    elif ord('A') <= ord(c) <= ord('Z'):
+      return cls.palette(5, (ord(c) - ord('A')) % 8 + 16 * ((31 - ord(c) + ord('A')) / 8), extra)
     else:
       return cls.default()
 

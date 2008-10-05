@@ -48,10 +48,22 @@ class Stock(object):
     self.kmz.add_roots(self.check_hide_children_style)
     balloon_style = kml.BalloonStyle(text=kml.CDATA('<h3>$[name]</h3>$[description]'))
     icon_style = kml.IconStyle(kml.Icon.palette(4, 24), scale=self.icon_scale)
-    label_style = kml.LabelStyle(color='880033ff', scale=self.label_scales[1])
-    line_style = kml.LineStyle(color='880033ff', width=4)
+    label_style = kml.LabelStyle(color='993333ff', scale=self.label_scales[1])
+    line_style = kml.LineStyle(color='993333ff', width=4)
     self.thermal_style = kml.Style(balloon_style, icon_style, label_style, line_style)
     self.kmz.add_roots(self.thermal_style)
+    balloon_style = kml.BalloonStyle(text=kml.CDATA('<h3>$[name]</h3>$[description]'))
+    icon_style = kml.IconStyle(kml.Icon.palette(4, 24), scale=self.icon_scale)
+    label_style = kml.LabelStyle(color='99ff3333', scale=self.label_scales[1])
+    line_style = kml.LineStyle(color='99ff3333', width=4)
+    self.dive_style = kml.Style(balloon_style, icon_style, label_style, line_style)
+    self.kmz.add_roots(self.dive_style)
+    balloon_style = kml.BalloonStyle(text=kml.CDATA('<h3>$[name]</h3>$[description]'))
+    icon_style = kml.IconStyle(kml.Icon.palette(4, 24), scale=self.icon_scale)
+    label_style = kml.LabelStyle(color='9933ff33', scale=self.label_scales[1])
+    line_style = kml.LineStyle(color='9933ff33', width=4)
+    self.glide_style = kml.Style(balloon_style, icon_style, label_style, line_style)
+    self.kmz.add_roots(self.glide_style)
     self.pixel_url = 'images/pixel.png'
     self.kmz.add_files({self.pixel_url: open(self.pixel_url).read()})
     self.visible_none_folder = self.make_none_folder(1)
@@ -113,7 +125,7 @@ class Flight(object):
     return kmz.kmz(kml.Folder(placemark, **folder_options))
 
   def make_scale_chart(self, globals, scale):
-    chart = pygooglechart.SimpleLineChart(50, 200, x_range=(0, 1), y_range=scale.range)
+    chart = pygooglechart.SimpleLineChart(40, 200, x_range=(0, 1), y_range=scale.range)
     chart.fill_solid(pygooglechart.Chart.BACKGROUND, 'ffffff00')
     chart.fill_solid(pygooglechart.Chart.CHART, 'ffffffcc')
     for i in xrange(0, 32 + 1):
@@ -124,7 +136,7 @@ class Flight(object):
       r, g, b, a = scale.color((i * (scale.range[1] - scale.range[0]) + 0.5) / 32 + scale.range[0])
       color = '%02x%02x%02x' % (255 * r, 255 * g, 255 * b)
       chart.add_fill_range(color, i, i + 1)
-    axis_index = chart.set_axis_range(pygooglechart.Axis.LEFT, scale.range[0], scale.range[1])
+    axis_index = chart.set_axis_range(pygooglechart.Axis.RIGHT, scale.range[0], scale.range[1])
     chart.set_axis_style(axis_index, 'ffffff')
     return chart
 
@@ -211,36 +223,43 @@ class Flight(object):
     chart.set_pie_labels(['%.1fm/s' % climb])
     return chart
 
-  def make_thermals_folder(self, globals):
-    if not self.track.elevation_data:
+  def make_analysis_folder(self, globals, title, slices, styleUrl):
+    if not self.track.elevation_data or len(slices) == 0:
       return kmz.kmz()
-    folder = kml.Folder(name='Thermals', styleUrl=globals.stock.check_hide_children_style.url(), visibility=0)
-    for sl in self.track.thermals:
+    folder = kml.Folder(name=title.capitalize() + "s", styleUrl=globals.stock.check_hide_children_style.url(), visibility=0)
+    for sl in slices:
       c = self.track.coords[sl.start].halfway_to(self.track.coords[sl.stop])
       point = kml.Point(coordinates=[c], altitudeMode='absolute')
       line_string = kml.LineString(coordinates=[self.track.coords[sl.start], self.track.coords[sl.stop]], altitudeMode='absolute')
       multi_geometry = kml.MultiGeometry(point, line_string)
-      total_dz_positive = 0
-      total_dz_negative = 0
-      max_climb = 0.0
-      climb_hist_data = [0] * (int(self.track.bounds.climb.max / 0.5) + 1)
+      total_dz_positive = total_dz_negative = 0
       for i in xrange(sl.start, sl.stop):
         dz = self.track.coords[i + 1].ele - self.track.coords[i].ele
         if dz > 0:
           total_dz_positive += dz
         elif dz < 0:
           total_dz_negative += dz
-        if self.track.climb[i] > max_climb:
-          max_climb = self.track.climb[i]
-        climb_hist_data[int(self.track.climb[i] / 0.5)] += 1
+      climb = util.Bounds(self.track.climb[sl])
       dz = float(self.track.coords[sl.stop].ele - self.track.coords[sl.start].ele)
       dt = self.track.t[sl.stop] - self.track.t[sl.start]
       dp = self.track.coords[sl.start].distance_to(self.track.coords[sl.stop])
       theta = self.track.coords[sl.start].initial_bearing_to(self.track.coords[sl.stop])
       rows = []
-      rows.append(('Altitude gain', '%dm' % dz))
-      rows.append(('Average climb', '%.1fm/s' % (dz / dt)))
-      rows.append(('Maximum climb', '%.1fm/s' % max_climb))
+      if title == 'thermal':
+        rows.append(('Altitude gain', '%dm' % dz))
+        rows.append(('Average climb', '%.1fm/s' % (dz / dt)))
+        rows.append(('Maximum climb', '%.1fm/s' % climb.max))
+        if dt * climb.max != 0.0: # FIXME
+          rows.append(('Efficiency', '%d%%' % (100.0 * dz / (dt * climb.max))))
+      elif title == 'glide':
+        rows.append(('Altitude loss', '%dm' % dz))
+        rows.append(('Distance', '%.1fkm' % (dp / 1000.0)))
+        rows.append(('Average glide angle', '%.1f:1' % (-dp / dz)))
+        rows.append(('Average speed', '%.1fkm/h' % (3.6 * dp / dt)))
+      elif title == 'dive':
+        rows.append(('Altitude loss', '%dm' % dz))
+        rows.append(('Average descent', '%.1fm/s' % (dz / dt)))
+        rows.append(('Maximum descent', '%.1fm/s' % climb.min))
       rows.append(('Start altitude', '%dm' % self.track.coords[sl.start].ele))
       rows.append(('Finish alitude', '%dm' % self.track.coords[sl.stop].ele))
       rows.append(('Start time', (self.track.coords[sl.start].dt + globals.timezone_offset).strftime('%H:%M:%S')))
@@ -248,24 +267,17 @@ class Flight(object):
       rows.append(('Duration', '%d:%02d' % divmod(self.track.t[sl.stop] - self.track.t[sl.start], 60)))
       rows.append(('Accumulated altitude gain', '%dm' % total_dz_positive))
       rows.append(('Accumulated altitude loss', '%dm' % total_dz_negative))
-      rows.append(('Drift', '%.1fkm/h %s' % (3.6 * dp / dt, coord.rad_to_compass(theta))))
-      if dt * max_climb != 0.0: # FIXME
-        rows.append(('Efficiency', '%d%%' % (100.0 * dz / (dt * max_climb))))
+      if title == 'thermal':
+        rows.append(('Drift', '%.1fkm/h %s' % (3.6 * dp / dt, coord.rad_to_compass(theta))))
       analysis_table = '<table>%s</table>' % ''.join('<tr><th align="right">%s</th><td>%s</td></tr>' % row for row in rows)
-      #average_climb_chart = self.make_climb_chart(globals, dz / dt)
-      #max_climb_chart = self.make_climb_chart(globals, max_climb)
-      #climb_hist_chart = pygooglechart.StackedVerticalBarChart(100, 40, y_range=(0, max(climb_hist_data)))
-      #climb_hist_chart.set_bar_width(5)
-      #climb_hist_chart.add_data(climb_hist_data)
-      #rows = []
-      #rows.append('%s<center>%s</center>' % (average_climb_chart.get_html_img(), 'Average climb'))
-      #rows.append('%s<center>%s</center>' % (max_climb_chart.get_html_img(), 'Maximum climb'))
-      #rows.append('%s<center>%s</center>' % (climb_hist_chart.get_html_img(), 'Climb histogram'))
-      #graphs_table = '<table>%s</table>' % ''.join('<tr><th>%s</th></tr>' % row for row in rows)
-      #description = kml.description(kml.CDATA('<table><tr>%s</tr></table>' % ''.join('<td valign="top">%s<td>' % t for t in [graphs_table, analysis_table])))
       description = kml.description(kml.CDATA(analysis_table))
-      name = '%dm at %.1fm/s' % (dz, dz / dt)
-      placemark = kml.Placemark(multi_geometry, description, kml.Snippet(), name=name, styleUrl=globals.stock.thermal_style.url())
+      if title == 'thermal':
+        name = '%dm at %.1fm/s' % (dz, dz / dt)
+      elif title == 'glide':
+        name = '%.1fkm at %.1f:1, %dkm/h' % (dp / 1000.0, -dp / dz, 3.6 * dp / dt)
+      elif title == 'dive':
+        name = '%dm at %.1fm/s' % (-dz, dz / dt)
+      placemark = kml.Placemark(multi_geometry, description, kml.Snippet(), name=name, styleUrl=styleUrl)
       folder.add(placemark)
     return kmz.kmz(folder)
 
@@ -291,15 +303,7 @@ class Flight(object):
     screen_xy = kml.screenXY(x=0, y=16, xunits='fraction', yunits='pixels')
     size = kml.size(x=0, y=0, xunits='fraction', yunits='fraction')
     screen_overlay = kml.ScreenOverlay(icon, overlay_xy, screen_xy, size)
-    folder = kml.Folder(screen_overlay, name=scale.title.capitalize(), styleUrl=globals.stock.check_hide_children_style.url(), visibility=0)
-    return folder
-
-  def make_graphs_folder(self, globals):
-    folder = kmz.kmz(kml.Folder(name='Graphs', open=1, styleUrl=globals.stock.radio_folder_style.url()))
-    folder.add(globals.stock.visible_none_folder)
-    folder.add(self.make_graph(globals, [c.ele for c in self.track.coords], globals.scales.altitude))
-    #folder.add(self.make_graph(globals, self.track.climb, globals.scales.climb))
-    #folder.add(self.make_graph(globals, self.track.speed, globals.scales.speed))
+    folder = kml.Folder(screen_overlay, name=scale.title.capitalize() + " graph", styleUrl=globals.stock.check_hide_children_style.url(), visibility=0)
     return folder
 
   def to_kmz(self, globals):
@@ -311,8 +315,11 @@ class Flight(object):
     folder.add(self.make_track_folder(globals))
     folder.add(self.make_shadow_folder(globals))
     folder.add(self.make_altitude_marks_folder(globals))
-    folder.add(self.make_thermals_folder(globals))
-    folder.add(self.make_graphs_folder(globals))
+    if self.track.elevation_data:
+      folder.add(self.make_graph(globals, [c.ele for c in self.track.coords], globals.scales.altitude))
+    folder.add(self.make_analysis_folder(globals, 'thermal', self.track.thermals, globals.stock.thermal_style.url()))
+    folder.add(self.make_analysis_folder(globals, 'glide', self.track.glides, globals.stock.glide_style.url()))
+    folder.add(self.make_analysis_folder(globals, 'dive', self.track.dives, globals.stock.dive_style.url()))
     return folder
 
 def flights2kmz(flights, timezone_offset=0):
