@@ -274,7 +274,7 @@ class Flight(object):
       if title == 'thermal':
         name = '%dm at %.1fm/s' % (dz, dz / dt)
       elif title == 'glide':
-        ld = '%.1f:`' % (-dp / dz) if dz < 0 else 'inf:1'
+        ld = '%.1f:1' % (-dp / dz) if dz < 0 else 'inf:1'
         name = '%.1fkm at %s, %dkm/h' % (dp / 1000.0, ld, 3.6 * dp / dt)
       elif title == 'dive':
         name = '%dm at %.1fm/s' % (-dz, dz / dt)
