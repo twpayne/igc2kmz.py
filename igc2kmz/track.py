@@ -114,5 +114,5 @@ class Track(object):
         if dt >= 30 and dz / dt < -2:
           self.dives.append(sl)
       elif state[sl.start] == GLIDE:
-        if dt >= 300:
+        if dt >= 120:
           self.glides.append(sl)
