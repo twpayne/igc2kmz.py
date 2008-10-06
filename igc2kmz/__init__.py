@@ -39,32 +39,27 @@ class Stock(object):
     folder = kml.Folder(screen_overlay, name='None', styleUrl=self.check_hide_children_style.url())
     return kmz.kmz(folder)
 
+  def make_analysis_style(self, color):
+    balloon_style = kml.BalloonStyle(text=kml.CDATA('<h3>$[name]</h3>$[description]'))
+    icon_style = kml.IconStyle(self.icons[0], color=color, scale=self.icon_scales[0])
+    label_style = kml.LabelStyle(color=color, scale=self.label_scales[0])
+    line_style = kml.LineStyle(color=color, width=4)
+    return kml.Style(balloon_style, icon_style, label_style, line_style)
+
   def __init__(self):
     self.kmz = kmz.kmz()
-    self.icon_scales = [math.sqrt(x) for x in [0.8, 0.6, 0.4, 0.2]]
-    self.icons = [kml.Icon.palette(4, i) for i in [27, 26, 25, 24]]
-    self.label_scales = [math.sqrt(x) for x in [0.8, 0.6, 0.4, 0.2]]
+    self.icon_scales = [math.sqrt(x) for x in [0.6, 0.5, 0.4, 0.3]]
+    self.icons = [kml.Icon.palette(4, i) for i in [25, 25, 24, 24]]
+    self.label_scales = [math.sqrt(x) for x in [0.6, 0.5, 0.4, 0.3]]
     self.radio_folder_style = kml.Style(kml.ListStyle(listItemType='radioFolder'))
     self.kmz.add_roots(self.radio_folder_style)
     self.check_hide_children_style = kml.Style(kml.ListStyle(listItemType='checkHideChildren'))
     self.kmz.add_roots(self.check_hide_children_style)
-    balloon_style = kml.BalloonStyle(text=kml.CDATA('<h3>$[name]</h3>$[description]'))
-    icon_style = kml.IconStyle(self.icons[0], scale=self.icon_scales[0])
-    label_style = kml.LabelStyle(color='993333ff', scale=self.label_scales[1])
-    line_style = kml.LineStyle(color='993333ff', width=4)
-    self.thermal_style = kml.Style(balloon_style, icon_style, label_style, line_style)
+    self.thermal_style = self.make_analysis_style('993333ff')
     self.kmz.add_roots(self.thermal_style)
-    balloon_style = kml.BalloonStyle(text=kml.CDATA('<h3>$[name]</h3>$[description]'))
-    icon_style = kml.IconStyle(self.icons[0], scale=self.icon_scales[0])
-    label_style = kml.LabelStyle(color='99ff3333', scale=self.label_scales[1])
-    line_style = kml.LineStyle(color='99ff3333', width=4)
-    self.dive_style = kml.Style(balloon_style, icon_style, label_style, line_style)
+    self.dive_style = self.make_analysis_style('99ff3333')
     self.kmz.add_roots(self.dive_style)
-    balloon_style = kml.BalloonStyle(text=kml.CDATA('<h3>$[name]</h3>$[description]'))
-    icon_style = kml.IconStyle(self.icons[0], scale=self.icon_scales[0])
-    label_style = kml.LabelStyle(color='9933ff33', scale=self.label_scales[1])
-    line_style = kml.LineStyle(color='9933ff33', width=4)
-    self.glide_style = kml.Style(balloon_style, icon_style, label_style, line_style)
+    self.glide_style = self.make_analysis_style('9933ff33')
     self.kmz.add_roots(self.glide_style)
     self.time_mark_styles = []
     for i in xrange(0, len(self.icons)):
@@ -380,8 +375,8 @@ def flights2kmz(flights, timezone_offset=0):
   globals.altitude_styles = []
   for c in globals.scales.altitude.colors():
     balloon_style = kml.BalloonStyle(text='$[description]')
-    icon_style = kml.IconStyle(globals.stock.icons[0], scale=globals.stock.icon_scales[0])
-    label_style = kml.LabelStyle(color=c, scale=globals.stock.label_scales[1])
+    icon_style = kml.IconStyle(globals.stock.icons[0], color=c, scale=globals.stock.icon_scales[0])
+    label_style = kml.LabelStyle(color=c, scale=globals.stock.label_scales[0])
     globals.altitude_styles.append(kml.Style(balloon_style, icon_style, label_style))
   stock.kmz.add_roots(*globals.altitude_styles)
   globals.scales.climb = scale.ZeroCenteredScale(globals.bounds.climb.tuple(), title='climb', step=0.1, gradient=color.bilinear_gradient)
