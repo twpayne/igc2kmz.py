@@ -65,6 +65,7 @@ class Stock(object):
     label_style = kml.LabelStyle(color='9933ff33', scale=self.label_scales[1])
     line_style = kml.LineStyle(color='9933ff33', width=4)
     self.glide_style = kml.Style(balloon_style, icon_style, label_style, line_style)
+    self.kmz.add_roots(self.glide_style)
     self.time_mark_styles = []
     for i in xrange(0, len(self.icons)):
       icon_style = kml.IconStyle(self.icons[i], scale=self.icon_scales[i])
