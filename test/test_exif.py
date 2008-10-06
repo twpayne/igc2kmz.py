@@ -29,7 +29,7 @@ import igc2kmz.exif
 def main(argv):
   for arg in argv[1:]:
     try:
-      pprint.pprint(igc2kmz.exif.Jpeg(open(arg)).exif().tags())
+      pprint.pprint(igc2kmz.exif.Jpeg(open(arg)).exif())
     except igc2kmz.exif.SyntaxError, line:
       print "%s: %s" % (arg, line)
 

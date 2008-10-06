@@ -212,7 +212,7 @@ GPS_INFO_IFD_TAGS = {
   }
 
 INTEROPERABILITY_INFO_IFD_TAGS = {
-  # TODO
+  0x0001: 'InteroperabilityIndex',
 }
 
 IFD_POINTER_IDS = {
@@ -222,29 +222,25 @@ IFD_POINTER_IDS = {
 }
 
 
-class Exif(object):
-
-  def __init__(self, data):
-    if data[0:4] != 'Exif':
-      raise SyntaxError, 'Unrecognised EXIF header %s' % repr(data[0:6])
-    self.tiff = Tiff(data[6:])
-
-  def tags(self):
-    result = {}
-    for ifd_offset in self.tiff.ifd_offsets():
-      for id, value in self.tiff.ifd_tags(ifd_offset):
-        if id in IFD_POINTER_IDS:
-          ifd_id = id
-          for id, value in self.tiff.ifd_tags(value):
-            result[IFD_POINTER_IDS[ifd_id].get(id, id)] = value
-        else:
-          result[TAGS.get(id, id)] = value
-    return result
+def exif(data):
+  if data[0:4] != 'Exif':
+    raise SyntaxError, 'Unrecognised EXIF header %s' % repr(data[0:6])
+  tiff = Tiff(data[6:])
+  result = {}
+  for ifd_offset in tiff.ifd_offsets():
+    for id, value in tiff.ifd_tags(ifd_offset):
+      if id in IFD_POINTER_IDS:
+        ifd_id = id
+        for id, value in tiff.ifd_tags(value):
+          result[IFD_POINTER_IDS[ifd_id].get(id, id)] = value
+      else:
+        result[TAGS.get(id, id)] = value
+  return result
 
 
 SOI = 0xffd8
-EOI = 0xffd9
 APP1 = 0xffe1
+SOS = 0xffda
 
 
 class Jpeg(object):
@@ -253,11 +249,10 @@ class Jpeg(object):
     self.file = file
 
   def chunks(self):
-    # FIXME The SOS (0xffda) chunk seems not to follow the spec...
     if struct.unpack('>H', self.file.read(2)) != (SOI,):
       raise SyntaxError
     id, = struct.unpack('>H', self.file.read(2))
-    while id != EOI:
+    while id != SOS:
       size, = struct.unpack('>H', self.file.read(2))
       yield (id, self.file.read(size - 2))
       id, = struct.unpack('>H', self.file.read(2))
@@ -265,5 +260,5 @@ class Jpeg(object):
   def exif(self):
     for id, data in self.chunks():
       if id == APP1:
-        return Exif(data)
-    return None
+        return exif(data)
+    return {}
