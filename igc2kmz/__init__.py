@@ -80,7 +80,7 @@ class Flight(object):
 
   def __init__(self, track, **kwargs):
     self.track = track
-    self.altitude_mode = 'absolute'
+    self.altitude_mode = 'absolute' if self.track.elevation_data else 'clampToGround'
     self.color = 'ff0000ff'
     self.width = 2
     self.pilot_name = track.pilot_name
