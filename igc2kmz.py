@@ -22,6 +22,7 @@ import sys
 
 import igc2kmz
 import igc2kmz.igc
+import igc2kmz.photo
 
 
 def add_flight(option, opt, value, parser):
@@ -33,7 +34,7 @@ def add_flight_option(option, opt, value, parser):
 
 
 def add_flight_photo(option, opt, value, parser):
-  parser.values.flights[-1].photos.append(value)
+  parser.values.flights[-1].photos.append(igc2kmz.photo.Photo(value))
 
 
 def main(argv):
