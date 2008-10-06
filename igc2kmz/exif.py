@@ -223,7 +223,7 @@ IFD_POINTER_IDS = {
 
 
 def exif(data):
-  if data[0:4] != 'Exif':
+  if data[0:6] != 'Exif\0\0':
     raise SyntaxError, 'Unrecognised EXIF header %s' % repr(data[0:6])
   tiff = Tiff(data[6:])
   result = {}
