@@ -38,7 +38,7 @@ class SyntaxError(RuntimeError):
   pass
 
 
-class Tiff(object):
+class TIFF(object):
 
   def __init__(self, data):
     self.data = data
@@ -225,7 +225,7 @@ IFD_POINTER_IDS = {
 def exif(data):
   if data[0:6] != 'Exif\0\0':
     raise SyntaxError, 'Unrecognised EXIF header %s' % repr(data[0:6])
-  tiff = Tiff(data[6:])
+  tiff = TIFF(data[6:])
   result = {}
   for ifd_offset in tiff.ifd_offsets():
     for id, value in tiff.ifd_tags(ifd_offset):
@@ -240,25 +240,27 @@ def exif(data):
 
 SOI = 0xffd8
 APP1 = 0xffe1
+SOF = 0xffc0
 SOS = 0xffda
 
 
-class Jpeg(object):
+class JPEG(object):
 
   def __init__(self, file):
-    self.file = file
-
-  def chunks(self):
-    if struct.unpack('>H', self.file.read(2)) != (SOI,):
-      raise SyntaxError
-    id, = struct.unpack('>H', self.file.read(2))
-    while id != SOS:
-      size, = struct.unpack('>H', self.file.read(2))
-      yield (id, self.file.read(size - 2))
-      id, = struct.unpack('>H', self.file.read(2))
-
-  def exif(self):
-    for id, data in self.chunks():
+    self.exif = {}
+    self.height = self.width = None
+    for id, data in JPEG.chunks(file):
       if id == APP1:
-        return exif(data)
-    return {}
+        self.exif = exif(data)
+      elif id == SOF:
+        self.height, self.width = struct.unpack('>HH', data[1:5])
+
+  @classmethod
+  def chunks(self, file):
+    if struct.unpack('>H', file.read(2)) != (SOI,):
+      raise SyntaxError
+    id, = struct.unpack('>H', file.read(2))
+    while id != SOS:
+      size, = struct.unpack('>H', file.read(2))
+      yield (id, file.read(size - 2))
+      id, = struct.unpack('>H', file.read(2))
