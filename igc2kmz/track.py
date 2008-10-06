@@ -100,7 +100,8 @@ class Track(object):
     for sl in util.condense(util.runs_where(self.progress[i] >= 0.9 for i in xrange(0, n - 1)), self.t, 60):
       state[sl] = [GLIDE] * (sl.stop - sl.start)
     for sl in util.condense(util.runs_where(self.progress[i] < 0.9 and self.climb[i] < 1.0 for i in xrange(0, n - 1)), self.t, 30):
-      state[sl] = [DIVE] * (sl.stop - sl.start)
+      if self.coords[sl.stop].ele - self.coords[sl.start].ele < -100:
+        state[sl] = [DIVE] * (sl.stop - sl.start)
     for sl in util.condense(util.runs_where(self.progress[i] < 0.9 and self.climb[i] > 0.0 for i in xrange(0, n - 1)), self.t, 60):
       state[sl] = [THERMAL] * (sl.stop - sl.start)
     self.thermals, self.glides, self.dives = [], [], []
