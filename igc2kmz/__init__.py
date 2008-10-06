@@ -19,7 +19,7 @@ import datetime
 import math
 import time
 
-import pygooglechart
+import third_party.pygooglechart as pygooglechart
 
 import color
 import kml
