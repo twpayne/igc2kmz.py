@@ -275,7 +275,7 @@ class Flight(object):
       rows.append(('Accumulated altitude gain', '%dm' % total_dz_positive))
       rows.append(('Accumulated altitude loss', '%dm' % total_dz_negative))
       if title == 'thermal':
-        rows.append(('Drift', '%.1fkm/h %s' % (3.6 * dp / dt, coord.rad_to_compass(theta))))
+        rows.append(('Drift', '%.1fkm/h %s' % (3.6 * dp / dt, coord.rad_to_compass(theta + math.pi))))
       analysis_table = '<table>%s</table>' % ''.join('<tr><th align="right">%s</th><td>%s</td></tr>' % row for row in rows)
       description = kml.description(kml.CDATA(analysis_table))
       if title == 'thermal':
