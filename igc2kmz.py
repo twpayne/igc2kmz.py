@@ -32,16 +32,21 @@ def add_flight_option(option, opt, value, parser):
   setattr(parser.values.flights[-1], option.dest, value)
 
 
+def add_flight_photo(option, opt, value, parser):
+  parser.values.flights[-1].photos.append(value)
+
+
 def main(argv):
   parser = optparse.OptionParser(usage='Usage: %prog [options]', description="IGC to Google Earth converter")
   parser.add_option('-o', '--output', metavar='FILENAME')
   parser.add_option('-z', '--timezone-offset', metavar='HOURS', type='int')
   group = optparse.OptionGroup(parser, 'Per-flight options')
   group.add_option('-i', '--igc', metavar='FILENAME', type='string', action='callback', callback=add_flight)
-  group.add_option('-p', '--pilot-name', metavar='STRING', type='string', action='callback', callback=add_flight_option)
+  group.add_option('-n', '--pilot-name', metavar='STRING', type='string', action='callback', callback=add_flight_option)
   group.add_option('-g', '--glider-type', metavar='STRING', type='string', action='callback', callback=add_flight_option)
   group.add_option('-c', '--color', metavar='COLOR', type='string', action='callback', callback=add_flight_option)
   group.add_option('-w', '--width', metavar='INTEGER', type='string', action='callback', callback=add_flight_option)
+  group.add_option('-p', '--photo', metavar='FILENAME', type='string', action='callback', callback=add_flight_photo)
   parser.add_option_group(group)
   parser.set_defaults(output='igc2kmz.kmz')
   parser.set_defaults(timezone_offset=0)

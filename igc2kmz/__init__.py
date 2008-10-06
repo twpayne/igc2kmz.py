@@ -86,6 +86,7 @@ class Flight(object):
     self.pilot_name = track.pilot_name
     self.glider_type = track.glider_type
     self.glider_id = track.glider_id
+    self.photos = []
     self.__dict__.update(kwargs)
 
   def make_description(self, globals):
