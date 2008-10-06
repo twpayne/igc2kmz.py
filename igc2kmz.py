@@ -16,9 +16,9 @@ def add_flight_option(option, opt, value, parser):
 
 
 def main(argv):
-  parser = optparse.OptionParser(usage='Usage: %prog [options]')
+  parser = optparse.OptionParser(usage='Usage: %prog [options]', description="IGC to Google Earth converter")
   parser.add_option('-o', '--output', metavar='FILENAME')
-  parser.add_option('-z', '--timezone-offset', metavar='INTEGER', type='int')
+  parser.add_option('-z', '--timezone-offset', metavar='HOURS', type='int')
   group = optparse.OptionGroup(parser, 'Per-flight options')
   group.add_option('-i', '--igc', metavar='FILENAME', type='string', action='callback', callback=add_flight)
   group.add_option('-p', '--pilot-name', metavar='STRING', type='string', action='callback', callback=add_flight_option)
