@@ -68,7 +68,7 @@ class Stock(object):
     self.time_mark_styles = []
     for i in xrange(0, len(self.icons)):
       icon_style = kml.IconStyle(self.icons[i], scale=self.icon_scales[i])
-      label_style = kml.LabelStyle(color='99ffff33', scale=self.label_scales[i])
+      label_style = kml.LabelStyle(color='9933ffff', scale=self.label_scales[i])
       self.time_mark_styles.append(kml.Style(icon_style, label_style))
     self.kmz.add_roots(*self.time_mark_styles)
     self.pixel_url = 'images/pixel.png'
@@ -334,8 +334,8 @@ class Flight(object):
       index = util.find_first_ge(self.track.t, t)
       if index is None:
         break
-      delta = float(self.track.t[index] - t) / (self.track.t[index] - self.track.t[index - 1])
-      coord = self.track.coords[index - 1].interpolate(self.track.coords[0], delta)
+      delta = float(t - self.track.t[index - 1]) / (self.track.t[index] - self.track.t[index - 1])
+      coord = self.track.coords[index - 1].interpolate(self.track.coords[index], delta)
       if dt.minute == 0:
         style_index = 0
       elif dt.minute == 30:
