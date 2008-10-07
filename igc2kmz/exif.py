@@ -15,6 +15,8 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import datetime
+import re
 import struct
 
 
@@ -53,7 +55,7 @@ class TIFF(object):
   def ifd_tags(self, offset):
     n, = struct.unpack(self.byte_order_char + 'H', self.data[offset:offset + 2])
     for i in xrange(0, n):
-      id, data_type, count = struct.unpack(self.byte_order_char + 'HHL', self.data[offset + 2 + 12 * i:offset + 2 + 12 * i + 8])
+      tag, data_type, count = struct.unpack(self.byte_order_char + 'HHL', self.data[offset + 2 + 12 * i:offset + 2 + 12 * i + 8])
       if not data_type in DATA_TYPE_LENGTH:
         raise SyntaxError, 'Unrecognised data type %d' % data_type
       data_length = DATA_TYPE_LENGTH[data_type] * count
@@ -72,7 +74,7 @@ class TIFF(object):
           data = struct.unpack('%s%d%s' % (self.byte_order_char, count, DATA_TYPE_FORMAT[data_type]), self.data[data_slice])
         if count == 1:
           data, = data
-      yield (id, data)
+      yield (tag, data)
 
   def ifd_offsets(self):
     offset = self.first_ifd_offset
@@ -215,7 +217,7 @@ INTEROPERABILITY_INFO_IFD_TAGS = {
   0x0001: 'InteroperabilityIndex',
 }
 
-IFD_POINTER_IDS = {
+IFD_POINTER_TAGS = {
   0x8769: EXIF_IFD_TAGS,
   0x8825: GPS_INFO_IFD_TAGS,
   0xa005: INTEROPERABILITY_INFO_IFD_TAGS,
@@ -224,24 +226,47 @@ IFD_POINTER_IDS = {
 
 def exif(data):
   if data[0:6] != 'Exif\0\0':
-    raise SyntaxError, 'Unrecognised EXIF header %s' % repr(data[0:6])
+    raise SyntaxError, 'Invalid EXIF header %s' % repr(data[0:6])
   tiff = TIFF(data[6:])
   result = {}
   for ifd_offset in tiff.ifd_offsets():
-    for id, value in tiff.ifd_tags(ifd_offset):
-      if id in IFD_POINTER_IDS:
-        ifd_id = id
-        for id, value in tiff.ifd_tags(value):
-          result[IFD_POINTER_IDS[ifd_id].get(id, id)] = value
+    for tag, value in tiff.ifd_tags(ifd_offset):
+      if tag in IFD_POINTER_TAGS:
+        ifd_tags = IFD_POINTER_TAGS[tag]
+        for tag, value in tiff.ifd_tags(value):
+          result[ifd_tags.get(tag, tag)] = value
       else:
-        result[TAGS.get(id, id)] = value
+        result[TAGS.get(tag, tag)] = value
   return result
+
+
+DATETIME_RE = re.compile(r'(\d+):(\d+):(\d+)\s+(\d+):(\d+):(\d+)\0\Z')
+
+
+def parse_datetime(value):
+  m = DATETIME_RE.match(value)
+  return datetime.datetime(*map(int, m.groups())) if m else None
+
+
+CHARSET = {
+  'ASCII\0\0\0': 'ascii',
+  'JIS\0\0\0\0\0': 'shift_jis',
+  'UNICODE\0': 'utf_8',
+  '\0\0\0\0\0\0\0\0': 'ascii',
+}
+
+
+def parse_usercomment(value):
+  value = ''.join(map(chr, value))
+  if value[0:8] in CHARSET:
+    return value[8:].rstrip('\0').decode(CHARSET[value[0:8]])
+  else:
+    return value
 
 
 SOI = 0xffd8
 APP1 = 0xffe1
 SOF = 0xffc0
-SOS = 0xffda
 
 
 class JPEG(object):
@@ -249,18 +274,18 @@ class JPEG(object):
   def __init__(self, file):
     self.exif = {}
     self.height = self.width = None
-    for id, data in JPEG.chunks(file):
-      if id == APP1:
+    for tag, data in JPEG.chunks(file):
+      if tag == APP1:
         self.exif = exif(data)
-      elif id == SOF:
+      elif tag == SOF:
         self.height, self.width = struct.unpack('>HH', data[1:5])
 
   @classmethod
   def chunks(self, file):
     if struct.unpack('>H', file.read(2)) != (SOI,):
-      raise SyntaxError
-    id, = struct.unpack('>H', file.read(2))
-    while id != SOS:
+      raise SyntaxError, "Missing SOI header"
+    tag, = struct.unpack('>H', file.read(2))
+    while tag > 0xff00:
       size, = struct.unpack('>H', file.read(2))
-      yield (id, file.read(size - 2))
-      id, = struct.unpack('>H', file.read(2))
+      yield (tag, file.read(size - 2))
+      tag, = struct.unpack('>H', file.read(2))

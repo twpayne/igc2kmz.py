@@ -15,15 +15,11 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import datetime
 import re
 import urllib2
 import urlparse
 
 import exif
-
-
-EXIF_DATETIME_RE = re.compile(r'(\d+):(\d+):(\d+)\s+(\d+):(\d+):(\d+)')
 
 
 class Photo(object):
@@ -37,5 +33,5 @@ class Photo(object):
     if file.info().typeheader != 'image/jpeg':
       raise RuntimeError, '%s: not an image/jpeg' % self.url
     self.jpeg = exif.JPEG(file)
-    m = DATETIME_RE.match(self.jpeg.exif.get('DateTimeOriginal') or self.jpeg.exif.get('DateTime') or '')
-    self.dt = datetime.datetime(*map(int, m.groups())) if m else None
+    value = self.jpeg.exif.get('DateTimeOriginal') or self.jpeg.exif.get('DateTime')
+    self.dt = exif.parse_datetime(value) if value else None

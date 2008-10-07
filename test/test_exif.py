@@ -29,7 +29,13 @@ import igc2kmz.exif
 def main(argv):
   for arg in argv[1:]:
     try:
-      pprint.pprint(igc2kmz.exif.JPEG(open(arg)).__dict__)
+      jpeg = igc2kmz.exif.JPEG(open(arg))
+      for tag, value in jpeg.exif.items():
+        if tag == 'UserComment':
+          jpeg.exif[tag] = igc2kmz.exif.parse_usercomment(value)
+        elif isinstance(tag, str) and tag.startswith('DateTime'):
+          jpeg.exif[tag] = igc2kmz.exif.parse_datetime(value)
+      pprint.pprint(jpeg.__dict__)
     except igc2kmz.exif.SyntaxError, line:
       print "%s: %s" % (arg, line)
 
