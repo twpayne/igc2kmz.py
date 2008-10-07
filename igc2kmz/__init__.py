@@ -369,9 +369,9 @@ class Flight(object):
     folder = kmz.kmz(kml.Folder(name=self.track.filename, open=1))
     folder.add(self.make_description(globals))
     folder.add(self.make_snippet(globals))
-    folder.add(self.make_animation(globals))
     folder.add(self.make_track_folder(globals))
     folder.add(self.make_shadow_folder(globals))
+    folder.add(self.make_animation(globals))
     folder.add(self.make_photos_folder(globals))
     folder.add(self.make_altitude_marks_folder(globals))
     if self.track.elevation_data:
