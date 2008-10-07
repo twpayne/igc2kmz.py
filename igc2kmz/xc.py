@@ -45,10 +45,7 @@ class Rte(object):
 
 class XC(object):
 
-  def __init__(self, etree):
+  def __init__(self, file):
+    etree = xml.etree.ElementTree.parse(file)
     self.league = etree.findtext('/metadata/extensions/league')
     self.rtes = [Rte(rte) for rte in etree.findall('/rte')]
-
-
-def parse(file):
-  return XC(xml.etree.ElementTree.parse(file))
