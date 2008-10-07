@@ -17,7 +17,7 @@
 
 import datetime
 import math
-import time
+import operator
 
 import third_party.pygooglechart as pygooglechart
 
@@ -67,6 +67,11 @@ class Stock(object):
       label_style = kml.LabelStyle(color='9933ffff', scale=self.label_scales[i])
       self.time_mark_styles.append(kml.Style(icon_style, label_style))
     self.kmz.add_roots(*self.time_mark_styles)
+    balloon_style = kml.BalloonStyle(text=kml.CDATA('<h3>$[name]</h3>$[description]'))
+    icon_style = kml.IconStyle(kml.Icon.palette(4, 46), scale=self.icon_scales[0])
+    label_style = kml.LabelStyle(scale=self.label_scales[0])
+    self.photo_style = kml.Style(balloon_style, icon_style, label_style)
+    self.kmz.add_roots(self.photo_style)
     self.pixel_url = 'images/pixel.png'
     self.kmz.add_files({self.pixel_url: open(self.pixel_url).read()})
     self.visible_none_folder = self.make_none_folder(1)
@@ -216,6 +221,23 @@ class Flight(object):
     else:
       return kmz.kmz()
 
+  def make_photos_folder(self, globals):
+    if not len(self.photos):
+      return kmz.kmz()
+    folder = kml.Folder(name='Photos', open=0)
+    for photo in sorted(self.photos, key=operator.attrgetter('dt')):
+      if photo.coord:
+        coord = photo.coord
+        altitude_mode = 'absolute' if photo.elevation_data else 'clampToGround'
+      else:
+        coord = self.track.coord_at(photo.dt - globals.timezone_offset)
+        altitude_mode = self.altitude_mode
+      point = kml.Point(coordinates=[coord], altitudeMode=altitude_mode)
+      description = kml.CDATA('<img alt="%s" src="%s" height="%d" width="%d" />' % (photo.name, photo.url, photo.jpeg.height, photo.jpeg.width))
+      placemark = kml.Placemark(point, kml.Snippet(), name=photo.name, description=description, styleUrl=globals.stock.photo_style.url())
+      folder.add(placemark)
+    return kmz.kmz(folder)
+
   def make_climb_chart(self, globals, climb):
     chart = pygooglechart.GoogleOMeterChart(100, 100, x_range=(0, 100 * self.track.bounds.climb.max))
     chart.add_data([100.0 * climb])
@@ -324,15 +346,10 @@ class Flight(object):
     folder = kml.Folder(name='Time marks', styleUrl=globals.stock.check_hide_children_style.url(), visibility=0)
     folder.add(self.make_time_mark(globals, self.track.coords[0], self.track.coords[0].dt, globals.stock.time_mark_styles[0].url()))
     dt = util.datetime_floor(self.track.coords[0].dt, step)
-    while dt < self.track.coords[0].dt:
+    while dt <= self.track.coords[0].dt:
       dt += step
-    while True:
-      t = int(time.mktime(dt.timetuple()))
-      index = util.find_first_ge(self.track.t, t)
-      if index is None:
-        break
-      delta = float(t - self.track.t[index - 1]) / (self.track.t[index] - self.track.t[index - 1])
-      coord = self.track.coords[index - 1].interpolate(self.track.coords[index], delta)
+    while dt < self.track.coords[-1].dt:
+      coord = self.track.coord_at(dt)
       if dt.minute == 0:
         style_index = 0
       elif dt.minute == 30:
@@ -354,6 +371,7 @@ class Flight(object):
     folder.add(self.make_animation(globals))
     folder.add(self.make_track_folder(globals))
     folder.add(self.make_shadow_folder(globals))
+    folder.add(self.make_photos_folder(globals))
     folder.add(self.make_altitude_marks_folder(globals))
     if self.track.elevation_data:
       folder.add(self.make_graph(globals, [c.ele for c in self.track.coords], globals.scales.altitude))

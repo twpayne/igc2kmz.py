@@ -37,6 +37,17 @@ class Track(object):
     self.__dict__.update(kwargs)
     self.analyse(20)
 
+  def coord_at(self, dt):
+    t = int(time.mktime(dt.timetuple()))
+    if t < self.t[0]:
+      return self.coords[0]
+    elif self.t[-1] <= t:
+      return self.coords[-1]
+    else:
+      index = util.find_first_ge(self.t, t)
+      delta = float(t - self.t[index - 1]) / (self.t[index] - self.t[index - 1])
+      return self.coords[index - 1].interpolate(self.coords[index], delta)
+
   def analyse(self, dt):
     n = len(self.coords)
     self.bounds = util.BoundsSet()

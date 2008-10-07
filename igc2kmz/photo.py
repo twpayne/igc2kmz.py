@@ -15,23 +15,46 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import re
+import datetime
+import os.path
 import urllib2
 import urlparse
 
+import coord
 import exif
 
 
 class Photo(object):
 
   def __init__(self, url):
-    if urlparse.urlparse(url).scheme:
-      self.url = url
-    else:
-      self.url = 'file://' + url
+    components = urlparse.urlparse(url)
+    self.name = os.path.splitext(os.path.basename(components.path))[0]
+    self.url = url if components.scheme else 'file://' + os.path.realpath(url)
     file = urllib2.urlopen(self.url)
     if file.info().typeheader != 'image/jpeg':
       raise RuntimeError, '%s: not an image/jpeg' % self.url
     self.jpeg = exif.JPEG(file)
-    value = self.jpeg.exif.get('DateTimeOriginal') or self.jpeg.exif.get('DateTime')
-    self.dt = exif.parse_datetime(value) if value else None
+    if 'DateTimeOriginal' in self.jpeg.exif:
+      self.dt = exif.parse_datetime(self.jpeg.exif['DateTimeOriginal'])
+    elif 'DateTime' in self.jpeg.exif:
+      self.dt = exif.parse_datetime(self.jpeg.exif['DateTime'])
+    else:
+      self.dt = datetime.datetime(2000, 1, 1)
+    if 'GPSVersionID' in self.jpeg.exif:
+      lat = exif.parse_angle(self.jpeg.exif['GPSLatitude'])
+      if self.jpeg.exif['GPSLatitudeRef'] == 'S\0':
+        lat = -lat
+      lon = exif.parse_angle(self.jpeg.exif['GPSLongitude'])
+      if self.jpeg.exif['GPSLongitudeRef'] == 'W\0':
+        lon = -lon
+      if 'GPSAltitude' in self.jpeg.exif:
+        gps_altitude = self.jpeg.exif['GPSAltitude']
+        ele = float(gps_altitude[0]) / gps_altitude[1]
+        self.elevation_data = True
+      else:
+        ele = 0
+        self.elevation_data = False
+      self.coord = coord.Coord.deg(lat, lon, ele)
+    else:
+      self.coord = None
+      self.elevation_data = None
