@@ -39,7 +39,7 @@ def add_flight_photo(option, opt, value, parser):
 
 
 def add_flight_xc(option, opt, value, parser):
-  parser.values.flights[-1].xcs.append(igc2kmz.xc.XC(open(value)))
+  parser.values.flights[-1].xc = igc2kmz.xc.XC(open(value))
 
 
 def main(argv):

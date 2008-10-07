@@ -18,6 +18,7 @@
 import datetime
 import math
 import operator
+import unicodedata
 
 import third_party.pygooglechart as pygooglechart
 
@@ -72,6 +73,11 @@ class Stock(object):
     label_style = kml.LabelStyle(scale=self.label_scales[0])
     self.photo_style = kml.Style(balloon_style, icon_style, label_style)
     self.kmz.add_roots(self.photo_style)
+    balloon_style = kml.BalloonStyle(text=kml.CDATA('<h3>$[name]</h3>$[description]'))
+    icon_style = kml.IconStyle(self.icons[0], scale=self.icon_scales[0])
+    label_style = kml.LabelStyle(color='99ffff33', scale=self.label_scales[0])
+    self.xc_style = kml.Style(balloon_style, icon_style, label_style)
+    self.kmz.add_roots(self.xc_style)
     self.pixel_url = 'images/pixel.png'
     self.kmz.add_files({self.pixel_url: open(self.pixel_url).read()})
     self.visible_none_folder = self.make_none_folder(1)
@@ -92,7 +98,7 @@ class Flight(object):
     self.glider_type = track.glider_type
     self.glider_id = track.glider_id
     self.photos = []
-    self.xcs = []
+    self.xc = None
     self.__dict__.update(kwargs)
 
   def make_description(self, globals):
@@ -239,6 +245,50 @@ class Flight(object):
       folder.add(placemark)
     return kmz.kmz(folder)
 
+  def make_xc_folder(self, globals):
+    def make_row(rtept0,rtept1):
+      return ('%s %s %s' % (rtept0.name, unicodedata.lookup('RIGHTWARDS ARROW'), rtept1.name), '%.1fkm' % (rtept0.coord.distance_to(rtept1.coord) / 1000.0))
+    if not self.xc:
+      return kmz.kmz()
+    folder = kml.Folder(name='Cross country', open=0)
+    for rank, rte in enumerate(sorted(self.xc.rtes, key=operator.attrgetter('score'), reverse=True)):
+      rows = []
+      rows.append(('League', self.xc.league))
+      rows.append(('Type', rte.name))
+      for rtept0, rtept1 in util.pairwise(rte.rtepts):
+        rows.append(make_row(rtept0, rtept1))
+      if rte.circuit:
+        rows.append(make_row(rte.rtepts[-1], rte.rtepts[0]))
+      rows.append(('Distance', '%.1fkm' % rte.distance))
+      rows.append(('Multiplier', '%s %.1f points/km' % (unicodedata.lookup('MULTIPLICATION SIGN'), rte.multiplier)))
+      rows.append(('Score', '%.2f points' % rte.score))
+      description = '<table>%s</table>' % ''.join('<tr><th align="right">%s</th><td>%s</td></tr>' % row for row in rows)
+      name = '%s (%.1fkm, %.2f points)' % (rte.name, rte.distance, rte.score)
+      visibility = 1 if rank == 0 else 0
+      rte_folder = kml.Folder(kml.Snippet(), name=name, description=kml.CDATA(description.encode('utf_8')), styleUrl=globals.stock.check_hide_children_style.url(), visibility=visibility)
+      line_string = kml.LineString(coordinates=[rtept.coord for rtept in rte.rtepts], tessellate=1)
+      placemark = kml.Placemark(line_string, styleUrl=globals.stock.xc_style.url())
+      rte_folder.add(placemark)
+      for rtept in rte.rtepts:
+        coord = self.track.coord_at(rtept.coord.dt)
+        point = kml.Point(coordinates=[rtept.coord], altitudeMode=self.altitude_mode, extrude=1)
+        placemark = kml.Placemark(point, name=rtept.name, styleUrl=globals.stock.xc_style.url())
+        rte_folder.add(placemark)
+      for rtept0, rtept1 in util.pairwise(rte.rtepts):
+        if rtept0.coord.lat == rtept1.coord.lat and rtept0.coord.lon == rtept1.coord.lon:
+          continue
+        point = kml.Point(coordinates=[rtept0.coord.halfway_to(rtept1.coord)])
+        name = '%.1fkm' % (rtept0.coord.distance_to(rtept1.coord) / 1000.0)
+        placemark = kml.Placemark(point, name=name, styleUrl=globals.stock.xc_style.url())
+        rte_folder.add(placemark)
+      if rte.circuit and len(rte.rtepts) > 4:
+        point = kml.Point(coordinates=[rte.rtepts[-2].coord.halfway_to(rte.rtepts[1].coord)])
+        name = '%.1fkm' % (rte.rtepts[-2].coord.distance_to(rte.rtepts[1].coord) / 1000.0)
+        placemark = kml.Placemark(point, name=name, styleUrl=globals.stock.xc_style.url())
+        rte_folder.add(placemark)
+      folder.add(rte_folder)
+    return kmz.kmz(folder)
+
   def make_climb_chart(self, globals, climb):
     chart = pygooglechart.GoogleOMeterChart(100, 100, x_range=(0, 100 * self.track.bounds.climb.max))
     chart.add_data([100.0 * climb])
@@ -284,7 +334,7 @@ class Flight(object):
       elif title == 'glide':
         rows.append(('Altitude loss', '%dm' % dz))
         rows.append(('Distance', '%.1fkm' % (dp / 1000.0)))
-        rows.append(('Average glide ratio', '%.1f:1' % (-dp / dz) if dz < 0 else '\xe2\x88\x9e:1'))
+        rows.append(('Average glide ratio', '%.1f:1' % (-dp / dz) if dz < 0 else unicodedata.lookup('INFINITY').encode('utf_8') + ':1'))
         rows.append(('Average speed', '%.1fkm/h' % (3.6 * dp / dt)))
       elif title == 'dive':
         rows.append(('Altitude loss', '%dm' % dz))
@@ -305,7 +355,7 @@ class Flight(object):
       if title == 'thermal':
         name = '%dm at %.1fm/s' % (dz, dz / dt)
       elif title == 'glide':
-        ld = '%.1f:1' % (-dp / dz) if dz < 0 else '\xe2\x88\x9e:1'
+        ld = '%.1f:1' % (-dp / dz) if dz < 0 else unicodedata.lookup('INFINITY').encode('utf_8') + ':1'
         name = '%.1fkm at %s, %dkm/h' % (dp / 1000.0, ld, 3.6 * dp / dt + 0.5)
       elif title == 'dive':
         name = '%dm at %.1fm/s' % (-dz, dz / dt)
@@ -373,6 +423,7 @@ class Flight(object):
     folder.add(self.make_shadow_folder(globals))
     folder.add(self.make_animation(globals))
     folder.add(self.make_photos_folder(globals))
+    folder.add(self.make_xc_folder(globals))
     folder.add(self.make_altitude_marks_folder(globals))
     if self.track.elevation_data:
       folder.add(self.make_graph(globals, [c.ele for c in self.track.coords], globals.scales.altitude))

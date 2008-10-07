@@ -258,6 +258,7 @@ class Style(CompoundElement):
 
 
 class styleUrl(SimpleElement): pass
+class tessellate(SimpleElement): pass
 class text(SimpleElement): pass
 class TimeSpan(CompoundElement): pass
 class visibility(SimpleElement): pass
