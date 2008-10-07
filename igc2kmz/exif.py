@@ -16,7 +16,6 @@
 
 
 import datetime
-import re
 import struct
 
 
@@ -242,12 +241,8 @@ def parse_angle(value):
   return sum(n / d for n, d in zip([float(n) / d for n, d in value], (1, 60, 3600)))
 
 
-DATETIME_RE = re.compile(r'(\d+):(\d+):(\d+)\s+(\d+):(\d+):(\d+)\0\Z')
-
-
 def parse_datetime(value):
-  m = DATETIME_RE.match(value)
-  return datetime.datetime(*map(int, m.groups())) if m else None
+  return datetime.datetime.strptime(value.rstrip('\0'), '%Y:%m:%d %H:%M:%S')
 
 
 CHARSET = {
