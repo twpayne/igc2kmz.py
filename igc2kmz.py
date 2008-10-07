@@ -23,6 +23,7 @@ import sys
 import igc2kmz
 import igc2kmz.igc
 import igc2kmz.photo
+import igc2kmz.xc
 
 
 def add_flight(option, opt, value, parser):
@@ -37,6 +38,10 @@ def add_flight_photo(option, opt, value, parser):
   parser.values.flights[-1].photos.append(igc2kmz.photo.Photo(value))
 
 
+def add_flight_xc(option, opt, value, parser):
+  parser.values.flights[-1].xcs.append(igc2kmz.xc.XC(open(value)))
+
+
 def main(argv):
   parser = optparse.OptionParser(usage='Usage: %prog [options]', description="IGC to Google Earth converter")
   parser.add_option('-o', '--output', metavar='FILENAME')
@@ -48,6 +53,7 @@ def main(argv):
   group.add_option('-c', '--color', metavar='COLOR', type='string', action='callback', callback=add_flight_option)
   group.add_option('-w', '--width', metavar='INTEGER', type='string', action='callback', callback=add_flight_option)
   group.add_option('-p', '--photo', metavar='FILENAME', type='string', action='callback', callback=add_flight_photo)
+  group.add_option('-x', '--xc', metavar='FILENAME', type='string', action='callback', callback=add_flight_xc)
   parser.add_option_group(group)
   parser.set_defaults(output='igc2kmz.kmz')
   parser.set_defaults(timezone_offset=0)
