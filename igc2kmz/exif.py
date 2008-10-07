@@ -238,6 +238,10 @@ def exif(data):
   return result
 
 
+def parse_angle(value):
+  return sum(n / d for n, d in zip([float(n) / d for n, d in value], (1, 60, 3600)))
+
+
 DATETIME_RE = re.compile(r'(\d+):(\d+):(\d+)\s+(\d+):(\d+):(\d+)\0\Z')
 
 
