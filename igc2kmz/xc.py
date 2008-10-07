@@ -24,12 +24,12 @@ import coord
 class RtePt(object):
 
   def __init__(self, etree):
-    self.dt = datetime.datetime.strptime(etree.findtext('time'), '%Y-%m-%dT%H:%M:%SZ')
     self.fix = etree.findtext('fix')
     self.name = etree.findtext('name')
     lat = float(etree.get('lat'))
     lon = float(etree.get('lon'))
     ele = int(etree.findtext('ele')) if self.fix == '3d' else 0
+    dt = datetime.datetime.strptime(etree.findtext('time'), '%Y-%m-%dT%H:%M:%SZ')
     self.coord = coord.Coord.deg(lat, lon, ele, dt)
 
 
