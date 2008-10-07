@@ -263,3 +263,6 @@ class TimeSpan(CompoundElement): pass
 class visibility(SimpleElement): pass
 class when(SimpleElement): pass
 class width(SimpleElement): pass
+
+
+__all__ = class_by_name.keys()
