@@ -17,6 +17,7 @@
 
 import __builtin__
 import datetime
+import itertools
 import math
 import sys
 
@@ -208,6 +209,14 @@ def find_first_ge(seq, value, cmp=__builtin__.cmp):
     return None
   else:
     return right
+
+
+def pairwise(iterable):
+  """s -> (s0,s1), (s1,s2), (s2,s3), ..."""
+  a, b = itertools.tee(iterable)
+  for elem in b:
+    break
+  return itertools.izip(a, b)
 
 
 def salient(seq, epsilon=0):
