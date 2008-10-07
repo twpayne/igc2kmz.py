@@ -225,9 +225,7 @@ IFD_POINTER_TAGS = {
 
 
 def exif(data):
-  if data[0:6] != 'Exif\0\0':
-    raise SyntaxError, 'Invalid EXIF header %s' % repr(data[0:6])
-  tiff = TIFF(data[6:])
+  tiff = TIFF(data)
   result = {}
   for ifd_offset in tiff.ifd_offsets():
     for tag, value in tiff.ifd_tags(ifd_offset):
@@ -275,8 +273,8 @@ class JPEG(object):
     self.exif = {}
     self.height = self.width = None
     for tag, data in JPEG.chunks(file):
-      if tag == APP1:
-        self.exif = exif(data)
+      if tag == APP1 and data[0:6] == 'Exif\0\0':
+        self.exif = exif(data[6:])
       elif tag == SOF:
         self.height, self.width = struct.unpack('>HH', data[1:5])
 
