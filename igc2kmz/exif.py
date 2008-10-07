@@ -252,7 +252,7 @@ CHARSET = {
   'ASCII\0\0\0': 'ascii',
   'JIS\0\0\0\0\0': 'shift_jis',
   'UNICODE\0': 'utf_8',
-  '\0\0\0\0\0\0\0\0': 'ascii',
+  '\0\0\0\0\0\0\0\0': 'latin_1',
 }
 
 
