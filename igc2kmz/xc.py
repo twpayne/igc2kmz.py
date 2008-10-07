@@ -40,6 +40,7 @@ class Rte(object):
     self.distance = float(etree.findtext('extensions/distance'))
     self.multiplier = float(etree.findtext('extensions/multiplier'))
     self.score = float(etree.findtext('extensions/score'))
+    self.circuit = not etree.find('extensions/circuit') is None
     self.rtepts = [RtePt(rtept) for rtept in etree.findall('rtept')]
 
 
