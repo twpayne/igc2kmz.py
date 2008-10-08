@@ -93,7 +93,7 @@ class CompoundElement(Element):
 
   def add(self, *args, **kwargs):
     """Add children."""
-    self.children.extend(list(args))
+    self.children.extend(list(arg for arg in args if not arg is None))
     for key, value in kwargs.items():
       self.children.append(class_by_name[key](value))
 
