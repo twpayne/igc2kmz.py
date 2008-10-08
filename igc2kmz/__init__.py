@@ -199,7 +199,7 @@ class Flight(object):
   def make_shadow_folder(self, globals):
     if not self.track.elevation_data:
       return kmz.kmz()
-    folder = kmz.kmz(kml.Folder(name='Shadow', open=1, styleUrl=globals.stock.radio_folder_style.url()))
+    folder = kmz.kmz(kml.Folder(name='Shadow', open=0, styleUrl=globals.stock.radio_folder_style.url()))
     folder.add(globals.stock.invisible_none_folder)
     folder.add(self.make_solid_track(globals, kml.Style(kml.LineStyle(color='ff000000', width=1)), 'clampToGround', name='Normal', visibility=1))
     folder.add(self.make_solid_track(globals, kml.Style(kml.LineStyle(color='00000000', width=1), kml.PolyStyle(color='80000000')), 'absolute', True, name='Extrude', visibility=0))
