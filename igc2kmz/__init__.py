@@ -79,9 +79,10 @@ class Stock(object):
     self.photo_style = kml.Style(balloon_style, icon_style, label_style)
     self.kmz.add_roots(self.photo_style)
     balloon_style = kml.BalloonStyle(text=kml.CDATA('<h3>$[name]</h3>$[description]'))
-    icon_style = kml.IconStyle(self.icons[0], scale=self.icon_scales[0])
-    label_style = kml.LabelStyle(color='99ffff33', scale=self.label_scales[0])
-    self.xc_style = kml.Style(balloon_style, icon_style, label_style)
+    icon_style = kml.IconStyle(self.icons[0], color='ccff33ff', scale=self.icon_scales[0])
+    label_style = kml.LabelStyle(color='ccff33ff', scale=self.label_scales[0])
+    line_style = kml.LineStyle(color='ccff33ff')
+    self.xc_style = kml.Style(balloon_style, icon_style, label_style, line_style)
     self.kmz.add_roots(self.xc_style)
     self.pixel_url = 'images/pixel.png'
     self.kmz.add_files({self.pixel_url: open(self.pixel_url).read()})
@@ -259,9 +260,22 @@ class Flight(object):
       else:
         td = '%.1fkm' % (distance / 1000.0)
       return (th, td)
+    def make_leg(rte, i, j, name=True, arrow=False):
+      line_string = kml.LineString(coordinates=[rte.rtepts[k].coord for k in (i, j)], altitudeMode='clampToGround', tessellate=1)
+      multi_geometry = kml.MultiGeometry(line_string)
+      if name:
+        point = kml.Point(coordinates=[rte.rtepts[i].coord.halfway_to(rte.rtepts[j].coord)])
+        multi_geometry.add(point)
+        name = kml.name('%.1fkm' % (rte.rtepts[i].coord.distance_to(rte.rtepts[j].coord) / 1000.0))
+      if arrow and False: # FIXME
+        bearing = rte.rtepts[j].coord.initial_bearing_to(rte.rtepts[i].coord)
+        coordinates = [rte.rtepts[j].coord.point_at(bearing - math.pi / 12.0, 400.0), rte.rtepts[j].coord, rte.rtepts[j].coord.coord_at(bearing + math.pi / 12.0, 400.0)]
+        line_string = kml.LineString(coordinates=coordinates, altitudeMode='clampToGround', tesselate=1)
+        multi_geometry.add(line_string)
+      return kml.Placemark(name, multi_geometry, styleUrl=globals.stock.xc_style.url())
     if not self.xc:
       return kmz.kmz()
-    folder = kml.Folder(name='Cross country', open=0)
+    folder = kml.Folder(name='Cross country', open=0, styleUrl=globals.stock.radio_folder_style.url())
     for rank, rte in enumerate(sorted(self.xc.rtes, key=operator.attrgetter('score'), reverse=True)):
       rows = []
       rows.append(('League', self.xc.league))
@@ -281,31 +295,28 @@ class Flight(object):
       rows.append(('Multiplier', '%s %.1f points/km' % (MULTIPLICATION_SIGN, rte.multiplier)))
       rows.append(('Score', '%.2f points' % rte.score))
       if rte.circuit:
-          rows.append(make_row(rte, -1, 0))
+        rows.append(make_row(rte, -1, 0))
       description = '<table>%s</table>' % ''.join('<tr><th align="right">%s</th><td>%s</td></tr>' % row for row in rows)
       name = '%s (%.1fkm, %.2f points)' % (rte.name, rte.distance, rte.score)
       visibility = 1 if rank == 0 else 0
       rte_folder = kml.Folder(kml.Snippet(), name=name, description=kml.CDATA(description), styleUrl=globals.stock.check_hide_children_style.url(), visibility=visibility)
-      line_string = kml.LineString(coordinates=[rtept.coord for rtept in rte.rtepts], tessellate=1)
-      placemark = kml.Placemark(line_string, styleUrl=globals.stock.xc_style.url())
-      rte_folder.add(placemark)
       for rtept in rte.rtepts:
         coord = self.track.coord_at(rtept.coord.dt)
         point = kml.Point(coordinates=[rtept.coord], altitudeMode=self.altitude_mode, extrude=1)
         placemark = kml.Placemark(point, name=rtept.name, styleUrl=globals.stock.xc_style.url())
         rte_folder.add(placemark)
-      for rtept0, rtept1 in util.pairwise(rte.rtepts):
-        if rtept0.coord.lat == rtept1.coord.lat and rtept0.coord.lon == rtept1.coord.lon:
-          continue
-        point = kml.Point(coordinates=[rtept0.coord.halfway_to(rtept1.coord)])
-        name = '%.1fkm' % (rtept0.coord.distance_to(rtept1.coord) / 1000.0)
-        placemark = kml.Placemark(point, name=name, styleUrl=globals.stock.xc_style.url())
-        rte_folder.add(placemark)
-      if rte.circuit and len(rte.rtepts) > 4:
-        point = kml.Point(coordinates=[rte.rtepts[-2].coord.halfway_to(rte.rtepts[1].coord)])
-        name = '%.1fkm' % (rte.rtepts[-2].coord.distance_to(rte.rtepts[1].coord) / 1000.0)
-        placemark = kml.Placemark(point, name=name, styleUrl=globals.stock.xc_style.url())
-        rte_folder.add(placemark)
+      if rte.circuit:
+        rte_folder.add(make_leg(rte, 0, 1, name=None, arrow=True))
+        if len(rte.rtepts) == 4:
+          rte_folder.add(make_leg(rte, 1, 2))
+        else:
+          for i in xrange(1, len(rte.rtepts) - 2):
+            rte_folder.add(make_leg(rte, i, i + 1, arrow=True))
+          rte_folder.add(make_leg(rte, -2, 1))
+        rte_folder.add(make_leg(rte, -2, -1, name=None, arrow=True))
+      else:
+        for i in xrange(0, len(rte.rtepts) - 1):
+          rte_folder.add(make_leg(rte, i, i + 1, arrow=True))
       folder.add(rte_folder)
     return kmz.kmz(folder)
 
