@@ -473,6 +473,8 @@ def flights2kmz(flights, timezone_offset=0):
   globals.bounds = util.BoundsSet()
   for flight in flights:
     globals.bounds.update(flight.track.bounds)
+  if globals.bounds.climb.min < -5.0:
+    globals.bounds.climb.min = -5.0
   globals.timezone_offset = datetime.timedelta(0, 3600 * timezone_offset)
   globals.scales = util.OpenStruct()
   globals.scales.altitude = scale.Scale(globals.bounds.ele.tuple(), title='altitude', gradient=color.default_gradient)
