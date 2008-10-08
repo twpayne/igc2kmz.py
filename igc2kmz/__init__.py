@@ -29,6 +29,11 @@ import scale
 import util
 
 
+RIGHTWARDS_ARROW = unicodedata.lookup('RIGHTWARDS ARROW').encode('utf_8')
+INFINITY = unicodedata.lookup('INFINITY').encode('utf_8')
+MULTIPLICATION_SIGN = unicodedata.lookup('MULTIPLICATION SIGN').encode('utf_8')
+
+
 class Stock(object):
 
   def make_none_folder(self, visibility):
@@ -246,8 +251,14 @@ class Flight(object):
     return kmz.kmz(folder)
 
   def make_xc_folder(self, globals):
-    def make_row(rtept0,rtept1):
-      return ('%s %s %s' % (rtept0.name, unicodedata.lookup('RIGHTWARDS ARROW'), rtept1.name), '%.1fkm' % (rtept0.coord.distance_to(rtept1.coord) / 1000.0))
+    def make_row(rte, i, j, percentage=False):
+      distance = rte.rtepts[i].coord.distance_to(rte.rtepts[j].coord)
+      th = '%s %s %s' % (rte.rtepts[i].name, RIGHTWARDS_ARROW, rte.rtepts[j].name)
+      if percentage:
+        td = '%.1fkm (%.1f%%)' % (distance / 1000.0, 0.1 * distance / rte.distance)
+      else:
+        td = '%.1fkm' % (distance / 1000.0)
+      return (th, td)
     if not self.xc:
       return kmz.kmz()
     folder = kml.Folder(name='Cross country', open=0)
@@ -255,17 +266,26 @@ class Flight(object):
       rows = []
       rows.append(('League', self.xc.league))
       rows.append(('Type', rte.name))
-      for rtept0, rtept1 in util.pairwise(rte.rtepts):
-        rows.append(make_row(rtept0, rtept1))
       if rte.circuit:
-        rows.append(make_row(rte.rtepts[-1], rte.rtepts[0]))
+        if len(rte.rtepts) == 4:
+          rows.append(make_row(rte, 1, 2))
+          rows.append(make_row(rte, 2, 1))
+        else:
+          for i in xrange(1, len(rte.rtepts) - 2):
+            rows.append(make_row(rte, i, i + 1, percentage=True))
+          rows.append(make_row(rte, -2, 1, percentage=True))
+      else:
+        for i in xrange(0, len(rte.rtepts) - 1):
+          rows.append(make_row(rte, i, i + 1))
       rows.append(('Distance', '%.1fkm' % rte.distance))
-      rows.append(('Multiplier', '%s %.1f points/km' % (unicodedata.lookup('MULTIPLICATION SIGN'), rte.multiplier)))
+      rows.append(('Multiplier', '%s %.1f points/km' % (MULTIPLICATION_SIGN, rte.multiplier)))
       rows.append(('Score', '%.2f points' % rte.score))
+      if rte.circuit:
+          rows.append(make_row(rte, -1, 0))
       description = '<table>%s</table>' % ''.join('<tr><th align="right">%s</th><td>%s</td></tr>' % row for row in rows)
       name = '%s (%.1fkm, %.2f points)' % (rte.name, rte.distance, rte.score)
       visibility = 1 if rank == 0 else 0
-      rte_folder = kml.Folder(kml.Snippet(), name=name, description=kml.CDATA(description.encode('utf_8')), styleUrl=globals.stock.check_hide_children_style.url(), visibility=visibility)
+      rte_folder = kml.Folder(kml.Snippet(), name=name, description=kml.CDATA(description), styleUrl=globals.stock.check_hide_children_style.url(), visibility=visibility)
       line_string = kml.LineString(coordinates=[rtept.coord for rtept in rte.rtepts], tessellate=1)
       placemark = kml.Placemark(line_string, styleUrl=globals.stock.xc_style.url())
       rte_folder.add(placemark)
@@ -334,7 +354,7 @@ class Flight(object):
       elif title == 'glide':
         rows.append(('Altitude loss', '%dm' % dz))
         rows.append(('Distance', '%.1fkm' % (dp / 1000.0)))
-        rows.append(('Average glide ratio', '%.1f:1' % (-dp / dz) if dz < 0 else unicodedata.lookup('INFINITY').encode('utf_8') + ':1'))
+        rows.append(('Average glide ratio', '%.1f:1' % (-dp / dz) if dz < 0 else '%s:1' % INFINITY))
         rows.append(('Average speed', '%.1fkm/h' % (3.6 * dp / dt)))
       elif title == 'dive':
         rows.append(('Altitude loss', '%dm' % dz))
@@ -355,7 +375,7 @@ class Flight(object):
       if title == 'thermal':
         name = '%dm at %.1fm/s' % (dz, dz / dt)
       elif title == 'glide':
-        ld = '%.1f:1' % (-dp / dz) if dz < 0 else unicodedata.lookup('INFINITY').encode('utf_8') + ':1'
+        ld = '%.1f:1' % (-dp / dz) if dz < 0 else '%s:1' % INFINITY
         name = '%.1fkm at %s, %dkm/h' % (dp / 1000.0, ld, 3.6 * dp / dt + 0.5)
       elif title == 'dive':
         name = '%dm at %.1fm/s' % (-dz, dz / dt)
