@@ -312,7 +312,7 @@ class Flight(object):
       if rte.circuit:
         rows.append(make_row(rte, -1, 0))
       description = '<table>%s</table>' % ''.join('<tr><th align="right">%s</th><td>%s</td></tr>' % row for row in rows)
-      name = '%s (%.1fkm, %.2f points)' % (rte.name, rte.distance, rte.score)
+      name = '%.1fkm %s (%.2f points)' % (rte.distance, rte.name, rte.score)
       visibility = 1 if rank == 0 else 0
       rte_folder = kml.Folder(kml.Snippet(), name=name, description=kml.CDATA(description), styleUrl=globals.stock.check_hide_children_style.url(), visibility=visibility)
       for rtept in rte.rtepts:
