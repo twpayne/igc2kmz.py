@@ -70,3 +70,10 @@ class Coord(object):
     lon3 = self.lon + atan2(sin(theta) * sin(d) * cos(self.lat), cos(d) - sin(self.lat) * sin(lat3))
     ele3 = (1.0 - delta) * self.ele + delta * other.ele
     return Coord(lat3, lon3, ele3)
+
+  def coord_at(self, theta, d):
+    """Return the point d from self in direction theta."""
+    lat = asin(sin(self.lat) * cos(d / R) + cos(self.lat) * sin(d / R) * cos(theta))
+    lon = self.lon + atan2(sin(theta) * sin(d / R) * cos(self.lat), cos(d / R) - sin(self.lat) * sin(lat))
+    ele = self.ele
+    return Coord(lat, lon, ele)
