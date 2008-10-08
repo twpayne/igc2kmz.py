@@ -72,7 +72,7 @@ class Stock(object):
       label_style = kml.LabelStyle(color='cc33ffff', scale=self.label_scales[i])
       self.time_mark_styles.append(kml.Style(icon_style, label_style))
     self.kmz.add_roots(*self.time_mark_styles)
-    balloon_style = kml.BalloonStyle(text=kml.CDATA('<h3>$[name]</h3>$[description]'))
+    balloon_style = kml.BalloonStyle(text=kml.CDATA('$[description]'))
     icon_style = kml.IconStyle(kml.Icon.palette(4, 46), scale=self.icon_scales[0])
     label_style = kml.LabelStyle(scale=self.label_scales[0])
     self.photo_style = kml.Style(balloon_style, icon_style, label_style)
@@ -256,8 +256,10 @@ class Flight(object):
         coord = self.track.coord_at(photo.dt - globals.timezone_offset)
         altitude_mode = self.altitude_mode
       point = kml.Point(coordinates=[coord], altitudeMode=altitude_mode)
-      description = kml.CDATA('<img alt="%s" src="%s" height="%d" width="%d" />' % (photo.name, photo.url, photo.jpeg.height, photo.jpeg.width))
-      placemark = kml.Placemark(point, kml.Snippet(), name=photo.name, description=description, styleUrl=globals.stock.photo_style.url())
+      title = '%s: %s' % (photo.name, photo.description) if photo.description else photo.name
+      description = '<h3>%s</h3><img alt="%s" src="%s" height="%d" width="%d" />' % (title, photo.name, photo.url, photo.jpeg.height, photo.jpeg.width)
+      snippet = kml.Snippet(kml.CDATA(photo.description) if photo.description else None)
+      placemark = kml.Placemark(point, snippet, name=photo.name, description=kml.CDATA(description), styleUrl=globals.stock.photo_style.url())
       folder.add(placemark)
     return kmz.kmz(folder)
 

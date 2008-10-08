@@ -58,3 +58,7 @@ class Photo(object):
     else:
       self.coord = None
       self.elevation_data = None
+    if 'UserComment' in self.jpeg.exif:
+      self.description = exif.parse_usercomment(self.jpeg.exif['UserComment'])
+    else:
+      self.description = None

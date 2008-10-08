@@ -38,6 +38,10 @@ def add_flight_photo(option, opt, value, parser):
   parser.values.flights[-1].photos.append(igc2kmz.photo.Photo(value))
 
 
+def add_flight_photo_option(option, opt, value, parser):
+  setattr(parser.values.flights[-1].photos[-1], option.dest, value)
+
+
 def add_flight_xc(option, opt, value, parser):
   parser.values.flights[-1].xc = igc2kmz.xc.XC(open(value))
 
@@ -52,8 +56,11 @@ def main(argv):
   group.add_option('-g', '--glider-type', metavar='STRING', type='string', action='callback', callback=add_flight_option)
   group.add_option('-c', '--color', metavar='COLOR', type='string', action='callback', callback=add_flight_option)
   group.add_option('-w', '--width', metavar='INTEGER', type='string', action='callback', callback=add_flight_option)
-  group.add_option('-p', '--photo', metavar='FILENAME', type='string', action='callback', callback=add_flight_photo)
   group.add_option('-x', '--xc', metavar='FILENAME', type='string', action='callback', callback=add_flight_xc)
+  parser.add_option_group(group)
+  group = optparse.OptionGroup(parser, 'Per-photo options')
+  group.add_option('-p', '--photo', metavar='FILENAME', type='string', action='callback', callback=add_flight_photo)
+  group.add_option('-d', '--description', metavar='STRING', type='string', action='callback', callback=add_flight_photo_option)
   parser.add_option_group(group)
   parser.set_defaults(output='igc2kmz.kmz')
   parser.set_defaults(timezone_offset=0)
