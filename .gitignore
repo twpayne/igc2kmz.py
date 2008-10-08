@@ -1,8 +1,10 @@
 .*.swp
+*.gpx
 *.IGC
 *.igc
 *.jpg
 *.JPG
 *.kml
 *.kmz
+*.olc
 *.pyc
