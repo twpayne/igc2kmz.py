@@ -328,17 +328,6 @@ class Flight(object):
       folder.add(rte_folder)
     return kmz.kmz(folder)
 
-  def make_climb_chart(self, globals, climb):
-    chart = pygooglechart.GoogleOMeterChart(100, 100, x_range=(0, 100 * self.track.bounds.climb.max))
-    chart.add_data([100.0 * climb])
-    colors = []
-    for i in xrange(0, 16 + 1):
-      r, g, b, a = globals.scales.climb.color(i * self.track.bounds.climb.max / 16)
-      colors.append('%02x%02x%02x' % (255 * r, 255 * g, 255 * b))
-    chart.set_colours(colors)
-    chart.set_pie_labels(['%.1fm/s' % climb])
-    return chart
-
   def make_analysis_folder(self, globals, title, slices, styleUrl):
     if not self.track.elevation_data or len(slices) == 0:
       return kmz.kmz()
