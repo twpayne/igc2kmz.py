@@ -42,8 +42,7 @@ class Stock(object):
     screen_xy = kml.screenXY(x=0, y=0, xunits='fraction', yunits='fraction')
     size = kml.size(x=0, y=0, xunits='fraction', yunits='fraction')
     screen_overlay = kml.ScreenOverlay(icon, overlay_xy, screen_xy, size, visibility=visibility)
-    folder = kml.Folder(screen_overlay, name='None', styleUrl=self.check_hide_children_style.url())
-    return kmz.kmz(folder)
+    return kml.Folder(screen_overlay, name='None', styleUrl=self.check_hide_children_style.url())
 
   def make_analysis_style(self, color):
     balloon_style = kml.BalloonStyle(text=kml.CDATA('<h3>$[name]</h3>$[description]'))
@@ -81,9 +80,15 @@ class Stock(object):
     balloon_style = kml.BalloonStyle(text=kml.CDATA('<h3>$[name]</h3>$[description]'))
     icon_style = kml.IconStyle(self.icons[0], color='ccff33ff', scale=self.icon_scales[0])
     label_style = kml.LabelStyle(color='ccff33ff', scale=self.label_scales[0])
-    line_style = kml.LineStyle(color='ccff33ff')
+    line_style = kml.LineStyle(color='ccff33ff', width=2)
     self.xc_style = kml.Style(balloon_style, icon_style, label_style, line_style)
     self.kmz.add_roots(self.xc_style)
+    balloon_style = kml.BalloonStyle(text=kml.CDATA('<h3>$[name]</h3>$[description]'))
+    icon_style = kml.IconStyle(self.icons[0], color='ccff33ff', scale=self.icon_scales[0])
+    label_style = kml.LabelStyle(color='ccff33ff', scale=self.label_scales[0])
+    line_style = kml.LineStyle(color='ccff33ff')
+    self.xc_style2 = kml.Style(balloon_style, icon_style, label_style, line_style)
+    self.kmz.add_roots(self.xc_style2)
     self.pixel_url = 'images/pixel.png'
     self.kmz.add_files({self.pixel_url: open(self.pixel_url).read()})
     self.visible_none_folder = self.make_none_folder(1)
@@ -260,22 +265,25 @@ class Flight(object):
       else:
         td = '%.1fkm' % (distance / 1000.0)
       return (th, td)
-    def make_leg(rte, i, j, name=True, arrow=False):
+    def make_leg(rte, i, j, name=True, arrow=False, styleUrl=None):
       line_string = kml.LineString(coordinates=[rte.rtepts[k].coord for k in (i, j)], altitudeMode='clampToGround', tessellate=1)
       multi_geometry = kml.MultiGeometry(line_string)
       if name:
         point = kml.Point(coordinates=[rte.rtepts[i].coord.halfway_to(rte.rtepts[j].coord)])
         multi_geometry.add(point)
         name = kml.name('%.1fkm' % (rte.rtepts[i].coord.distance_to(rte.rtepts[j].coord) / 1000.0))
-      if arrow and False: # FIXME
+      if arrow:
         bearing = rte.rtepts[j].coord.initial_bearing_to(rte.rtepts[i].coord)
-        coordinates = [rte.rtepts[j].coord.point_at(bearing - math.pi / 12.0, 400.0), rte.rtepts[j].coord, rte.rtepts[j].coord.coord_at(bearing + math.pi / 12.0, 400.0)]
-        line_string = kml.LineString(coordinates=coordinates, altitudeMode='clampToGround', tesselate=1)
+        coordinates = [rte.rtepts[j].coord.coord_at(bearing - math.pi / 12.0, 400.0), rte.rtepts[j].coord, rte.rtepts[j].coord.coord_at(bearing + math.pi / 12.0, 400.0)]
+        line_string = kml.LineString(coordinates=coordinates, altitudeMode='clampToGround', tessellate=1)
         multi_geometry.add(line_string)
-      return kml.Placemark(name, multi_geometry, styleUrl=globals.stock.xc_style.url())
+      if styleUrl is None:
+        styleUrl = globals.stock.xc_style.url()
+      return kml.Placemark(name, multi_geometry, styleUrl=styleUrl)
     if not self.xc:
       return kmz.kmz()
     folder = kml.Folder(name='Cross country', open=0, styleUrl=globals.stock.radio_folder_style.url())
+    folder.add(globals.stock.invisible_none_folder)
     for rank, rte in enumerate(sorted(self.xc.rtes, key=operator.attrgetter('score'), reverse=True)):
       rows = []
       rows.append(('League', self.xc.league))
@@ -293,7 +301,7 @@ class Flight(object):
           rows.append(make_row(rte, i, i + 1))
       rows.append(('Distance', '%.1fkm' % rte.distance))
       rows.append(('Multiplier', '%s %.1f points/km' % (MULTIPLICATION_SIGN, rte.multiplier)))
-      rows.append(('Score', '%.2f points' % rte.score))
+      rows.append(('Score', '<b>%.2f points</b>' % rte.score))
       if rte.circuit:
         rows.append(make_row(rte, -1, 0))
       description = '<table>%s</table>' % ''.join('<tr><th align="right">%s</th><td>%s</td></tr>' % row for row in rows)
@@ -312,7 +320,7 @@ class Flight(object):
         else:
           for i in xrange(1, len(rte.rtepts) - 2):
             rte_folder.add(make_leg(rte, i, i + 1, arrow=True))
-          rte_folder.add(make_leg(rte, -2, 1))
+          rte_folder.add(make_leg(rte, -2, 1, styleUrl=globals.stock.xc_style2.url()))
         rte_folder.add(make_leg(rte, -2, -1, name=None, arrow=True))
       else:
         for i in xrange(0, len(rte.rtepts) - 1):
