@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-O2 -Wall
+CFLAGS=-O2
 
 SRCS=olc2002.c
 OBJS=$(SRCS:%.c=%.o)
