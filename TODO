@@ -5,7 +5,6 @@ Check indexes in colored tracklogs
 MEDIUM
 Allow override of photo time
 Add comments
-Clean up util.runs and util.runs_where
 Add nice thermal and glide icons
 Add graphs and tracks of other variables (e.g. airspeed)
 Clean up air speed track (average)
