@@ -45,8 +45,11 @@ class Track(object):
       return self.coords[-1]
     else:
       index = util.find_first_ge(self.t, t)
-      delta = float(t - self.t[index - 1]) / (self.t[index] - self.t[index - 1])
-      return self.coords[index - 1].interpolate(self.coords[index], delta)
+      if self.t[index] == t:
+        return self.coords[index]
+      else:
+        delta = float(t - self.t[index - 1]) / (self.t[index] - self.t[index - 1])
+        return self.coords[index - 1].interpolate(self.coords[index], delta)
 
   def analyse(self, dt):
     n = len(self.coords)
