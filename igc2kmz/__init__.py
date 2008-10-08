@@ -293,7 +293,7 @@ class Flight(object):
     folder.add(globals.stock.invisible_none_folder)
     for rank, rte in enumerate(sorted(self.xc.rtes, key=operator.attrgetter('score'), reverse=True)):
       rows = []
-      rows.append(('League', self.xc.league))
+      rows.append(('League', rte.league))
       rows.append(('Type', rte.name))
       if rte.circuit:
         if len(rte.rtepts) == 4:

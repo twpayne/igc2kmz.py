@@ -21,7 +21,7 @@ from __future__ import with_statement
 
 import datetime
 import fileinput
-from pprint import pprint
+import optparse
 import re
 import sys
 try:
@@ -63,6 +63,7 @@ class RtePt(object):
 class Rte(object):
 
   def __init__(self):
+    self.league = None
     self.name = None
     self.distance = None
     self.multiplier = None
@@ -74,6 +75,7 @@ class Rte(object):
     with tag(tb, 'rte'):
       with tag(tb, 'name'): tb.data(self.name)
       with tag(tb, 'extensions'):
+        with tag(tb, 'league'): tb.data(self.league)
         with tag(tb, 'distance'): tb.data(str(self.distance))
         with tag(tb, 'multiplier'): tb.data('%.2f' % self.multiplier);
         with tag(tb, 'score'): tb.data(str(self.score))
@@ -104,7 +106,7 @@ CIRCUITS = set(['FREE_TRIANGLE', 'FAI_TRIANGLE'])
 
 class XC(object):
 
-  def __init__(self, file):
+  def __init__(self, file, league):
     self.rtes = []
     date = last_time = None
     for line in file:
@@ -117,6 +119,7 @@ class XC(object):
       m = OUT_TYPE_RE.match(line)
       if m:
         rte = Rte()
+        rte.league = league
         rte.name = PRETTY_NAME[m.group(1)]
         rte.circuit = m.group(1) in CIRCUITS
         self.rtes.append(rte)
@@ -149,21 +152,25 @@ class XC(object):
         last_time = time
         continue
 
-  def toxml(self, tb, league):
+  def toxml(self, tb):
     with tag(tb, 'gpx', {'version': '1.1', 'creator': 'http://github.com/twpayne/igc2kmz/master/tree'}):
-      with tag(tb, 'metadata'):
-        with tag(tb, 'extensions'):
-          with tag(tb, 'league'): tb.data(league)
       for rte in self.rtes:
         rte.toxml(tb)
     return tb
 
 
 def main(argv):
-  e = XC(fileinput.input()).toxml(xml.etree.ElementTree.TreeBuilder(), 'Online Contest').close()
-  sys.stdout.write('<?xml version="1.0" encoding="UTF-8"?>')
-  xml.etree.ElementTree.ElementTree(e).write(sys.stdout)
-  
+  parser = optparse.OptionParser(description='olc2002 to GPX converter')
+  parser.add_option('-l', '--league', metavar='STRING')
+  parser.add_option('-o', '--output', metavar='FILENAME')
+  parser.set_defaults(league='OLC')
+  options, args = parser.parse_args(argv)
+  xc = XC(fileinput.input(args), options.league)
+  e = xc.toxml(xml.etree.ElementTree.TreeBuilder()).close()
+  output = open(options.output, 'w') if options.output else sys.stdout
+  output.write('<?xml version="1.0" encoding="UTF-8"?>')
+  xml.etree.ElementTree.ElementTree(e).write(output)
+
 
 if __name__ == '__main__':
   main(sys.argv)
