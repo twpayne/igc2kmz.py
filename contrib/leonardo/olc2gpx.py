@@ -108,12 +108,12 @@ class XC(object):
 
   def __init__(self, file, league):
     self.rtes = []
-    date = last_time = None
+    date = None
     for line in file:
       line = line.rstrip()
       m = DEBUG_DATE_RE.match(line)
       if m:
-        year, mon, day = map(int, m.groups())
+        day, mon, year = map(int, m.groups())
         date = datetime.date(year + 2000, mon,day)
         continue
       m = OUT_TYPE_RE.match(line)
@@ -123,6 +123,7 @@ class XC(object):
         rte.name = PRETTY_NAME[m.group(1)]
         rte.circuit = m.group(1) in CIRCUITS
         self.rtes.append(rte)
+        last_time = None
         continue
       m = OUT_FLIGHT_KM_RE.match(line)
       if m:
@@ -144,9 +145,8 @@ class XC(object):
         if m.group(7) == 'W':
           rtept.lon = -rtept.lon
         time = datetime.time(*map(int, m.group(1, 2, 3)))
-        # FIXME cope with wrapping times
-        #if not last_time is None and time < last_time:
-        #  date += datetime.timedelta(1)
+        if not last_time is None and time < last_time:
+          date += datetime.timedelta(1)
         rtept.dt = datetime.datetime.combine(date, time)
         rte.rtepts.append(rtept)
         last_time = time
