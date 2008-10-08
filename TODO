@@ -1,8 +1,12 @@
 HIGH
 Check indexes in thermal folder
 Check indexes in colored tracklogs
+Modify OLC optimiser to include flight date?
+Modify GPX format to specify league per flight
 
 MEDIUM
+Allow override of photo time
+Add comments
 Clean up util.runs and util.runs_where
 Add nice thermal and glide icons
 Add graphs and tracks of other variables (e.g. airspeed)
