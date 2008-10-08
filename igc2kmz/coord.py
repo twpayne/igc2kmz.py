@@ -66,10 +66,10 @@ class Coord(object):
     d = sin(self.lat) * sin(other.lat) + cos(self.lat) * cos(other.lat) * cos(other.lon - self.lon)
     d = delta * acos(d) if d < 1.0 else 0.0
     theta = atan2(sin(other.lon - self.lon) * cos(other.lat), cos(self.lat) * sin(other.lat) - sin(self.lat) * cos(other.lat) * cos(other.lon - self.lon))
-    lat3 = asin(sin(self.lat) * cos(d) + cos(self.lat) * sin(d) * cos(theta))
-    lon3 = self.lon + atan2(sin(theta) * sin(d) * cos(self.lat), cos(d) - sin(self.lat) * sin(lat3))
-    ele3 = (1.0 - delta) * self.ele + delta * other.ele
-    return Coord(lat3, lon3, ele3)
+    lat = asin(sin(self.lat) * cos(d) + cos(self.lat) * sin(d) * cos(theta))
+    lon = self.lon + atan2(sin(theta) * sin(d) * cos(self.lat), cos(d) - sin(self.lat) * sin(lat))
+    ele = (1.0 - delta) * self.ele + delta * other.ele
+    return Coord(lat, lon, ele)
 
   def coord_at(self, theta, d):
     """Return the point d from self in direction theta."""
