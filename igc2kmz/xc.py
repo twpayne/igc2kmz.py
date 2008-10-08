@@ -24,8 +24,8 @@ import coord
 class RtePt(object):
 
   def __init__(self, etree):
-    self.fix = etree.findtext('fix')
-    self.name = etree.findtext('name')
+    self.fix = etree.findtext('fix').encode('utf_8')
+    self.name = etree.findtext('name').encode('utf_8')
     lat = float(etree.get('lat'))
     lon = float(etree.get('lon'))
     ele = int(etree.findtext('ele')) if self.fix == '3d' else 0
@@ -36,7 +36,7 @@ class RtePt(object):
 class Rte(object):
 
   def __init__(self, etree):
-    self.name = etree.findtext('name')
+    self.name = etree.findtext('name').encode('utf_8')
     self.distance = float(etree.findtext('extensions/distance'))
     self.multiplier = float(etree.findtext('extensions/multiplier'))
     self.score = float(etree.findtext('extensions/score'))
@@ -48,5 +48,5 @@ class XC(object):
 
   def __init__(self, file):
     etree = xml.etree.ElementTree.parse(file)
-    self.league = etree.findtext('/metadata/extensions/league')
+    self.league = etree.findtext('/metadata/extensions/league').encode('utf_8')
     self.rtes = [Rte(rte) for rte in etree.findall('/rte')]
