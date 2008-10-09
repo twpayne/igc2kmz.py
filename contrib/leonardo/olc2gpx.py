@@ -153,7 +153,7 @@ class XC(object):
         continue
 
   def toxml(self, tb):
-    with tag(tb, 'gpx', {'version': '1.1', 'creator': 'http://github.com/twpayne/igc2kmz/master/tree'}):
+    with tag(tb, 'gpx', {'version': '1.1', 'creator': 'http://github.com/twpayne/igc2kmz/tree/master'}):
       for rte in self.rtes:
         rte.toxml(tb)
     return tb
