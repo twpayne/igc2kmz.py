@@ -1,6 +1,7 @@
 HIGH
 Check indexes in thermal folder
 Check indexes in colored tracklogs
+Add logo
 
 MEDIUM
 Test performance of igc2kml.kml using ElementTree
@@ -8,6 +9,7 @@ Allow override of photo time
 Add comments
 Add nice thermal and glide icons
 Add graphs and tracks of other variables (e.g. airspeed)
+Add competition task support
 Clean up air speed track (average)
 Improve drift/windspeed algorithm
 Graphical thermal analysis
