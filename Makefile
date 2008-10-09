@@ -34,7 +34,7 @@ examples: $(EXAMPLES)
 examples/2007-04-22-FLY-5094-01.kmz: examples/2007-04-22-FLY-5094-01.igc examples/2007-04-22-FLY-5094-01.gpx
 	$(IGC2KMZ) -z 2 -o $@ \
 		-i $< \
-		-x 2007-04-22-FLY-5094-01.gpx \
+		-x examples/2007-04-22-FLY-5094-01.gpx \
 		-p http://qking.web.cern.ch/qking/2007/p_chamonix/images/img_7967.jpg \
 			-d "Nice cloud above the Pointe de Plate (2554m)" \
 		-p http://qking.web.cern.ch/qking/2007/p_chamonix/images/img_7977.jpg \
