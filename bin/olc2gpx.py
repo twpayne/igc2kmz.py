@@ -25,9 +25,9 @@ import optparse
 import re
 import sys
 try:
-  import xml.etree.cElementTree
+  from xml.etree.cElementTree import ElementTree, TreeBuilder
 except ImportError:
-  import xml.etree.ElementTree
+  from xml.etree import ElementTree, TreeBuilder
 
 
 class tag(object):
@@ -91,7 +91,7 @@ DEBUG_DATE_RE = re.compile(r'DEBUG DATE (\d\d)(\d\d)(\d\d)\Z')
 OUT_TYPE_RE = re.compile(r'OUT TYPE (\S+)\Z')
 OUT_FLIGHT_KM_RE = re.compile(r'OUT FLIGHT_KM (\d+\.\d+)\Z')
 OUT_FLIGHT_POINTS_RE = re.compile(r'OUT FLIGHT_POINTS (\d+\.\d+)\Z')
-OUT_P_RE = re.compile(r'OUT p\d+ (\d\d):(\d\d):(\d\d) ([NS])(\d+):(\d+\.\d+) ([EW]) (\d+):(\d+\.\d+)')
+OUT_P_RE = re.compile(r'OUT p\d+ (\d\d):(\d\d):(\d\d) ([NS])\s*(\d+):(\d+\.\d+) ([EW])\s*(\d+):(\d+\.\d+)')
 
 PRETTY_NAME = {
   'FreeFlight0TP': 'Open distance',
@@ -165,11 +165,11 @@ def main(argv):
   parser.add_option('-o', '--output', metavar='FILENAME')
   parser.set_defaults(league='OLC')
   options, args = parser.parse_args(argv)
-  xc = XC(fileinput.input(args), options.league)
-  e = xc.toxml(xml.etree.ElementTree.TreeBuilder()).close()
+  xc = XC(fileinput.input(args[1:]), options.league)
+  e = xc.toxml(TreeBuilder()).close()
   output = open(options.output, 'w') if options.output else sys.stdout
   output.write('<?xml version="1.0" encoding="UTF-8"?>')
-  xml.etree.ElementTree.ElementTree(e).write(output)
+  ElementTree(e).write(output)
 
 
 if __name__ == '__main__':
