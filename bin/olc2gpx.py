@@ -94,10 +94,10 @@ OUT_FLIGHT_POINTS_RE = re.compile(r'OUT FLIGHT_POINTS (\d+\.\d+)\Z')
 OUT_P_RE = re.compile(r'OUT p\d+ (\d\d):(\d\d):(\d\d) ([NS])\s*(\d+):(\d+\.\d+) ([EW])\s*(\d+):(\d+\.\d+)')
 
 PRETTY_NAME = {
-  'FreeFlight0TP': 'Open distance',
-  'MaxTakeoffDistance': 'Open distance from take-off',
-  'FREE_FLIGHT': 'Open distance via three turnpoints',
-  'FREE_TRIANGLE': 'Free triangle',
+  'FreeFlight0TP': 'open distance',
+  'MaxTakeoffDistance': 'open distance from take-off',
+  'FREE_FLIGHT': 'open distance via three turnpoints',
+  'FREE_TRIANGLE': 'free triangle',
   'FAI_TRIANGLE': 'FAI triangle',
 }
 
@@ -137,7 +137,7 @@ class XC(object):
       m = OUT_P_RE.match(line)
       if m:
         rtept = RtePt()
-        rtept.name = 'TP%d' % len(rte.rtepts)
+        rtept.name = 'TP%d' % len(rte.rtepts) if rte.rtepts else 'Start'
         rtept.lat = int(m.group(5)) + float(m.group(6)) / 60.0
         if m.group(4) == 'S':
           rtept.lat = -rtept.lat
@@ -151,6 +151,8 @@ class XC(object):
         rte.rtepts.append(rtept)
         last_time = time
         continue
+    for rte in self.rtes:
+      rte.rtepts[-1].name = 'Finish'
 
   def toxml(self, tb):
     with tag(tb, 'gpx', {'version': '1.1', 'creator': 'http://github.com/twpayne/igc2kmz/tree/master'}):
