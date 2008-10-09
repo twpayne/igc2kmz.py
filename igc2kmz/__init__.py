@@ -294,7 +294,7 @@ class Flight(object):
     for rank, rte in enumerate(sorted(self.xc.rtes, key=operator.attrgetter('score'), reverse=True)):
       rows = []
       rows.append(('League', rte.league))
-      rows.append(('Type', rte.name))
+      rows.append(('Type', rte.name[0].upper() + rte.name[1:]))
       if rte.circuit:
         if len(rte.rtepts) == 4:
           rows.append(make_row(rte, 1, 2))
