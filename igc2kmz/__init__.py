@@ -307,7 +307,7 @@ class Flight(object):
         for i in xrange(0, len(rte.rtepts) - 1):
           rows.append(make_row(rte, i, i + 1))
       rows.append(('Distance', '%.1fkm' % rte.distance))
-      rows.append(('Multiplier', '%s %.1f points/km' % (MULTIPLICATION_SIGN, rte.multiplier)))
+      rows.append(('Multiplier', '%s %.2f points/km' % (MULTIPLICATION_SIGN, rte.multiplier)))
       rows.append(('Score', '<b>%.2f points</b>' % rte.score))
       if rte.circuit:
         rows.append(make_row(rte, -1, 0))
