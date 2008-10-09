@@ -50,6 +50,9 @@ def main(argv):
   parser = optparse.OptionParser(usage='Usage: %prog [options]', description="IGC to Google Earth converter")
   parser.add_option('-o', '--output', metavar='FILENAME')
   parser.add_option('-z', '--timezone-offset', metavar='HOURS', type='int')
+  parser.add_option('-b', '--brand-name', metavar='STRING', type='string')
+  parser.add_option('-l', '--brand-logo', metavar='URL', type='string')
+  parser.add_option('-u', '--brand-url', metavar='URL', type='string')
   group = optparse.OptionGroup(parser, 'Per-flight options')
   group.add_option('-i', '--igc', metavar='FILENAME', type='string', action='callback', callback=add_flight)
   group.add_option('-n', '--pilot-name', metavar='STRING', type='string', action='callback', callback=add_flight_option)
@@ -70,7 +73,8 @@ def main(argv):
     raise RuntimeError # FIXME
   if len(args) != 1:
     raise RuntimeError # FIXME
-  igc2kmz.flights2kmz(options.flights, timezone_offset=options.timezone_offset).write(options.output)
+  igc2kmz.flights2kmz(options.flights, brand_name=options.brand_name, brand_logo=options.brand_logo, brand_url=options.brand_url, timezone_offset=options.timezone_offset).write(options.output)
+
 
 if __name__ == '__main__':
   main(sys.argv)

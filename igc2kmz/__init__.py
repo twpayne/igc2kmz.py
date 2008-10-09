@@ -468,7 +468,17 @@ class Flight(object):
     folder.add(self.make_time_marks_folder(globals))
     return folder
 
-def flights2kmz(flights, timezone_offset=0):
+
+def make_brand(name, logo, url):
+  icon = kml.Icon(href=logo)
+  overlay_xy = kml.overlayXY(x=0.5, y=1, xunits='fraction', yunits='fraction')
+  screen_xy = kml.screenXY(x=0.5, y=1, xunits='fraction', yunits='fraction')
+  size = kml.size(x=0, y=0, xunits='fraction', yunits='fraction')
+  description = '<center><p><a href="%(url)s"><img alt="%(name)s" src="%(logo)s" /></a></p><p><large><a href="%(url)s">%(name)s</a></large></p><p><small>Created by <a href="http://github.com/twpayne/igc2kmz/master/tree">igc2kmz</a> Copyright &copy; Tom Payne 2008</a></small></p></center>' % {'name': name, 'logo': logo, 'url': url}
+  return kml.ScreenOverlay(icon, overlay_xy, screen_xy, size, kml.Snippet(), name=name, description=kml.CDATA(description))
+
+
+def flights2kmz(flights, brand_name=None, brand_logo=None, brand_url=None, timezone_offset=0):
   stock = Stock()
   globals = util.OpenStruct()
   globals.stock = stock
@@ -496,6 +506,8 @@ def flights2kmz(flights, timezone_offset=0):
   globals.graph_height = 300
   result = kmz.kmz()
   result.add_siblings(stock.kmz)
+  if brand_name and brand_logo and brand_url:
+    result.add_roots(make_brand(brand_name, brand_logo, brand_url))
   for flight in flights:
     result.add_siblings(flight.to_kmz(globals))
   return result

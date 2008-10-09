@@ -1,7 +1,6 @@
 HIGH
 Check indexes in thermal folder
 Check indexes in colored tracklogs
-Add logo
 
 MEDIUM
 Test performance of igc2kml.kml using ElementTree
