@@ -317,7 +317,7 @@ class Flight(object):
       rte_folder = kml.Folder(kml.Snippet(), name=name, description=kml.CDATA(description), styleUrl=globals.stock.check_hide_children_style.url(), visibility=visibility)
       for rtept in rte.rtepts:
         coord = self.track.coord_at(rtept.coord.dt)
-        point = kml.Point(coordinates=[rtept.coord], altitudeMode=self.altitude_mode, extrude=1)
+        point = kml.Point(coordinates=[coord], altitudeMode=self.altitude_mode, extrude=1)
         placemark = kml.Placemark(point, name=rtept.name, styleUrl=globals.stock.xc_style.url())
         rte_folder.add(placemark)
       if rte.circuit:
