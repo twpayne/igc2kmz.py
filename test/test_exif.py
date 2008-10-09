@@ -20,6 +20,8 @@
 import os
 import pprint
 import sys
+import urllib2
+import urlparse
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
@@ -29,7 +31,11 @@ import igc2kmz.exif
 def main(argv):
   for arg in argv[1:]:
     try:
-      jpeg = igc2kmz.exif.JPEG(open(arg))
+      if urlparse.urlparse(arg).scheme:
+        url = arg
+      else:
+        url = 'file://' + os.path.realpath(arg)
+      jpeg = igc2kmz.exif.JPEG(urllib2.urlopen(url))
       for tag, value in jpeg.exif.items():
         if tag == 'UserComment':
           jpeg.exif[tag] = igc2kmz.exif.parse_usercomment(value)
