@@ -1,0 +1,1911 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="yes"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>GPX 1.1 Schema Documentation</title>
+    <meta http-equiv="Content-Type" content="text/xml; charset=iso-8859-1"/>
+    <style type="text/css">
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+/* More-configurable styles */
+
+/******** General ********/
+
+/* Document body */
+body {
+   color: Black;
+   background-color: White;
+   font-family: Arial, sans-serif;
+   font-size: 10pt;
+}
+/* Horizontal rules */
+hr {
+   color: black;
+}
+/* Document title */
+h1 {
+   font-size: 18pt;
+   letter-spacing: 2px;
+   border-bottom: 1px #ccc solid;
+   padding-top: 5px;
+   padding-bottom: 5px;
+}
+/* Main section headers */
+h2 {
+   font-size: 14pt;
+   letter-spacing: 1px;
+}
+/* Sub-section headers */
+h3, h3 a, h3 span {
+   font-size: 12pt;
+   font-weight: bold;
+   color: black;
+}
+/* Table displaying the properties of the schema components or the
+   schema document itself */
+table.properties th, table.properties th a {
+   color: black;
+   background-color: #F99; /* Pink */
+}
+table.properties td {
+   background-color: #eee; /* Gray */
+}
+
+
+/******** Table of Contents Section ********/
+
+/* Controls for switching between printing and viewing modes */
+div#printerControls {
+   color: #963; /* Orange-brown */
+}
+/* Controls that can collapse or expand all XML Instance
+   Representation and Schema Component Representation boxes */
+div#globalControls {
+   border: 2px solid #999;
+}
+
+
+/******** Schema Document Properties Section ********/
+
+/* Table displaying the namespaces declared in the schema */
+table.namespaces th {
+   background-color: #ccc;
+}
+table.namespaces td {
+   background-color: #eee;
+}
+/* Target namespace of the schema */
+span.targetNS {
+   color: #06C;
+   font-weight: bold;
+}
+
+
+/******** Schema Components' Sections ********/
+
+/* Name of schema component */
+.name {
+   color: #F93; /* Orange */
+}
+
+/* Hierarchy table */
+table.hierarchy {
+   border: 2px solid #999; /* Gray */
+}
+
+/* XML Instance Representation table */
+div.sample div.contents {
+   border: 2px dashed black;
+}
+
+/* Schema Component Representation table */
+div.schemaComponent div.contents {
+   border: 2px black solid;
+}
+
+
+/******** Glossary Section ********/
+
+/* Glossary Terms */
+.glossaryTerm {
+   color: #036; /* Blue */
+}
+
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+/* Printer-version styles */
+
+@media print {
+
+/* Ensures that controls are hidden when printing */
+div#printerControls {
+   visibility: hidden;
+}
+div#globalControls {
+   visibility: hidden;
+}
+#legend {
+   display: none;
+}
+#legendTOC {
+   display: none;
+}
+#glossary {
+   display: none;
+}
+#glossaryTOC {
+   display: none;
+}
+
+}
+
+/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+/* Base styles */
+
+/******** General ********/
+
+/* Unordered lists */
+ul {
+   margin-left: 1.5em;
+   margin-bottom: 0em;
+}
+/* Tables */
+table {
+   margin-top: 10px;
+   margin-bottom: 10px;
+   margin-left: 2px;
+   margin-right: 2px;
+}
+table th, table td {
+   font-size: 10pt;
+   vertical-align: top;
+   padding-top: 3px;
+   padding-bottom: 3px;
+   padding-left: 10px;
+   padding-right: 10px;
+}
+table th {
+   font-weight: bold;
+   text-align: left;
+}
+/* Table displaying the properties of the schema components or the
+   schema document itself */
+table.properties {
+   width: 90%;
+}
+table.properties th {
+   width: 30%;
+}
+/* Boxes that can make its content appear and disappear*/
+div.box {
+   margin: 1em;
+}
+   /* Box caption */
+div.box span.caption {
+   font-weight: bold;
+}
+   /* Button to open and close the box */
+div.box input.control {
+   width: 1.4em;
+   height: 1.4em;
+   text-align: center;
+   vertical-align: middle;
+   font-size: 11pt;
+}
+   /* Box contents */
+div.box div.contents {
+   margin-top: 3px;
+}
+
+
+/******** Table of Contents Section ********/
+
+/* Controls for switching between printing and viewing modes */
+div#printerControls {
+   white-space: nowrap;
+   font-weight: bold;
+   padding: 5px;
+   margin: 5px;
+}
+/* Controls that can collapse or expand all XML Instance
+   Representation and Schema Component Representation boxes */
+div#globalControls {
+   padding: 10px;
+   margin: 5px;
+}
+
+
+/******** Schema Document Properties Section ********/
+
+/* Table displaying the namespaces declared in the schema */
+table.namespaces th {
+}
+table.namespaces td {
+}
+/* Target namespace of the schema */
+span.targetNS {
+}
+
+
+/******** Schema Components' Sections ********/
+
+/* Name of schema component */
+.name {
+}
+
+/* Hierarchy table */
+table.hierarchy {
+   width: 90%;
+}
+table.hierarchy th {
+   font-weight: normal;
+   font-style: italic;
+   width: 20%;
+}
+table.hierarchy th, table.hierarchy td {
+   padding: 5px;
+}
+
+/* XML Instance Representation table */
+div.sample {
+   width: 90%;
+}
+div.sample div.contents {
+   padding: 5px;
+   font-family: Courier New, sans-serif;
+   font-size: 10pt;
+}
+   /* Normal elements and attributes */
+div.sample div.contents, div.sample div.contents a {
+   color: black;
+}
+   /* Group Headers */
+div.sample div.contents .group, div.sample div.contents .group a {
+   color: #999; /* Light gray */
+}
+   /* Type Information */
+div.sample div.contents .type, div.sample div.contents .type a {
+   color: #999; /* Light gray */
+}
+   /* Occurrence Information */
+div.sample div.contents .occurs, div.sample div.contents .occurs a {
+   color: #999; /* Light gray */
+}
+   /* Fixed values */
+div.sample div.contents .fixed {
+   color: #063; /* Green */
+   font-weight: bold;
+}
+   /* Simple type constraints */
+div.sample div.contents .constraint, div.sample div.contents .constraint a {
+   color: #999; /* Light gray */
+}
+   /* Elements and attributes inherited from base type */
+div.sample div.contents .inherited, div.sample div.contents .inherited a {
+   color: #666; /* Dark gray */
+}
+   /* Elements and attributes added to or changed from base type */
+div.sample div.contents .newFields {
+   font-weight: bold;
+}
+   /* Other type of information */
+div.sample div.contents .other, div.sample div.contents .other a {
+   color: #369; /* Blue */
+   font-style: italic;
+}
+   /* Link to open up window displaying documentation */
+div.sample div.contents a.documentation {
+   text-decoration: none;
+   padding-left: 3px;
+   padding-right: 3px;
+   padding-top: 0px;
+   padding-bottom: 0px;
+   font-weight: bold;
+   font-size: 11pt;
+   background-color: #FFD;
+   color: #069;
+}
+   /* Invert colors when hovering over link to open up window 
+      displaying documentation */
+div.sample div.contents a.documentation:hover {
+   color: #FFD;
+   background-color: #069;
+}
+
+/* Schema Component Representation table */
+div.schemaComponent {
+   width: 90%;
+}
+div.schemaComponent div.contents {
+   font-family: Courier New, sans-serif;
+   font-size: 10pt;
+   padding: 5px;
+}
+   /* Syntax characters */
+div.schemaComponent div.contents {
+   color: #00f; /* blue */
+}
+   /* Element and attribute tags */
+div.schemaComponent div.contents .scTag {
+   color: #933; /* maroon */
+}
+   /* Element and attribute content */
+div.schemaComponent div.contents .scContent, div.schemaComponent div.contents .scContent a {
+   color: black;
+   font-weight: bold;
+}
+   /* Comments */
+div.schemaComponent div.contents .comment {
+   color: #999; /* Light gray */
+}
+
+/******** Legend Section ********/
+
+div#legend table, div#legend div {
+   margin-bottom: 3px;
+}
+div#legend div.hint {
+   color: #999; /* Light gray */
+   width: 90%;
+   margin-left: 1em;
+   margin-bottom: 2em;
+}
+
+
+/******** Glossary Section ********/
+
+/* Glossary Terms */
+.glossaryTerm {
+   font-weight: bold;
+}
+
+
+/******** Footer ********/
+
+.footer {
+   font-size: 8pt;
+}
+</style>
+    <script type="text/javascript">
+<!--
+/* IDs of XML Instance Representation boxes */
+var xiBoxes = new Array('element_gpx_xibox', 'type_gpxType_xibox', 'type_metadataType_xibox', 'type_wptType_xibox', 'type_rteType_xibox', 'type_trkType_xibox', 'type_extensionsType_xibox', 'type_trksegType_xibox', 'type_copyrightType_xibox', 'type_linkType_xibox', 'type_emailType_xibox', 'type_personType_xibox', 'type_ptType_xibox', 'type_ptsegType_xibox', 'type_boundsType_xibox', 'type_latitudeType_xibox', 'type_longitudeType_xibox', 'type_degreesType_xibox', 'type_fixType_xibox', 'type_dgpsStationType_xibox');
+/* IDs of Schema Component Representation boxes */
+var scBoxes = new Array('schema_scbox', 'element_gpx_scbox', 'type_gpxType_scbox', 'type_metadataType_scbox', 'type_wptType_scbox', 'type_rteType_scbox', 'type_trkType_scbox', 'type_extensionsType_scbox', 'type_trksegType_scbox', 'type_copyrightType_scbox', 'type_linkType_scbox', 'type_emailType_scbox', 'type_personType_scbox', 'type_ptType_scbox', 'type_ptsegType_scbox', 'type_boundsType_scbox', 'type_latitudeType_scbox', 'type_longitudeType_scbox', 'type_degreesType_scbox', 'type_fixType_scbox', 'type_dgpsStationType_scbox');
+
+/**
+ * Can get the ID of the button controlling
+ * a collapseable box by concatenating
+ * this string onto the ID of the box itself.
+ */
+var B_SFIX = "_button";
+
+/**
+ * Counter of documentation windows
+ * Used to give each window a unique name
+ */
+var windowCount = 0;
+
+/**
+ * Returns an element in the current HTML document.
+ * 
+ * @param elementID Identifier of HTML element
+ * @return               HTML element object
+ */
+function getElementObject(elementID) {
+    var elemObj = null;
+    if (document.getElementById) {
+        elemObj = document.getElementById(elementID);
+    }
+    return elemObj;
+}             
+
+/**
+ * Closes a collapseable box.
+ * 
+ * @param boxObj       Collapseable box
+ * @param buttonObj Button controlling box
+ */
+function closeBox(boxObj, buttonObj) {
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else {
+     // Change 'display' CSS property of box
+     boxObj.style.display="none";
+
+     // Change text of button 
+     if (boxObj.style.display=="none") {
+        buttonObj.value=" + ";
+     }
+  }
+}
+
+/**
+ * Opens a collapseable box.
+ * 
+ * @param boxObj       Collapseable box
+ * @param buttonObj Button controlling box
+ */
+function openBox(boxObj, buttonObj) {
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else {
+     // Change 'display' CSS property of box
+     boxObj.style.display="block";
+
+     // Change text of button
+     if (boxObj.style.display=="block") {
+        buttonObj.value=" - ";
+     }
+  }
+}
+
+/**
+ * Sets the state of a collapseable box.
+ * 
+ * @param boxID Identifier of box
+ * @param open If true, box is "opened",
+ *             Otherwise, box is "closed".
+ */
+function setState(boxID, open) {
+  var boxObj = getElementObject(boxID);
+  var buttonObj = getElementObject(boxID+B_SFIX);
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else if (open) {
+     openBox(boxObj, buttonObj);
+     // Make button visible
+     buttonObj.style.display="inline";
+  } else {
+     closeBox(boxObj, buttonObj);
+     // Make button visible
+     buttonObj.style.display="inline";
+  }
+}
+
+/**
+ * Switches the state of a collapseable box, e.g.
+ * if it's opened, it'll be closed, and vice versa.
+ * 
+ * @param boxID Identifier of box
+ */
+function switchState(boxID) {
+  var boxObj = getElementObject(boxID);
+  var buttonObj = getElementObject(boxID+B_SFIX);
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else if (boxObj.style.display=="none") {
+     // Box is closed, so open it
+     openBox(boxObj, buttonObj);
+  } else if (boxObj.style.display=="block") {
+     // Box is opened, so close it
+     closeBox(boxObj, buttonObj);
+  }
+}
+
+/**
+ * Closes all boxes in a given list.
+ * 
+ * @param boxList Array of box IDs
+ */
+function collapseAll(boxList) {
+  var idx;
+  for (idx = 0; idx < boxList.length; idx++) {
+     var boxObj = getElementObject(boxList[idx]);
+     var buttonObj = getElementObject(boxList[idx]+B_SFIX);
+     closeBox(boxObj, buttonObj);
+  }
+}
+
+/**
+ * Open all boxes in a given list.
+ * 
+ * @param boxList Array of box IDs
+ */
+function expandAll(boxList) {
+  var idx;
+  for (idx = 0; idx < boxList.length; idx++) {
+     var boxObj = getElementObject(boxList[idx]);
+     var buttonObj = getElementObject(boxList[idx]+B_SFIX);
+     openBox(boxObj, buttonObj);
+  }
+}
+
+/**
+ * Makes all the control buttons of boxes appear.
+ * 
+ * @param boxList Array of box IDs
+ */
+function viewControlButtons(boxList) {
+    var idx;
+    for (idx = 0; idx < boxList.length; idx++) {
+        buttonObj = getElementObject(boxList[idx]+B_SFIX);
+        if (buttonObj != null) {
+            buttonObj.style.display = "inline";
+        }
+    }
+}
+
+/**
+ * Makes all the control buttons of boxes disappear.
+ * 
+ * @param boxList Array of box IDs
+ */
+function hideControlButtons(boxList) {
+    var idx;
+    for (idx = 0; idx < boxList.length; idx++) {
+        buttonObj = getElementObject(boxList[idx]+B_SFIX);
+        if (buttonObj != null) {
+            buttonObj.style.display = "none";
+        }
+    }
+}
+
+/**
+ * Sets the page for either printing mode
+ * or viewing mode. In printing mode, the page
+ * is made to be more readable when printing it out.
+ * In viewing mode, the page is more browsable.
+ *
+ * @param isPrinterVersion If true, display in
+ *                                 printing mode; otherwise, 
+ *                                 in viewing mode
+ */
+function displayMode(isPrinterVersion) {
+    var obj;
+    if (isPrinterVersion) {
+        // Hide global control buttons
+        obj = getElementObject("globalControls");
+        if (obj != null) {
+            obj.style.visibility = "hidden";
+        }
+        // Hide Legend
+        obj = getElementObject("legend");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+        obj = getElementObject("legendTOC");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+        // Hide Glossary
+        obj = getElementObject("glossary");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+        obj = getElementObject("glossaryTOC");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+
+        // Expand all XML Instance Representation tables
+        expandAll(xiBoxes);
+        // Expand all Schema Component Representation tables
+        expandAll(scBoxes);
+
+        // Hide Control buttons
+        hideControlButtons(xiBoxes);
+        hideControlButtons(scBoxes);
+    } else {
+        // View global control buttons
+        obj = getElementObject("globalControls");
+        if (obj != null) {
+            obj.style.visibility = "visible";
+        }
+        // View Legend
+        obj = getElementObject("legend");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+        obj = getElementObject("legendTOC");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+        // View Glossary
+        obj = getElementObject("glossary");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+        obj = getElementObject("glossaryTOC");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+
+        // Expand all XML Instance Representation tables
+        expandAll(xiBoxes);
+        // Collapse all Schema Component Representation tables
+        collapseAll(scBoxes);
+
+        // View Control buttons
+        viewControlButtons(xiBoxes);
+        viewControlButtons(scBoxes);
+    }
+}
+
+/**
+ * Opens up a window displaying the documentation
+ * of a schema component in the XML Instance
+ * Representation table.
+ * 
+ * @param compDesc      Description of schema component 
+ * @param compName      Name of schema component 
+ * @param docTextArray Array containing the paragraphs 
+ *                           of the new document
+ */
+function viewDocumentation(compDesc, compName, docTextArray) {
+  var width = 400;
+  var height = 200;
+  var locX = 100;
+  var locY = 200;
+
+  /* Generate content */
+  var actualText = "<html>";
+  actualText += "<head><title>";
+  actualText += compDesc;
+  if (compName != '') {
+     actualText += ": " + compName;
+  }
+  actualText += "</title></head>";
+  actualText += "<body bgcolor=\"#FFFFEE\">";
+  // Title
+  actualText += "<p style=\"font-family: Arial, sans-serif; font-size: 12pt; font-weight: bold; letter-spacing:1px;\">";
+  actualText += compDesc;
+  if (compName != '') {
+     actualText += ": <span style=\"color:#006699\">" + compName + "</span>";
+  }
+  actualText += "</p>";
+  // Documentation
+  var idx;
+  for (idx = 0; idx < docTextArray.length; idx++) {
+     actualText += "<p style=\"font-family: Arial, sans-serif; font-size: 10pt;\">" + docTextArray[idx] + "</p>";
+  }
+  // Link to close window
+  actualText += "<a href=\"javascript:void(0)\" onclick=\"window.close();\" style=\"font-family: Arial, sans-serif; font-size: 8pt;\">Close</a>";
+  actualText += "</body></html>";
+
+  /* Display window */
+  windowCount++;
+  var docWindow = window.open("", "documentation"+windowCount, "toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable,alwaysRaised,dependent,titlebar=no,width="+width+",height="+height+",screenX="+locX+",left="+locX+",screenY="+locY+",top="+locY);
+  docWindow.document.write(actualText);
+}
+
+// -->
+</script>
+  </head>
+  <body>
+    <h1>
+      <a name="top">GPX 1.1 Schema Documentation</a>
+    </h1>
+    <div style="float: right;">
+      <div id="printerControls" style="display:none;"><input type="checkbox" onclick="displayMode(this.checked)"/>Printer-friendly Version</div>
+      <script type="text/javascript">
+<!--
+
+var pc = getElementObject("printerControls");
+if (pc != null) {
+   pc.style.display="block";
+}
+               
+// -->
+</script>
+      <div id="globalControls" style="display:none">
+        <strong>XML Instance Representation:</strong>
+        <br/>
+        <span style="margin-left: 1em; white-space: nowrap">[ <a href="javascript:void(0)" onclick="expandAll(xiBoxes)">Expand All</a> | <a href="javascript:void(0)" onclick="collapseAll(xiBoxes)">Collapse All</a> ]</span>
+        <br/>
+        <br/>
+        <strong>Schema Component Representation:</strong>
+        <br/>
+        <span style="margin-left: 1em; white-space: nowrap">[ <a href="javascript:void(0)" onclick="expandAll(scBoxes)">Expand All</a> | <a href="javascript:void(0)" onclick="collapseAll(scBoxes)">Collapse All</a> ]</span>
+      </div>
+      <script type="text/javascript">
+<!--
+
+var gc = getElementObject("globalControls");
+if (gc != null) {
+   gc.style.display="block";
+}
+               
+// -->
+</script>
+    </div>
+    <h2>Table of Contents</h2>
+    <ul>
+      <li>
+        <a href="#SchemaProperties">Schema Document Properties</a>
+      </li>
+      <li>
+        <a href="#SchemaComponents">Global Schema Components</a>
+        <ul>
+          <li>
+            <a href="#element_gpx">Element: <strong>gpx</strong></a>
+          </li>
+          <li>
+            <a href="#type_gpxType">Complex Type: <strong>gpxType</strong></a>
+          </li>
+          <li>
+            <a href="#type_metadataType">Complex Type: <strong>metadataType</strong></a>
+          </li>
+          <li>
+            <a href="#type_wptType">Complex Type: <strong>wptType</strong></a>
+          </li>
+          <li>
+            <a href="#type_rteType">Complex Type: <strong>rteType</strong></a>
+          </li>
+          <li>
+            <a href="#type_trkType">Complex Type: <strong>trkType</strong></a>
+          </li>
+          <li>
+            <a href="#type_extensionsType">Complex Type: <strong>extensionsType</strong></a>
+          </li>
+          <li>
+            <a href="#type_trksegType">Complex Type: <strong>trksegType</strong></a>
+          </li>
+          <li>
+            <a href="#type_copyrightType">Complex Type: <strong>copyrightType</strong></a>
+          </li>
+          <li>
+            <a href="#type_linkType">Complex Type: <strong>linkType</strong></a>
+          </li>
+          <li>
+            <a href="#type_emailType">Complex Type: <strong>emailType</strong></a>
+          </li>
+          <li>
+            <a href="#type_personType">Complex Type: <strong>personType</strong></a>
+          </li>
+          <li>
+            <a href="#type_ptType">Complex Type: <strong>ptType</strong></a>
+          </li>
+          <li>
+            <a href="#type_ptsegType">Complex Type: <strong>ptsegType</strong></a>
+          </li>
+          <li>
+            <a href="#type_boundsType">Complex Type: <strong>boundsType</strong></a>
+          </li>
+          <li>
+            <a href="#type_latitudeType">Simple Type: <strong>latitudeType</strong></a>
+          </li>
+          <li>
+            <a href="#type_longitudeType">Simple Type: <strong>longitudeType</strong></a>
+          </li>
+          <li>
+            <a href="#type_degreesType">Simple Type: <strong>degreesType</strong></a>
+          </li>
+          <li>
+            <a href="#type_fixType">Simple Type: <strong>fixType</strong></a>
+          </li>
+          <li>
+            <a href="#type_dgpsStationType">Simple Type: <strong>dgpsStationType</strong></a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr/>
+    <h2>
+      <a name="SchemaProperties">Schema Document Properties</a>
+    </h2>
+    <table class="properties">
+      <tr>
+        <th>Target Namespace</th>
+        <td>
+          <span class="targetNS">http://www.topografix.com/GPX/1/1</span>
+        </td>
+      </tr>
+      <tr>
+        <th>Element and Attribute Namespaces</th>
+        <td>
+          <ul>
+            <li>Global element and attribute declarations belong to this schema's target namespace.</li>
+            <li>By default, local element declarations belong to this schema's target namespace.</li>
+            <li>By default, local attribute declarations have no namespace.</li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <th>Documentation</th>
+        <td>
+  GPX schema version 1.1 - For more information on GPX and this schema, visit http://www.topografix.com/gpx.asp
+
+  GPX uses the following conventions: all coordinates are relative to the WGS84 datum.  All measurements are in metric units.
+ </td>
+      </tr>
+    </table>
+    <h3>Declared Namespaces</h3>
+    <table class="namespaces">
+      <tr>
+        <th>Prefix</th>
+        <th>Namespace</th>
+      </tr>
+      <tr>
+        <td>
+          <a name="ns_">Default namespace</a>
+        </td>
+        <td>
+          <span class="targetNS">http://www.topografix.com/GPX/1/1</span>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <a name="ns_xml">xml</a>
+        </td>
+        <td>http://www.w3.org/XML/1998/namespace</td>
+      </tr>
+      <tr>
+        <td>
+          <a name="ns_xsd">xsd</a>
+        </td>
+        <td>http://www.w3.org/2001/XMLSchema</td>
+      </tr>
+    </table>
+    <div class="schemaComponent box">
+      <div><input type="button" id="schema_scbox_button" class="control" onclick="switchState('schema_scbox'); return false;" style="display: none"/> <span class="caption">Schema Component Representation</span></div>
+      <div id="schema_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xsd:schema</span> <span class="scTag">targetNamespace</span>=&quot;<span class="scContent">http://www.topografix.com/GPX/1/1</span>&quot; <span class="scTag">elementFormDefault</span>=&quot;<span class="scContent">qualified</span>&quot;&gt;<div class="scContent" style="margin-left: 1.5em">...</div>&lt;/<span class="scTag">xsd:schema</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('schema_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr/>
+    <h2>
+      <a name="SchemaComponents">Global Schema Components</a>
+    </h2>
+    <h3>Element: <a name="element_gpx" class="name">gpx</a></h3>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>gpx</td>
+      </tr>
+      <tr>
+        <th>Type</th>
+        <td>
+          <span class="type">
+            <a title="Jump to &quot;gpxType&quot; type definition." href="#type_gpxType">gpxType</a>
+          </span>
+        </td>
+      </tr>
+      <tr>
+        <th>Nillable</th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>Abstract</th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>Documentation</th>
+        <td>
+		GPX is the root element in the XML file.
+	  </td>
+      </tr>
+    </table>
+    <div class="sample box">
+      <div><input type="button" id="element_gpx_xibox_button" class="control" onclick="switchState('element_gpx_xibox'); return false;" style="display: none"/> <span class="caption">XML Instance Representation</span></div>
+      <div id="element_gpx_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;gpx<br/><span style="margin-left: 0.5em"> version=&quot;<span class="fixed">1.1</span> <span class="occurs">[1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('You must include the version number in your GPX document.'); viewDocumentation('Attribute', 'version', docArray);">?</a>&quot;</span><br/><span style="margin-left: 0.5em"> creator=&quot;<span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> <span class="occurs">[1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('You must include the name or URL of the software that created your GPX document. This allows others to inform the creator of a GPX instance document that fails to validate.'); viewDocumentation('Attribute', 'creator', docArray);">?</a>&quot;</span>&gt; <br/><div style="margin-left: 1.5em">&lt;metadata&gt; <span class="type"><a title="Jump to &quot;metadataType&quot; type definition." href="#type_metadataType">metadataType</a></span> &lt;/metadata&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Metadata about the file.'); viewDocumentation('Element', 'metadata', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;wpt&gt; <span class="type"><a title="Jump to &quot;wptType&quot; type definition." href="#type_wptType">wptType</a></span> &lt;/wpt&gt; <span class="occurs">[0..*]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('A list of waypoints.'); viewDocumentation('Element', 'wpt', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;rte&gt; <span class="type"><a title="Jump to &quot;rteType&quot; type definition." href="#type_rteType">rteType</a></span> &lt;/rte&gt; <span class="occurs">[0..*]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('A list of routes.'); viewDocumentation('Element', 'rte', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;trk&gt; <span class="type"><a title="Jump to &quot;trkType&quot; type definition." href="#type_trkType">trkType</a></span> &lt;/trk&gt; <span class="occurs">[0..*]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('A list of tracks.'); viewDocumentation('Element', 'trk', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;extensions&gt; <span class="type"><a title="Jump to &quot;extensionsType&quot; type definition." href="#type_extensionsType">extensionsType</a></span> &lt;/extensions&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('You can add extend GPX by adding your own elements from another schema here.'); viewDocumentation('Element', 'extensions', docArray);">?</a></div>&lt;/gpx&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_gpx_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="element_gpx_scbox_button" class="control" onclick="switchState('element_gpx_scbox'); return false;" style="display: none"/> <span class="caption">Schema Component Representation</span></div>
+      <div id="element_gpx_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">gpx</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;gpxType&quot; type definition." href="#type_gpxType">gpxType</a></span></span>&quot;/&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('element_gpx_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr/>
+    <h3>Complex Type: <a name="type_gpxType" class="name">gpxType</a></h3>
+    <table class="hierarchy">
+      <tr>
+        <th>Parent type:</th>
+        <td>None</td>
+      </tr>
+      <tr>
+        <th>Direct sub-types:</th>
+        <td>None</td>
+      </tr>
+    </table>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>gpxType</td>
+      </tr>
+      <tr>
+        <th>Abstract</th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>Documentation</th>
+        <td>
+		GPX documents contain a metadata header, followed by waypoints, routes, and tracks.  You can add your own elements
+		to the extensions section of the GPX document.
+	  </td>
+      </tr>
+    </table>
+    <div class="sample box">
+      <div><input type="button" id="type_gpxType_xibox_button" class="control" onclick="switchState('type_gpxType_xibox'); return false;" style="display: none"/> <span class="caption">XML Instance Representation</span></div>
+      <div id="type_gpxType_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;...<br/><span style="margin-left: 0.5em"> version=&quot;<span class="fixed">1.1</span> <span class="occurs">[1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('You must include the version number in your GPX document.'); viewDocumentation('Attribute', 'version', docArray);">?</a>&quot;</span><br/><span style="margin-left: 0.5em"> creator=&quot;<span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> <span class="occurs">[1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('You must include the name or URL of the software that created your GPX document. This allows others to inform the creator of a GPX instance document that fails to validate.'); viewDocumentation('Attribute', 'creator', docArray);">?</a>&quot;</span>&gt; <br/><div style="margin-left: 1.5em">&lt;metadata&gt; <span class="type"><a title="Jump to &quot;metadataType&quot; type definition." href="#type_metadataType">metadataType</a></span> &lt;/metadata&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Metadata about the file.'); viewDocumentation('Element', 'metadata', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;wpt&gt; <span class="type"><a title="Jump to &quot;wptType&quot; type definition." href="#type_wptType">wptType</a></span> &lt;/wpt&gt; <span class="occurs">[0..*]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('A list of waypoints.'); viewDocumentation('Element', 'wpt', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;rte&gt; <span class="type"><a title="Jump to &quot;rteType&quot; type definition." href="#type_rteType">rteType</a></span> &lt;/rte&gt; <span class="occurs">[0..*]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('A list of routes.'); viewDocumentation('Element', 'rte', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;trk&gt; <span class="type"><a title="Jump to &quot;trkType&quot; type definition." href="#type_trkType">trkType</a></span> &lt;/trk&gt; <span class="occurs">[0..*]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('A list of tracks.'); viewDocumentation('Element', 'trk', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;extensions&gt; <span class="type"><a title="Jump to &quot;extensionsType&quot; type definition." href="#type_extensionsType">extensionsType</a></span> &lt;/extensions&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('You can add extend GPX by adding your own elements from another schema here.'); viewDocumentation('Element', 'extensions', docArray);">?</a></div>&lt;/...&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_gpxType_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="type_gpxType_scbox_button" class="control" onclick="switchState('type_gpxType_scbox'); return false;" style="display: none"/> <span class="caption">Schema Component Representation</span></div>
+      <div id="type_gpxType_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xsd:complexType</span> <span class="scTag">name</span>=&quot;<span class="scContent">gpxType</span>&quot;&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">metadata</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;metadataType&quot; type definition." href="#type_metadataType">metadataType</a></span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">wpt</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;wptType&quot; type definition." href="#type_wptType">wptType</a></span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot; <span class="scTag">maxOccurs</span>=&quot;<span class="scContent">unbounded</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">rte</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;rteType&quot; type definition." href="#type_rteType">rteType</a></span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot; <span class="scTag">maxOccurs</span>=&quot;<span class="scContent">unbounded</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">trk</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;trkType&quot; type definition." href="#type_trkType">trkType</a></span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot; <span class="scTag">maxOccurs</span>=&quot;<span class="scContent">unbounded</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">extensions</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;extensionsType&quot; type definition." href="#type_extensionsType">extensionsType</a></span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> <span class="scTag">name</span>=&quot;<span class="scContent">version</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot; <span class="scTag">use</span>=&quot;<span class="scContent">required</span>&quot; <span class="scTag">fixed</span>=&quot;<span class="scContent">1.1</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> <span class="scTag">name</span>=&quot;<span class="scContent">creator</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot; <span class="scTag">use</span>=&quot;<span class="scContent">required</span>&quot;/&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_gpxType_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr/>
+    <h3>Complex Type: <a name="type_metadataType" class="name">metadataType</a></h3>
+    <table class="hierarchy">
+      <tr>
+        <th>Parent type:</th>
+        <td>None</td>
+      </tr>
+      <tr>
+        <th>Direct sub-types:</th>
+        <td>None</td>
+      </tr>
+    </table>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>metadataType</td>
+      </tr>
+      <tr>
+        <th>Abstract</th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>Documentation</th>
+        <td>
+		Information about the GPX file, author, and copyright restrictions goes in the metadata section.  Providing rich,
+		meaningful information about your GPX files allows others to search for and use your GPS data.
+	  </td>
+      </tr>
+    </table>
+    <div class="sample box">
+      <div><input type="button" id="type_metadataType_xibox_button" class="control" onclick="switchState('type_metadataType_xibox'); return false;" style="display: none"/> <span class="caption">XML Instance Representation</span></div>
+      <div id="type_metadataType_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;...&gt; <br/><div style="margin-left: 1.5em">&lt;name&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> &lt;/name&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('The name of the GPX file.'); viewDocumentation('Element', 'name', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;desc&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> &lt;/desc&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('A description of the contents of the GPX file.'); viewDocumentation('Element', 'desc', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;author&gt; <span class="type"><a title="Jump to &quot;personType&quot; type definition." href="#type_personType">personType</a></span> &lt;/author&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('The person or organization who created the GPX file.'); viewDocumentation('Element', 'author', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;copyright&gt; <span class="type"><a title="Jump to &quot;copyrightType&quot; type definition." href="#type_copyrightType">copyrightType</a></span> &lt;/copyright&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Copyright and license information governing use of the file.'); viewDocumentation('Element', 'copyright', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;link&gt; <span class="type"><a title="Jump to &quot;linkType&quot; type definition." href="#type_linkType">linkType</a></span> &lt;/link&gt; <span class="occurs">[0..*]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('URLs associated with the location described in the file.'); viewDocumentation('Element', 'link', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;time&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:dateTime</span> &lt;/time&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('The creation date of the file.'); viewDocumentation('Element', 'time', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;keywords&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> &lt;/keywords&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Keywords associated with the file. Search engines or databases can use this information to classify the data.'); viewDocumentation('Element', 'keywords', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;bounds&gt; <span class="type"><a title="Jump to &quot;boundsType&quot; type definition." href="#type_boundsType">boundsType</a></span> &lt;/bounds&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Minimum and maximum coordinates which describe the extent of the coordinates in the file.'); viewDocumentation('Element', 'bounds', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;extensions&gt; <span class="type"><a title="Jump to &quot;extensionsType&quot; type definition." href="#type_extensionsType">extensionsType</a></span> &lt;/extensions&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('You can add extend GPX by adding your own elements from another schema here.'); viewDocumentation('Element', 'extensions', docArray);">?</a></div>&lt;/...&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_metadataType_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="type_metadataType_scbox_button" class="control" onclick="switchState('type_metadataType_scbox'); return false;" style="display: none"/> <span class="caption">Schema Component Representation</span></div>
+      <div id="type_metadataType_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xsd:complexType</span> <span class="scTag">name</span>=&quot;<span class="scContent">metadataType</span>&quot;&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div class="comment" style="margin-left: 1.5em">&lt;-- elements must appear in this order --&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">name</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">desc</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">author</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;personType&quot; type definition." href="#type_personType">personType</a></span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">copyright</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;copyrightType&quot; type definition." href="#type_copyrightType">copyrightType</a></span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">link</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;linkType&quot; type definition." href="#type_linkType">linkType</a></span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot; <span class="scTag">maxOccurs</span>=&quot;<span class="scContent">unbounded</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">time</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:dateTime</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">keywords</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">bounds</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;boundsType&quot; type definition." href="#type_boundsType">boundsType</a></span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">extensions</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;extensionsType&quot; type definition." href="#type_extensionsType">extensionsType</a></span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_metadataType_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr/>
+    <h3>Complex Type: <a name="type_wptType" class="name">wptType</a></h3>
+    <table class="hierarchy">
+      <tr>
+        <th>Parent type:</th>
+        <td>None</td>
+      </tr>
+      <tr>
+        <th>Direct sub-types:</th>
+        <td>None</td>
+      </tr>
+    </table>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>wptType</td>
+      </tr>
+      <tr>
+        <th>Abstract</th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>Documentation</th>
+        <td>
+		wpt represents a waypoint, point of interest, or named feature on a map.
+	  </td>
+      </tr>
+    </table>
+    <div class="sample box">
+      <div><input type="button" id="type_wptType_xibox_button" class="control" onclick="switchState('type_wptType_xibox'); return false;" style="display: none"/> <span class="caption">XML Instance Representation</span></div>
+      <div id="type_wptType_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;...<br/><span style="margin-left: 0.5em"> lat=&quot;<span class="type"><a title="Jump to &quot;latitudeType&quot; type definition." href="#type_latitudeType">latitudeType</a></span> <span class="occurs">[1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('The latitude of the point. Decimal degrees, WGS84 datum.'); viewDocumentation('Attribute', 'lat', docArray);">?</a>&quot;</span><br/><span style="margin-left: 0.5em"> lon=&quot;<span class="type"><a title="Jump to &quot;longitudeType&quot; type definition." href="#type_longitudeType">longitudeType</a></span> <span class="occurs">[1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('The longitude of the point. Decimal degrees, WGS84 datum.'); viewDocumentation('Attribute', 'lon', docArray);">?</a>&quot;</span>&gt; <br/><div style="margin-left: 1.5em">&lt;ele&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:decimal</span> &lt;/ele&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Elevation (in meters) of the point.'); viewDocumentation('Element', 'ele', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;time&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:dateTime</span> &lt;/time&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Creation/modification timestamp for element. Date and time in are in Univeral Coordinated Time (UTC), not local time! Conforms to ISO 8601 specification for date/time representation. Fractional seconds are allowed for millisecond timing in tracklogs.'); viewDocumentation('Element', 'time', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;magvar&gt; <span class="type"><a title="Jump to &quot;degreesType&quot; type definition." href="#type_degreesType">degreesType</a></span> &lt;/magvar&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Magnetic variation (in degrees) at the point'); viewDocumentation('Element', 'magvar', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;geoidheight&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:decimal</span> &lt;/geoidheight&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Height (in meters) of geoid (mean sea level) above WGS84 earth ellipsoid. As defined in NMEA GGA message.'); viewDocumentation('Element', 'geoidheight', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;name&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> &lt;/name&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('The GPS name of the waypoint. This field will be transferred to and from the GPS. GPX does not place restrictions on the length of this field or the characters contained in it. It is up to the receiving application to validate the field before sending it to the GPS.'); viewDocumentation('Element', 'name', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;cmt&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> &lt;/cmt&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('GPS waypoint comment. Sent to GPS as comment.'); viewDocumentation('Element', 'cmt', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;desc&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> &lt;/desc&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('A text description of the element. Holds additional information about the element intended for the user, not the GPS.'); viewDocumentation('Element', 'desc', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;src&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> &lt;/src&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Source of data. Included to give user some idea of reliability and accuracy of data. \&quot;Garmin eTrex\&quot;, \&quot;USGS quad Boston North\&quot;, e.g.'); viewDocumentation('Element', 'src', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;link&gt; <span class="type"><a title="Jump to &quot;linkType&quot; type definition." href="#type_linkType">linkType</a></span> &lt;/link&gt; <span class="occurs">[0..*]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Link to additional information about the waypoint.'); viewDocumentation('Element', 'link', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;sym&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> &lt;/sym&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Text of GPS symbol name. For interchange with other programs, use the exact spelling of the symbol as displayed on the GPS. If the GPS abbreviates words, spell them out.'); viewDocumentation('Element', 'sym', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;type&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> &lt;/type&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Type (classification) of the waypoint.'); viewDocumentation('Element', 'type', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;fix&gt; <span class="type"><a title="Jump to &quot;fixType&quot; type definition." href="#type_fixType">fixType</a></span> &lt;/fix&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Type of GPX fix.'); viewDocumentation('Element', 'fix', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;sat&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:nonNegativeInteger</span> &lt;/sat&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Number of satellites used to calculate the GPX fix.'); viewDocumentation('Element', 'sat', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;hdop&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:decimal</span> &lt;/hdop&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Horizontal dilution of precision.'); viewDocumentation('Element', 'hdop', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;vdop&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:decimal</span> &lt;/vdop&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Vertical dilution of precision.'); viewDocumentation('Element', 'vdop', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;pdop&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:decimal</span> &lt;/pdop&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Position dilution of precision.'); viewDocumentation('Element', 'pdop', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;ageofdgpsdata&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:decimal</span> &lt;/ageofdgpsdata&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Number of seconds since last DGPS update.'); viewDocumentation('Element', 'ageofdgpsdata', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;dgpsid&gt; <span class="type"><a title="Jump to &quot;dgpsStationType&quot; type definition." href="#type_dgpsStationType">dgpsStationType</a></span> &lt;/dgpsid&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('ID of DGPS station used in differential correction.'); viewDocumentation('Element', 'dgpsid', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;extensions&gt; <span class="type"><a title="Jump to &quot;extensionsType&quot; type definition." href="#type_extensionsType">extensionsType</a></span> &lt;/extensions&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('You can add extend GPX by adding your own elements from another schema here.'); viewDocumentation('Element', 'extensions', docArray);">?</a></div>&lt;/...&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_wptType_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="type_wptType_scbox_button" class="control" onclick="switchState('type_wptType_scbox'); return false;" style="display: none"/> <span class="caption">Schema Component Representation</span></div>
+      <div id="type_wptType_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xsd:complexType</span> <span class="scTag">name</span>=&quot;<span class="scContent">wptType</span>&quot;&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div class="comment" style="margin-left: 1.5em">&lt;-- elements must appear in this order --&gt;</div><div class="comment" style="margin-left: 1.5em">&lt;-- Position info --&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">ele</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:decimal</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">time</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:dateTime</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">magvar</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;degreesType&quot; type definition." href="#type_degreesType">degreesType</a></span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">geoidheight</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:decimal</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div class="comment" style="margin-left: 1.5em">&lt;-- Description info --&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">name</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">cmt</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">desc</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">src</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">link</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;linkType&quot; type definition." href="#type_linkType">linkType</a></span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot; <span class="scTag">maxOccurs</span>=&quot;<span class="scContent">unbounded</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">sym</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">type</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div class="comment" style="margin-left: 1.5em">&lt;-- Accuracy info --&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">fix</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;fixType&quot; type definition." href="#type_fixType">fixType</a></span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">sat</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:nonNegativeInteger</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">hdop</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:decimal</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">vdop</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:decimal</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">pdop</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:decimal</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">ageofdgpsdata</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:decimal</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">dgpsid</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;dgpsStationType&quot; type definition." href="#type_dgpsStationType">dgpsStationType</a></span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">extensions</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;extensionsType&quot; type definition." href="#type_extensionsType">extensionsType</a></span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> <span class="scTag">name</span>=&quot;<span class="scContent">lat</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;latitudeType&quot; type definition." href="#type_latitudeType">latitudeType</a></span></span>&quot; <span class="scTag">use</span>=&quot;<span class="scContent">required</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> <span class="scTag">name</span>=&quot;<span class="scContent">lon</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;longitudeType&quot; type definition." href="#type_longitudeType">longitudeType</a></span></span>&quot; <span class="scTag">use</span>=&quot;<span class="scContent">required</span>&quot;/&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_wptType_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr/>
+    <h3>Complex Type: <a name="type_rteType" class="name">rteType</a></h3>
+    <table class="hierarchy">
+      <tr>
+        <th>Parent type:</th>
+        <td>None</td>
+      </tr>
+      <tr>
+        <th>Direct sub-types:</th>
+        <td>None</td>
+      </tr>
+    </table>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>rteType</td>
+      </tr>
+      <tr>
+        <th>Abstract</th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>Documentation</th>
+        <td>
+		rte represents route - an ordered list of waypoints representing a series of turn points leading to a destination.
+	  </td>
+      </tr>
+    </table>
+    <div class="sample box">
+      <div><input type="button" id="type_rteType_xibox_button" class="control" onclick="switchState('type_rteType_xibox'); return false;" style="display: none"/> <span class="caption">XML Instance Representation</span></div>
+      <div id="type_rteType_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;...&gt; <br/><div style="margin-left: 1.5em">&lt;name&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> &lt;/name&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('GPS name of route.'); viewDocumentation('Element', 'name', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;cmt&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> &lt;/cmt&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('GPS comment for route.'); viewDocumentation('Element', 'cmt', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;desc&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> &lt;/desc&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Text description of route for user. Not sent to GPS.'); viewDocumentation('Element', 'desc', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;src&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> &lt;/src&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Source of data. Included to give user some idea of reliability and accuracy of data.'); viewDocumentation('Element', 'src', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;link&gt; <span class="type"><a title="Jump to &quot;linkType&quot; type definition." href="#type_linkType">linkType</a></span> &lt;/link&gt; <span class="occurs">[0..*]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Links to external information about the route.'); viewDocumentation('Element', 'link', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;number&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:nonNegativeInteger</span> &lt;/number&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('GPS route number.'); viewDocumentation('Element', 'number', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;type&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> &lt;/type&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Type (classification) of route.'); viewDocumentation('Element', 'type', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;extensions&gt; <span class="type"><a title="Jump to &quot;extensionsType&quot; type definition." href="#type_extensionsType">extensionsType</a></span> &lt;/extensions&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('You can add extend GPX by adding your own elements from another schema here.'); viewDocumentation('Element', 'extensions', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;rtept&gt; <span class="type"><a title="Jump to &quot;wptType&quot; type definition." href="#type_wptType">wptType</a></span> &lt;/rtept&gt; <span class="occurs">[0..*]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('A list of route points.'); viewDocumentation('Element', 'rtept', docArray);">?</a></div>&lt;/...&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_rteType_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="type_rteType_scbox_button" class="control" onclick="switchState('type_rteType_scbox'); return false;" style="display: none"/> <span class="caption">Schema Component Representation</span></div>
+      <div id="type_rteType_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xsd:complexType</span> <span class="scTag">name</span>=&quot;<span class="scContent">rteType</span>&quot;&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">name</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">cmt</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">desc</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">src</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">link</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;linkType&quot; type definition." href="#type_linkType">linkType</a></span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot; <span class="scTag">maxOccurs</span>=&quot;<span class="scContent">unbounded</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">number</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:nonNegativeInteger</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">type</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">extensions</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;extensionsType&quot; type definition." href="#type_extensionsType">extensionsType</a></span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">rtept</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;wptType&quot; type definition." href="#type_wptType">wptType</a></span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot; <span class="scTag">maxOccurs</span>=&quot;<span class="scContent">unbounded</span>&quot;/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_rteType_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr/>
+    <h3>Complex Type: <a name="type_trkType" class="name">trkType</a></h3>
+    <table class="hierarchy">
+      <tr>
+        <th>Parent type:</th>
+        <td>None</td>
+      </tr>
+      <tr>
+        <th>Direct sub-types:</th>
+        <td>None</td>
+      </tr>
+    </table>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>trkType</td>
+      </tr>
+      <tr>
+        <th>Abstract</th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>Documentation</th>
+        <td>
+		trk represents a track - an ordered list of points describing a path.
+	  </td>
+      </tr>
+    </table>
+    <div class="sample box">
+      <div><input type="button" id="type_trkType_xibox_button" class="control" onclick="switchState('type_trkType_xibox'); return false;" style="display: none"/> <span class="caption">XML Instance Representation</span></div>
+      <div id="type_trkType_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;...&gt; <br/><div style="margin-left: 1.5em">&lt;name&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> &lt;/name&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('GPS name of track.'); viewDocumentation('Element', 'name', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;cmt&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> &lt;/cmt&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('GPS comment for track.'); viewDocumentation('Element', 'cmt', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;desc&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> &lt;/desc&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('User description of track.'); viewDocumentation('Element', 'desc', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;src&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> &lt;/src&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Source of data. Included to give user some idea of reliability and accuracy of data.'); viewDocumentation('Element', 'src', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;link&gt; <span class="type"><a title="Jump to &quot;linkType&quot; type definition." href="#type_linkType">linkType</a></span> &lt;/link&gt; <span class="occurs">[0..*]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Links to external information about track.'); viewDocumentation('Element', 'link', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;number&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:nonNegativeInteger</span> &lt;/number&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('GPS track number.'); viewDocumentation('Element', 'number', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;type&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> &lt;/type&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Type (classification) of track.'); viewDocumentation('Element', 'type', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;extensions&gt; <span class="type"><a title="Jump to &quot;extensionsType&quot; type definition." href="#type_extensionsType">extensionsType</a></span> &lt;/extensions&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('You can add extend GPX by adding your own elements from another schema here.'); viewDocumentation('Element', 'extensions', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;trkseg&gt; <span class="type"><a title="Jump to &quot;trksegType&quot; type definition." href="#type_trksegType">trksegType</a></span> &lt;/trkseg&gt; <span class="occurs">[0..*]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('A Track Segment holds a list of Track Points which are logically connected in order. To represent a single GPS track where GPS reception was lost, or the GPS receiver was turned off, start a new Track Segment for each continuous span of track data.'); viewDocumentation('Element', 'trkseg', docArray);">?</a></div>&lt;/...&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_trkType_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="type_trkType_scbox_button" class="control" onclick="switchState('type_trkType_scbox'); return false;" style="display: none"/> <span class="caption">Schema Component Representation</span></div>
+      <div id="type_trkType_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xsd:complexType</span> <span class="scTag">name</span>=&quot;<span class="scContent">trkType</span>&quot;&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">name</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">cmt</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">desc</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">src</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">link</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;linkType&quot; type definition." href="#type_linkType">linkType</a></span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot; <span class="scTag">maxOccurs</span>=&quot;<span class="scContent">unbounded</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">number</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:nonNegativeInteger</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">type</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">extensions</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;extensionsType&quot; type definition." href="#type_extensionsType">extensionsType</a></span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">trkseg</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;trksegType&quot; type definition." href="#type_trksegType">trksegType</a></span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot; <span class="scTag">maxOccurs</span>=&quot;<span class="scContent">unbounded</span>&quot;/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_trkType_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr/>
+    <h3>Complex Type: <a name="type_extensionsType" class="name">extensionsType</a></h3>
+    <table class="hierarchy">
+      <tr>
+        <th>Parent type:</th>
+        <td>None</td>
+      </tr>
+      <tr>
+        <th>Direct sub-types:</th>
+        <td>None</td>
+      </tr>
+    </table>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>extensionsType</td>
+      </tr>
+      <tr>
+        <th>Abstract</th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>Documentation</th>
+        <td>
+	 You can add extend GPX by adding your own elements from another schema here.
+    </td>
+      </tr>
+    </table>
+    <div class="sample box">
+      <div><input type="button" id="type_extensionsType_xibox_button" class="control" onclick="switchState('type_extensionsType_xibox'); return false;" style="display: none"/> <span class="caption">XML Instance Representation</span></div>
+      <div id="type_extensionsType_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;...&gt; <br/><div class="other" style="margin-left: 1.5em">Allow any elements from a namespace other than this schema's namespace (lax validation). <span class="occurs">[0..*]</span></div>&lt;/...&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_extensionsType_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="type_extensionsType_scbox_button" class="control" onclick="switchState('type_extensionsType_scbox'); return false;" style="display: none"/> <span class="caption">Schema Component Representation</span></div>
+      <div id="type_extensionsType_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xsd:complexType</span> <span class="scTag">name</span>=&quot;<span class="scContent">extensionsType</span>&quot;&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:any</span> <span class="scTag">namespace</span>=&quot;<span class="scContent">##other</span>&quot; <span class="scTag">processContents</span>=&quot;<span class="scContent">lax</span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot; <span class="scTag">maxOccurs</span>=&quot;<span class="scContent">unbounded</span>&quot;/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_extensionsType_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr/>
+    <h3>Complex Type: <a name="type_trksegType" class="name">trksegType</a></h3>
+    <table class="hierarchy">
+      <tr>
+        <th>Parent type:</th>
+        <td>None</td>
+      </tr>
+      <tr>
+        <th>Direct sub-types:</th>
+        <td>None</td>
+      </tr>
+    </table>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>trksegType</td>
+      </tr>
+      <tr>
+        <th>Abstract</th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>Documentation</th>
+        <td>
+ 	 A Track Segment holds a list of Track Points which are logically connected in order. To represent a single GPS track where GPS reception was lost, or the GPS receiver was turned off, start a new Track Segment for each continuous span of track data.
+    </td>
+      </tr>
+    </table>
+    <div class="sample box">
+      <div><input type="button" id="type_trksegType_xibox_button" class="control" onclick="switchState('type_trksegType_xibox'); return false;" style="display: none"/> <span class="caption">XML Instance Representation</span></div>
+      <div id="type_trksegType_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;...&gt; <br/><div style="margin-left: 1.5em">&lt;trkpt&gt; <span class="type"><a title="Jump to &quot;wptType&quot; type definition." href="#type_wptType">wptType</a></span> &lt;/trkpt&gt; <span class="occurs">[0..*]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('A Track Point holds the coordinates, elevation, timestamp, and metadata for a single point in a track.'); viewDocumentation('Element', 'trkpt', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;extensions&gt; <span class="type"><a title="Jump to &quot;extensionsType&quot; type definition." href="#type_extensionsType">extensionsType</a></span> &lt;/extensions&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('You can add extend GPX by adding your own elements from another schema here.'); viewDocumentation('Element', 'extensions', docArray);">?</a></div>&lt;/...&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_trksegType_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="type_trksegType_scbox_button" class="control" onclick="switchState('type_trksegType_scbox'); return false;" style="display: none"/> <span class="caption">Schema Component Representation</span></div>
+      <div id="type_trksegType_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xsd:complexType</span> <span class="scTag">name</span>=&quot;<span class="scContent">trksegType</span>&quot;&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div class="comment" style="margin-left: 1.5em">&lt;-- elements must appear in this order --&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">trkpt</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;wptType&quot; type definition." href="#type_wptType">wptType</a></span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot; <span class="scTag">maxOccurs</span>=&quot;<span class="scContent">unbounded</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">extensions</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;extensionsType&quot; type definition." href="#type_extensionsType">extensionsType</a></span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_trksegType_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr/>
+    <h3>Complex Type: <a name="type_copyrightType" class="name">copyrightType</a></h3>
+    <table class="hierarchy">
+      <tr>
+        <th>Parent type:</th>
+        <td>None</td>
+      </tr>
+      <tr>
+        <th>Direct sub-types:</th>
+        <td>None</td>
+      </tr>
+    </table>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>copyrightType</td>
+      </tr>
+      <tr>
+        <th>Abstract</th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>Documentation</th>
+        <td>
+	 Information about the copyright holder and any license governing use of this file.  By linking to an appropriate license,
+	 you may place your data into the public domain or grant additional usage rights.
+    </td>
+      </tr>
+    </table>
+    <div class="sample box">
+      <div><input type="button" id="type_copyrightType_xibox_button" class="control" onclick="switchState('type_copyrightType_xibox'); return false;" style="display: none"/> <span class="caption">XML Instance Representation</span></div>
+      <div id="type_copyrightType_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;...<br/><span style="margin-left: 0.5em"> author=&quot;<span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> <span class="occurs">[1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Copyright holder (TopoSoft, Inc.)'); viewDocumentation('Attribute', 'author', docArray);">?</a>&quot;</span>&gt; <br/><div style="margin-left: 1.5em">&lt;year&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:gYear</span> &lt;/year&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Year of copyright.'); viewDocumentation('Element', 'year', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;license&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:anyURI</span> &lt;/license&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Link to external file containing license text.'); viewDocumentation('Element', 'license', docArray);">?</a></div>&lt;/...&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_copyrightType_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="type_copyrightType_scbox_button" class="control" onclick="switchState('type_copyrightType_scbox'); return false;" style="display: none"/> <span class="caption">Schema Component Representation</span></div>
+      <div id="type_copyrightType_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xsd:complexType</span> <span class="scTag">name</span>=&quot;<span class="scContent">copyrightType</span>&quot;&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div class="comment" style="margin-left: 1.5em">&lt;-- elements must appear in this order --&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">year</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:gYear</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">license</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:anyURI</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> <span class="scTag">name</span>=&quot;<span class="scContent">author</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot; <span class="scTag">use</span>=&quot;<span class="scContent">required</span>&quot;/&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_copyrightType_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr/>
+    <h3>Complex Type: <a name="type_linkType" class="name">linkType</a></h3>
+    <table class="hierarchy">
+      <tr>
+        <th>Parent type:</th>
+        <td>None</td>
+      </tr>
+      <tr>
+        <th>Direct sub-types:</th>
+        <td>None</td>
+      </tr>
+    </table>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>linkType</td>
+      </tr>
+      <tr>
+        <th>Abstract</th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>Documentation</th>
+        <td>
+	 A link to an external resource (Web page, digital photo, video clip, etc) with additional information.
+    </td>
+      </tr>
+    </table>
+    <div class="sample box">
+      <div><input type="button" id="type_linkType_xibox_button" class="control" onclick="switchState('type_linkType_xibox'); return false;" style="display: none"/> <span class="caption">XML Instance Representation</span></div>
+      <div id="type_linkType_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;...<br/><span style="margin-left: 0.5em"> href=&quot;<span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:anyURI</span> <span class="occurs">[1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('URL of hyperlink.'); viewDocumentation('Attribute', 'href', docArray);">?</a>&quot;</span>&gt; <br/><div style="margin-left: 1.5em">&lt;text&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> &lt;/text&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Text of hyperlink.'); viewDocumentation('Element', 'text', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;type&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> &lt;/type&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Mime type of content (image/jpeg)'); viewDocumentation('Element', 'type', docArray);">?</a></div>&lt;/...&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_linkType_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="type_linkType_scbox_button" class="control" onclick="switchState('type_linkType_scbox'); return false;" style="display: none"/> <span class="caption">Schema Component Representation</span></div>
+      <div id="type_linkType_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xsd:complexType</span> <span class="scTag">name</span>=&quot;<span class="scContent">linkType</span>&quot;&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div class="comment" style="margin-left: 1.5em">&lt;-- elements must appear in this order --&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">text</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">type</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> <span class="scTag">name</span>=&quot;<span class="scContent">href</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:anyURI</span></span>&quot; <span class="scTag">use</span>=&quot;<span class="scContent">required</span>&quot;/&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_linkType_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr/>
+    <h3>Complex Type: <a name="type_emailType" class="name">emailType</a></h3>
+    <table class="hierarchy">
+      <tr>
+        <th>Parent type:</th>
+        <td>None</td>
+      </tr>
+      <tr>
+        <th>Direct sub-types:</th>
+        <td>None</td>
+      </tr>
+    </table>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>emailType</td>
+      </tr>
+      <tr>
+        <th>Abstract</th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>Documentation</th>
+        <td>
+	 An email address.  Broken into two parts (id and domain) to help prevent email harvesting.
+    </td>
+      </tr>
+    </table>
+    <div class="sample box">
+      <div><input type="button" id="type_emailType_xibox_button" class="control" onclick="switchState('type_emailType_xibox'); return false;" style="display: none"/> <span class="caption">XML Instance Representation</span></div>
+      <div id="type_emailType_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;...<br/><span style="margin-left: 0.5em"> id=&quot;<span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> <span class="occurs">[1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('id half of email address (billgates2004)'); viewDocumentation('Attribute', 'id', docArray);">?</a>&quot;</span><br/><span style="margin-left: 0.5em"> domain=&quot;<span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> <span class="occurs">[1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('domain half of email address (hotmail.com)'); viewDocumentation('Attribute', 'domain', docArray);">?</a>&quot;</span>/&gt; </div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_emailType_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="type_emailType_scbox_button" class="control" onclick="switchState('type_emailType_scbox'); return false;" style="display: none"/> <span class="caption">Schema Component Representation</span></div>
+      <div id="type_emailType_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xsd:complexType</span> <span class="scTag">name</span>=&quot;<span class="scContent">emailType</span>&quot;&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> <span class="scTag">name</span>=&quot;<span class="scContent">id</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot; <span class="scTag">use</span>=&quot;<span class="scContent">required</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> <span class="scTag">name</span>=&quot;<span class="scContent">domain</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot; <span class="scTag">use</span>=&quot;<span class="scContent">required</span>&quot;/&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_emailType_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr/>
+    <h3>Complex Type: <a name="type_personType" class="name">personType</a></h3>
+    <table class="hierarchy">
+      <tr>
+        <th>Parent type:</th>
+        <td>None</td>
+      </tr>
+      <tr>
+        <th>Direct sub-types:</th>
+        <td>None</td>
+      </tr>
+    </table>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>personType</td>
+      </tr>
+      <tr>
+        <th>Abstract</th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>Documentation</th>
+        <td>
+	 A person or organization.
+    </td>
+      </tr>
+    </table>
+    <div class="sample box">
+      <div><input type="button" id="type_personType_xibox_button" class="control" onclick="switchState('type_personType_xibox'); return false;" style="display: none"/> <span class="caption">XML Instance Representation</span></div>
+      <div id="type_personType_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;...&gt; <br/><div style="margin-left: 1.5em">&lt;name&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> &lt;/name&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Name of person or organization.'); viewDocumentation('Element', 'name', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;email&gt; <span class="type"><a title="Jump to &quot;emailType&quot; type definition." href="#type_emailType">emailType</a></span> &lt;/email&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Email address.'); viewDocumentation('Element', 'email', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;link&gt; <span class="type"><a title="Jump to &quot;linkType&quot; type definition." href="#type_linkType">linkType</a></span> &lt;/link&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Link to Web site or other external information about person.'); viewDocumentation('Element', 'link', docArray);">?</a></div>&lt;/...&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_personType_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="type_personType_scbox_button" class="control" onclick="switchState('type_personType_scbox'); return false;" style="display: none"/> <span class="caption">Schema Component Representation</span></div>
+      <div id="type_personType_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xsd:complexType</span> <span class="scTag">name</span>=&quot;<span class="scContent">personType</span>&quot;&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div class="comment" style="margin-left: 1.5em">&lt;-- elements must appear in this order --&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">name</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">email</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;emailType&quot; type definition." href="#type_emailType">emailType</a></span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">link</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;linkType&quot; type definition." href="#type_linkType">linkType</a></span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_personType_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr/>
+    <h3>Complex Type: <a name="type_ptType" class="name">ptType</a></h3>
+    <table class="hierarchy">
+      <tr>
+        <th>Parent type:</th>
+        <td>None</td>
+      </tr>
+      <tr>
+        <th>Direct sub-types:</th>
+        <td>None</td>
+      </tr>
+    </table>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>ptType</td>
+      </tr>
+      <tr>
+        <th>Abstract</th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>Documentation</th>
+        <td>
+	 A geographic point with optional elevation and time.  Available for use by other schemas.
+    </td>
+      </tr>
+    </table>
+    <div class="sample box">
+      <div><input type="button" id="type_ptType_xibox_button" class="control" onclick="switchState('type_ptType_xibox'); return false;" style="display: none"/> <span class="caption">XML Instance Representation</span></div>
+      <div id="type_ptType_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;...<br/><span style="margin-left: 0.5em"> lat=&quot;<span class="type"><a title="Jump to &quot;latitudeType&quot; type definition." href="#type_latitudeType">latitudeType</a></span> <span class="occurs">[1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('The latitude of the point. Decimal degrees, WGS84 datum.'); viewDocumentation('Attribute', 'lat', docArray);">?</a>&quot;</span><br/><span style="margin-left: 0.5em"> lon=&quot;<span class="type"><a title="Jump to &quot;longitudeType&quot; type definition." href="#type_longitudeType">longitudeType</a></span> <span class="occurs">[1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('The latitude of the point. Decimal degrees, WGS84 datum.'); viewDocumentation('Attribute', 'lon', docArray);">?</a>&quot;</span>&gt; <br/><div style="margin-left: 1.5em">&lt;ele&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:decimal</span> &lt;/ele&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('The elevation (in meters) of the point.'); viewDocumentation('Element', 'ele', docArray);">?</a></div><div style="margin-left: 1.5em">&lt;time&gt; <span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:dateTime</span> &lt;/time&gt; <span class="occurs">[0..1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('The time that the point was recorded.'); viewDocumentation('Element', 'time', docArray);">?</a></div>&lt;/...&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_ptType_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="type_ptType_scbox_button" class="control" onclick="switchState('type_ptType_scbox'); return false;" style="display: none"/> <span class="caption">Schema Component Representation</span></div>
+      <div id="type_ptType_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xsd:complexType</span> <span class="scTag">name</span>=&quot;<span class="scContent">ptType</span>&quot;&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div class="comment" style="margin-left: 1.5em">&lt;-- elements must appear in this order --&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">ele</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:decimal</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">time</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:dateTime</span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> <span class="scTag">name</span>=&quot;<span class="scContent">lat</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;latitudeType&quot; type definition." href="#type_latitudeType">latitudeType</a></span></span>&quot; <span class="scTag">use</span>=&quot;<span class="scContent">required</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> <span class="scTag">name</span>=&quot;<span class="scContent">lon</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;longitudeType&quot; type definition." href="#type_longitudeType">longitudeType</a></span></span>&quot; <span class="scTag">use</span>=&quot;<span class="scContent">required</span>&quot;/&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_ptType_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr/>
+    <h3>Complex Type: <a name="type_ptsegType" class="name">ptsegType</a></h3>
+    <table class="hierarchy">
+      <tr>
+        <th>Parent type:</th>
+        <td>None</td>
+      </tr>
+      <tr>
+        <th>Direct sub-types:</th>
+        <td>None</td>
+      </tr>
+    </table>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>ptsegType</td>
+      </tr>
+      <tr>
+        <th>Abstract</th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>Documentation</th>
+        <td>
+	 An ordered sequence of points.  (for polygons or polylines, e.g.)
+    </td>
+      </tr>
+    </table>
+    <div class="sample box">
+      <div><input type="button" id="type_ptsegType_xibox_button" class="control" onclick="switchState('type_ptsegType_xibox'); return false;" style="display: none"/> <span class="caption">XML Instance Representation</span></div>
+      <div id="type_ptsegType_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;...&gt; <br/><div style="margin-left: 1.5em">&lt;pt&gt; <span class="type"><a title="Jump to &quot;ptType&quot; type definition." href="#type_ptType">ptType</a></span> &lt;/pt&gt; <span class="occurs">[0..*]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('Ordered list of geographic points.'); viewDocumentation('Element', 'pt', docArray);">?</a></div>&lt;/...&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_ptsegType_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="type_ptsegType_scbox_button" class="control" onclick="switchState('type_ptsegType_scbox'); return false;" style="display: none"/> <span class="caption">Schema Component Representation</span></div>
+      <div id="type_ptsegType_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xsd:complexType</span> <span class="scTag">name</span>=&quot;<span class="scContent">ptsegType</span>&quot;&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div class="comment" style="margin-left: 1.5em">&lt;-- elements must appear in this order --&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> <span class="scTag">name</span>=&quot;<span class="scContent">pt</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;ptType&quot; type definition." href="#type_ptType">ptType</a></span></span>&quot; <span class="scTag">minOccurs</span>=&quot;<span class="scContent">0</span>&quot; <span class="scTag">maxOccurs</span>=&quot;<span class="scContent">unbounded</span>&quot;/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_ptsegType_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr/>
+    <h3>Complex Type: <a name="type_boundsType" class="name">boundsType</a></h3>
+    <table class="hierarchy">
+      <tr>
+        <th>Parent type:</th>
+        <td>None</td>
+      </tr>
+      <tr>
+        <th>Direct sub-types:</th>
+        <td>None</td>
+      </tr>
+    </table>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>boundsType</td>
+      </tr>
+      <tr>
+        <th>Abstract</th>
+        <td>no</td>
+      </tr>
+      <tr>
+        <th>Documentation</th>
+        <td>
+	 Two lat/lon pairs defining the extent of an element.
+    </td>
+      </tr>
+    </table>
+    <div class="sample box">
+      <div><input type="button" id="type_boundsType_xibox_button" class="control" onclick="switchState('type_boundsType_xibox'); return false;" style="display: none"/> <span class="caption">XML Instance Representation</span></div>
+      <div id="type_boundsType_xibox" class="contents">
+        <div style="margin-left: 0em">&lt;...<br/><span style="margin-left: 0.5em"> minlat=&quot;<span class="type"><a title="Jump to &quot;latitudeType&quot; type definition." href="#type_latitudeType">latitudeType</a></span> <span class="occurs">[1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('The minimum latitude.'); viewDocumentation('Attribute', 'minlat', docArray);">?</a>&quot;</span><br/><span style="margin-left: 0.5em"> minlon=&quot;<span class="type"><a title="Jump to &quot;longitudeType&quot; type definition." href="#type_longitudeType">longitudeType</a></span> <span class="occurs">[1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('The minimum longitude.'); viewDocumentation('Attribute', 'minlon', docArray);">?</a>&quot;</span><br/><span style="margin-left: 0.5em"> maxlat=&quot;<span class="type"><a title="Jump to &quot;latitudeType&quot; type definition." href="#type_latitudeType">latitudeType</a></span> <span class="occurs">[1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('The maximum latitude.'); viewDocumentation('Attribute', 'maxlat', docArray);">?</a>&quot;</span><br/><span style="margin-left: 0.5em"> maxlon=&quot;<span class="type"><a title="Jump to &quot;longitudeType&quot; type definition." href="#type_longitudeType">longitudeType</a></span> <span class="occurs">[1]</span> <a href="javascript:void(0)" title="View Documentation" class="documentation" onclick="docArray = new Array('The maximum longitude.'); viewDocumentation('Attribute', 'maxlon', docArray);">?</a>&quot;</span>/&gt; </div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_boundsType_xibox', true);
+// -->
+</script>
+    </div>
+    <div class="schemaComponent box">
+      <div><input type="button" id="type_boundsType_scbox_button" class="control" onclick="switchState('type_boundsType_scbox'); return false;" style="display: none"/> <span class="caption">Schema Component Representation</span></div>
+      <div id="type_boundsType_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xsd:complexType</span> <span class="scTag">name</span>=&quot;<span class="scContent">boundsType</span>&quot;&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> <span class="scTag">name</span>=&quot;<span class="scContent">minlat</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;latitudeType&quot; type definition." href="#type_latitudeType">latitudeType</a></span></span>&quot; <span class="scTag">use</span>=&quot;<span class="scContent">required</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> <span class="scTag">name</span>=&quot;<span class="scContent">minlon</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;longitudeType&quot; type definition." href="#type_longitudeType">longitudeType</a></span></span>&quot; <span class="scTag">use</span>=&quot;<span class="scContent">required</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> <span class="scTag">name</span>=&quot;<span class="scContent">maxlat</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;latitudeType&quot; type definition." href="#type_latitudeType">latitudeType</a></span></span>&quot; <span class="scTag">use</span>=&quot;<span class="scContent">required</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> <span class="scTag">name</span>=&quot;<span class="scContent">maxlon</span>&quot; <span class="scTag">type</span>=&quot;<span class="scContent"><span class="type"><a title="Jump to &quot;longitudeType&quot; type definition." href="#type_longitudeType">longitudeType</a></span></span>&quot; <span class="scTag">use</span>=&quot;<span class="scContent">required</span>&quot;/&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_boundsType_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr/>
+    <h3>Simple Type: <a name="type_latitudeType" class="name">latitudeType</a></h3>
+    <table class="hierarchy">
+      <tr>
+        <th>Parent type:</th>
+        <td><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:decimal</span> (derivation method: restriction)</td>
+      </tr>
+      <tr>
+        <th>Direct sub-types:</th>
+        <td>None</td>
+      </tr>
+    </table>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>latitudeType</td>
+      </tr>
+      <tr>
+        <th>Content</th>
+        <td>
+          <ul>
+            <li>Base XSD Type: decimal</li>
+          </ul>
+          <ul>
+            <li>-90.0 &lt;= <em>value</em> &lt;= 90.0</li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <th>Documentation</th>
+        <td>
+		The latitude of the point.  Decimal degrees, WGS84 datum.
+	  </td>
+      </tr>
+    </table>
+    <div class="schemaComponent box">
+      <div><input type="button" id="type_latitudeType_scbox_button" class="control" onclick="switchState('type_latitudeType_scbox'); return false;" style="display: none"/> <span class="caption">Schema Component Representation</span></div>
+      <div id="type_latitudeType_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xsd:simpleType</span> <span class="scTag">name</span>=&quot;<span class="scContent">latitudeType</span>&quot;&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:restriction</span> <span class="scTag">base</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:decimal</span></span>&quot;&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:minInclusive</span> <span class="scTag">value</span>=&quot;<span class="scContent">-90.0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:maxInclusive</span> <span class="scTag">value</span>=&quot;<span class="scContent">90.0</span>&quot;/&gt;</div>&lt;/<span class="scTag">xsd:restriction</span>&gt;</div>&lt;/<span class="scTag">xsd:simpleType</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_latitudeType_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr/>
+    <h3>Simple Type: <a name="type_longitudeType" class="name">longitudeType</a></h3>
+    <table class="hierarchy">
+      <tr>
+        <th>Parent type:</th>
+        <td><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:decimal</span> (derivation method: restriction)</td>
+      </tr>
+      <tr>
+        <th>Direct sub-types:</th>
+        <td>None</td>
+      </tr>
+    </table>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>longitudeType</td>
+      </tr>
+      <tr>
+        <th>Content</th>
+        <td>
+          <ul>
+            <li>Base XSD Type: decimal</li>
+          </ul>
+          <ul>
+            <li>-180.0 &lt;= <em>value</em> &lt; 180.0</li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <th>Documentation</th>
+        <td>
+		The longitude of the point.  Decimal degrees, WGS84 datum.
+	  </td>
+      </tr>
+    </table>
+    <div class="schemaComponent box">
+      <div><input type="button" id="type_longitudeType_scbox_button" class="control" onclick="switchState('type_longitudeType_scbox'); return false;" style="display: none"/> <span class="caption">Schema Component Representation</span></div>
+      <div id="type_longitudeType_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xsd:simpleType</span> <span class="scTag">name</span>=&quot;<span class="scContent">longitudeType</span>&quot;&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:restriction</span> <span class="scTag">base</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:decimal</span></span>&quot;&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:minInclusive</span> <span class="scTag">value</span>=&quot;<span class="scContent">-180.0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:maxExclusive</span> <span class="scTag">value</span>=&quot;<span class="scContent">180.0</span>&quot;/&gt;</div>&lt;/<span class="scTag">xsd:restriction</span>&gt;</div>&lt;/<span class="scTag">xsd:simpleType</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_longitudeType_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr/>
+    <h3>Simple Type: <a name="type_degreesType" class="name">degreesType</a></h3>
+    <table class="hierarchy">
+      <tr>
+        <th>Parent type:</th>
+        <td><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:decimal</span> (derivation method: restriction)</td>
+      </tr>
+      <tr>
+        <th>Direct sub-types:</th>
+        <td>None</td>
+      </tr>
+    </table>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>degreesType</td>
+      </tr>
+      <tr>
+        <th>Content</th>
+        <td>
+          <ul>
+            <li>Base XSD Type: decimal</li>
+          </ul>
+          <ul>
+            <li>0.0 &lt;= <em>value</em> &lt; 360.0</li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <th>Documentation</th>
+        <td>
+		Used for bearing, heading, course.  Units are decimal degrees, true (not magnetic).
+	  </td>
+      </tr>
+    </table>
+    <div class="schemaComponent box">
+      <div><input type="button" id="type_degreesType_scbox_button" class="control" onclick="switchState('type_degreesType_scbox'); return false;" style="display: none"/> <span class="caption">Schema Component Representation</span></div>
+      <div id="type_degreesType_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xsd:simpleType</span> <span class="scTag">name</span>=&quot;<span class="scContent">degreesType</span>&quot;&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:restriction</span> <span class="scTag">base</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:decimal</span></span>&quot;&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:minInclusive</span> <span class="scTag">value</span>=&quot;<span class="scContent">0.0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:maxExclusive</span> <span class="scTag">value</span>=&quot;<span class="scContent">360.0</span>&quot;/&gt;</div>&lt;/<span class="scTag">xsd:restriction</span>&gt;</div>&lt;/<span class="scTag">xsd:simpleType</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_degreesType_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr/>
+    <h3>Simple Type: <a name="type_fixType" class="name">fixType</a></h3>
+    <table class="hierarchy">
+      <tr>
+        <th>Parent type:</th>
+        <td><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> (derivation method: restriction)</td>
+      </tr>
+      <tr>
+        <th>Direct sub-types:</th>
+        <td>None</td>
+      </tr>
+    </table>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>fixType</td>
+      </tr>
+      <tr>
+        <th>Content</th>
+        <td>
+          <ul>
+            <li>Base XSD Type: string</li>
+          </ul>
+          <ul>
+            <li><em>value</em> comes from list: {'none'|'2d'|'3d'|'dgps'|'pps'}</li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <th>Documentation</th>
+        <td>
+		Type of GPS fix.  none means GPS had no fix.  To signify &quot;the fix info is unknown, leave out fixType entirely. pps = military signal used
+	  </td>
+      </tr>
+    </table>
+    <div class="schemaComponent box">
+      <div><input type="button" id="type_fixType_scbox_button" class="control" onclick="switchState('type_fixType_scbox'); return false;" style="display: none"/> <span class="caption">Schema Component Representation</span></div>
+      <div id="type_fixType_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xsd:simpleType</span> <span class="scTag">name</span>=&quot;<span class="scContent">fixType</span>&quot;&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:restriction</span> <span class="scTag">base</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span></span>&quot;&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:enumeration</span> <span class="scTag">value</span>=&quot;<span class="scContent">none</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:enumeration</span> <span class="scTag">value</span>=&quot;<span class="scContent">2d</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:enumeration</span> <span class="scTag">value</span>=&quot;<span class="scContent">3d</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:enumeration</span> <span class="scTag">value</span>=&quot;<span class="scContent">dgps</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:enumeration</span> <span class="scTag">value</span>=&quot;<span class="scContent">pps</span>&quot;/&gt;</div>&lt;/<span class="scTag">xsd:restriction</span>&gt;</div>&lt;/<span class="scTag">xsd:simpleType</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_fixType_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr/>
+    <h3>Simple Type: <a name="type_dgpsStationType" class="name">dgpsStationType</a></h3>
+    <table class="hierarchy">
+      <tr>
+        <th>Parent type:</th>
+        <td><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:integer</span> (derivation method: restriction)</td>
+      </tr>
+      <tr>
+        <th>Direct sub-types:</th>
+        <td>None</td>
+      </tr>
+    </table>
+    <table class="properties">
+      <tr>
+        <th>Name</th>
+        <td>dgpsStationType</td>
+      </tr>
+      <tr>
+        <th>Content</th>
+        <td>
+          <ul>
+            <li>Base XSD Type: integer</li>
+          </ul>
+          <ul>
+            <li>0 &lt;= <em>value</em> &lt;= 1023</li>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <th>Documentation</th>
+        <td>
+	 Represents a differential GPS station.
+    </td>
+      </tr>
+    </table>
+    <div class="schemaComponent box">
+      <div><input type="button" id="type_dgpsStationType_scbox_button" class="control" onclick="switchState('type_dgpsStationType_scbox'); return false;" style="display: none"/> <span class="caption">Schema Component Representation</span></div>
+      <div id="type_dgpsStationType_scbox" class="contents">
+        <div style="margin-left: 0em">&lt;<span class="scTag">xsd:simpleType</span> <span class="scTag">name</span>=&quot;<span class="scContent">dgpsStationType</span>&quot;&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:restriction</span> <span class="scTag">base</span>=&quot;<span class="scContent"><span class="type"><a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:integer</span></span>&quot;&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:minInclusive</span> <span class="scTag">value</span>=&quot;<span class="scContent">0</span>&quot;/&gt;</div><div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:maxInclusive</span> <span class="scTag">value</span>=&quot;<span class="scContent">1023</span>&quot;/&gt;</div>&lt;/<span class="scTag">xsd:restriction</span>&gt;</div>&lt;/<span class="scTag">xsd:simpleType</span>&gt;</div>
+      </div>
+      <script type="text/javascript">
+<!--
+setState('type_dgpsStationType_scbox', false);
+// -->
+</script>
+    </div>
+    <div style="text-align: right; clear: both;">
+      <a href="#top">top</a>
+    </div>
+    <hr/>
+    <p class="footer">Generated by <a href="http://titanium.dstc.edu.au/xml/xs3p">xs3p</a>. Last modified: <script type="text/javascript">
+<!--
+document.write(document.lastModified);
+// -->
+</script></p>
+  </body>
+</html>
