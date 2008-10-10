@@ -69,9 +69,9 @@ def main(argv):
   parser.set_defaults(flights=[])
   options, args = parser.parse_args(argv)
   if len(options.flights) == 0:
-    raise RuntimeError # FIXME
+    parser.error('no flights specified')
   if len(args) != 1:
-    raise RuntimeError # FIXME
+    parser.error('extra arguments on command line')
   igc2kmz.flights2kmz(options.flights, roots=options.roots, timezone_offset=options.timezone_offset).write(options.output)
 
 
