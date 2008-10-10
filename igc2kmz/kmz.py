@@ -16,7 +16,10 @@
 
 
 import datetime
-from cStringIO import StringIO
+try:
+  from cStringIO import StringIO
+except ImportError:
+  from StringIO import StringIO
 import zipfile
 
 import kml
@@ -59,14 +62,17 @@ class kmz(object):
       self.elements.append(kml.__dict__[key](value))
     return self
 
-  def write(self, filename):
+  def write(self, filename, debug=False):
     date_time = datetime.datetime.now().timetuple()[:6]
     zf = zipfile.ZipFile(filename, 'w')
     document = kml.Document(open=1)
     document.add(*self.roots)
     document.add(*self.elements)
     string_io = StringIO()
-    kml.kml('2.1', document).pretty_write(string_io)
+    if debug:
+      kml.kml('2.1', document).pretty_write(string_io)
+    else:
+      kml.kml('2.1', document).write(string_io)
     zi = zipfile.ZipInfo('doc.kml')
     zi.compress_type = zipfile.ZIP_DEFLATED
     zi.date_time = date_time

@@ -52,6 +52,7 @@ def main(argv):
   parser.add_option('-o', '--output', metavar='FILENAME')
   parser.add_option('-z', '--timezone-offset', metavar='HOURS', type='int')
   parser.add_option('-r', '--root', metavar='FILENAME', type='string', action='append', dest='roots')
+  parser.add_option('--debug', action='store_true')
   group = optparse.OptionGroup(parser, 'Per-flight options')
   group.add_option('-i', '--igc', metavar='FILENAME', type='string', action='callback', callback=add_flight)
   group.add_option('-n', '--pilot-name', metavar='STRING', type='string', action='callback', callback=add_flight_option)
@@ -64,6 +65,7 @@ def main(argv):
   group.add_option('-p', '--photo', metavar='FILENAME', type='string', action='callback', callback=add_flight_photo)
   group.add_option('-d', '--description', metavar='STRING', type='string', action='callback', callback=add_flight_photo_option)
   parser.add_option_group(group)
+  parser.set_defaults(debug=False)
   parser.set_defaults(output='igc2kmz.kmz')
   parser.set_defaults(roots=[])
   parser.set_defaults(timezone_offset=0)
@@ -73,7 +75,8 @@ def main(argv):
     parser.error('no flights specified')
   if len(args) != 1:
     parser.error('extra arguments on command line')
-  igc2kmz.flights2kmz(options.flights, roots=[igc2kmz.kml.Verbatim(open(root).read()) for root in options.roots], timezone_offset=options.timezone_offset).write(options.output)
+  kmz = igc2kmz.flights2kmz(options.flights, roots=[igc2kmz.kml.Verbatim(open(root).read()) for root in options.roots], timezone_offset=options.timezone_offset)
+  kmz.write(options.output, debug=options.debug)
 
 
 if __name__ == '__main__':
