@@ -44,7 +44,7 @@ def main(argv):
   ps = []
   ps.append('<a href="%(url)s"><img alt="%(name)s" src="%(icon)s" /></a>' % d)
   ps.append('<large><a href="%(url)s">%(name)s</a></large>' % d)
-  ps.append('<small>Created by <a href="http://github.com/twpayne/igc2kmz/master/tree">igc2kmz</a> Copyright &copy; Tom Payne 2008</a></small>' % d)
+  ps.append('<small>Created by <a href="http://github.com/twpayne/igc2kmz/wikis">igc2kmz</a> Copyright &copy; Tom Payne 2008</a></small>' % d)
   description = kml.CDATA('<center>%s</center>' % ''.join('<p>%s</p>' % p for p in ps))
   snippet = kml.Snippet()
   balloon_style = kml.BalloonStyle(text=kml.CDATA('$[description]'))
