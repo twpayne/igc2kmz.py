@@ -16,6 +16,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
 import optparse
 import os.path
 import sys
@@ -32,8 +33,8 @@ def main(argv):
   parser.add_option('-i', '--icon', metavar='STRING')
   parser.add_option('-u', '--url', metavar='STRING')
   parser.set_defaults(name='Leonardo')
-  parser.set_defaults(url='http://www.paraglidingforum.com/')
-  parser.set_defaults(icon='leonardo_logo.gif')
+  parser.set_defaults(url='http://www.paraglidingforum.com/modules.php?name=leonardo&op=list_flights')
+  parser.set_defaults(icon='http://www.paraglidingforum.com/modules/leonardo/templates/basic/tpl/leonardo_logo.gif')
   options, args = parser.parse_args(argv)
   icon = kml.Icon(href=options.icon)
   overlay_xy = kml.overlayXY(x=0.5, y=1, xunits='fraction', yunits='fraction')
@@ -45,7 +46,10 @@ def main(argv):
   ps.append('<large><a href="%(url)s">%(name)s</a></large>' % d)
   ps.append('<small>Created by <a href="http://github.com/twpayne/igc2kmz/master/tree">igc2kmz</a> Copyright &copy; Tom Payne 2008</a></small>' % d)
   description = kml.CDATA('<center>%s</center>' % ''.join('<p>%s</p>' % p for p in ps))
-  screen_overlay = kml.ScreenOverlay(icon, overlay_xy, screen_xy, size, kml.Snippet(), name=options.name, description=description)
+  snippet = kml.Snippet()
+  balloon_style = kml.BalloonStyle(text=kml.CDATA('$[description]'))
+  style = kml.Style(balloon_style)
+  screen_overlay = kml.ScreenOverlay(icon, overlay_xy, screen_xy, size, snippet, style, name=options.name, description=description)
   screen_overlay.pretty_write(open(options.output, 'w') if options.output else sys.stdout)
 
 
