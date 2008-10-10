@@ -19,6 +19,7 @@ import datetime
 import math
 import operator
 import unicodedata
+import urlparse
 
 import third_party.pygooglechart as pygooglechart
 
@@ -109,6 +110,7 @@ class Flight(object):
     self.glider_type = track.glider_type
     self.glider_id = track.glider_id
     self.photos = []
+    self.url = None
     self.xc = None
     self.__dict__.update(kwargs)
 
@@ -135,6 +137,9 @@ class Flight(object):
       rows.append(('Maximum climb', '%.1fm/s' % self.track.bounds.climb.max))
       rows.append(('Maximum sink', '%.1fm/s' % self.track.bounds.climb.min))
     rows.append(('Maximum speed', '%.1fkm/h' % self.track.bounds.speed.max))
+    if self.url:
+      components = urlparse.urlparse(self.url)
+      rows.append(('Flight URL', '<a href="%s">%s</a>' % (self.url, components.netloc)))
     description = kml.description(kml.CDATA('<table>%s</table>' % ''.join('<tr><th align="right">%s</th><td>%s</td></tr>' % row for row in rows)))
     return kmz.kmz(description)
 

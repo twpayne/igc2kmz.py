@@ -59,6 +59,7 @@ def main(argv):
   group.add_option('-g', '--glider-type', metavar='STRING', type='string', action='callback', callback=add_flight_option)
   group.add_option('-c', '--color', metavar='COLOR', type='string', action='callback', callback=add_flight_option)
   group.add_option('-w', '--width', metavar='INTEGER', type='string', action='callback', callback=add_flight_option)
+  group.add_option('-u', '--url', metavar='URL', type='string', action='callback', callback=add_flight_option)
   group.add_option('-x', '--xc', metavar='FILENAME', type='string', action='callback', callback=add_flight_xc)
   parser.add_option_group(group)
   group = optparse.OptionGroup(parser, 'Per-photo options')
@@ -74,7 +75,7 @@ def main(argv):
   if len(options.flights) == 0:
     parser.error('no flights specified')
   if len(args) != 1:
-    parser.error('extra arguments on command line')
+    parser.error('extra arguments on command line: %s' % repr(args[1:]))
   kmz = igc2kmz.flights2kmz(options.flights, roots=[igc2kmz.kml.Verbatim(open(root).read()) for root in options.roots], timezone_offset=options.timezone_offset)
   kmz.write(options.output, debug=options.debug)
 
