@@ -1,5 +1,6 @@
 OLC2002=contrib/leonardo/olc2002
 IGC2KMZ=./igc2kmz.py
+BRAND2KML=bin/brand2kml.py
 
 CC=gcc
 CFLAGS=-O2
@@ -26,13 +27,13 @@ clean:
 %: %.o
 	$(CC) -o $@ $(CFLAGS) $^ $(LIBS)
 
-EXAMPLES=examples/2008-07-28-XPG-KVE-02.kmz examples/858umbh1.kmz examples/2007-04-22-FLY-5094-01.kmz
+EXAMPLES=examples/2008-07-28-XPG-KVE-02.kmz examples/2008-06-16-xgd-001-01.kmz examples/858umbh1.kmz examples/2007-04-22-FLY-5094-01.kmz
 .PRECIOUS: $(EXAMPLES:%.kmz=%.olc)
 
 examples: $(EXAMPLES)
 
-examples/2007-04-22-FLY-5094-01.kmz: examples/2007-04-22-FLY-5094-01.igc examples/2007-04-22-FLY-5094-01.gpx
-	$(IGC2KMZ) -z 2 -o $@ \
+examples/2007-04-22-FLY-5094-01.kmz: examples/2007-04-22-FLY-5094-01.igc examples/2007-04-22-FLY-5094-01.gpx examples/leonardo.kml
+	$(IGC2KMZ) -z 2 -o $@ -r examples/leonardo.kml \
 		-i $< \
 		-x examples/2007-04-22-FLY-5094-01.gpx \
 		-p http://qking.web.cern.ch/qking/2007/p_chamonix/images/img_7967.jpg \
@@ -64,18 +65,44 @@ examples/2007-04-22-FLY-5094-01.kmz: examples/2007-04-22-FLY-5094-01.igc example
 		-p http://qking.web.cern.ch/qking/2007/p_chamonix/images/img_8170.jpg \
 			-d "Looking over at the Mer de Glace at the Aiguille Verte (4102m) with its nose in the clouds"
 
-examples/2008-07-28-XPG-KVE-02.kmz: examples/2008-07-28-XPG-KVE-02.igc examples/2008-07-28-XPG-KVE-02.gpx
+examples/2008-06-16-xgd-001-01.kmz: examples/2008-06-16-xgd-001-01.igc examples/2008-06-16-xgd-001-01.gpx examples/ukxcl.kml
+	$(IGC2KMZ) -z 2 -o $@ -r examples/ukxcl.kml \
+		-i $< \
+		-g "Axis Mercury" \
+		-x examples/2008-06-16-xgd-001-01.gpx
 
-examples/858umbh1.kmz: examples/858umbh1.igc examples/858umbh1.gpx
-	$(IGC2KMZ) -z 2 -o $@ \
+examples/2008-07-28-XPG-KVE-02.kmz: examples/2008-07-28-XPG-KVE-02.igc examples/2008-07-28-XPG-KVE-02.gpx examples/xcontest.kml
+	$(IGC2KMZ) -z 2 -o $@ -r examples/xcontest.kml \
+		-i $< \
+		-x examples/2008-07-28-XPG-KVE-02.gpx
+
+examples/858umbh1.kmz: examples/858umbh1.igc examples/858umbh1.gpx examples/xcontest.kml
+	$(IGC2KMZ) -z 2 -o $@ -r examples/xcontest.kml \
 		-i $< \
 		-n "Martin Bühler" \
 		-g "UP Edge" \
 		-x examples/858umbh1.gpx
 
-%.kmz: %.igc
-	@echo "  IGC2KMZ $<"
-	@./igc2kmz.py -z 2 -o $@ -i $< -x $*.gpx
+examples/leonardo.kml: $(BRAND2KML)
+	$(BRAND2KML) \
+		-o $@ \
+		-n Leonardo \
+		-u http://www.paraglidingforum.com/modules.php\?name=leonardo\&op=list_flights \
+		-i http://www.paraglidingforum.com/modules/leonardo/templates/basic/tpl/leonardo_logo.gif
+
+examples/xcontest.kml: $(BRAND2KML)
+	$(BRAND2KML) \
+		-o $@ \
+		-n XContest \
+		-u http://www.xcontest.org/ \
+		-i http://www.xcontest.org/img/xcontest.gif
+
+examples/ukxcl.kml: $(BRAND2KML)
+	$(BRAND2KML) \
+		-o $@ \
+		-n "UK XC League" \
+		-u http://www.pgcomps.org.uk/ \
+		-i http://www.pgcomps.org.uk/images/bhpaH.jpg
 
 %.gpx: %.olc
 	bin/olc2gpx.py $< > $@
