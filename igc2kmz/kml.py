@@ -25,7 +25,7 @@ class Metaclass(type):
 
   def __new__(cls, name, bases, dct):
     result = type.__new__(cls, name, bases, dct)
-    if name not in ('Element', 'SimpleElement', 'CompoundElement', 'RawElement'):
+    if name not in ('Element', 'SimpleElement', 'CompoundElement', 'Verbatim'):
       class_by_name[name] = result
     return result
 
@@ -133,20 +133,10 @@ class CompoundElement(Element):
       return '<%s%s>%s</%s>' % (self.name(), attrs, ''.join(map(str, self.children)), self.name())
 
 
-class RawElement(Element):
+class Verbatim(Element):
 
   def __init__(self, value):
     self.value = value
-
-  def write(self, file):
-    """Write self to file."""
-    file.write(self.value)
-
-  def pretty_write(self, file, indent='\t', prefix=''):
-    """Write self to file."""
-    file.write(prefix)
-    file.write(self.value)
-    file.write('\n')
 
   def __str__(self):
     """Return the KML representation of self."""

@@ -73,7 +73,7 @@ def main(argv):
     parser.error('no flights specified')
   if len(args) != 1:
     parser.error('extra arguments on command line')
-  igc2kmz.flights2kmz(options.flights, roots=[igc2kmz.kml.RawElement(open(root).read()) for root in options.roots], timezone_offset=options.timezone_offset).write(options.output)
+  igc2kmz.flights2kmz(options.flights, roots=[igc2kmz.kml.Verbatim(open(root).read()) for root in options.roots], timezone_offset=options.timezone_offset).write(options.output)
 
 
 if __name__ == '__main__':
