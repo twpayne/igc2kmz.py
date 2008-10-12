@@ -69,7 +69,7 @@ def main(argv):
             description="IGC to Google Earth converter")
     parser.add_option('-o', '--output', metavar='FILENAME',
             help='set output filename')
-    parser.add_option('-z', '--timezone-offset', metavar='HOURS', type='int',
+    parser.add_option('-z', '--tz-offset', metavar='HOURS', type='int',
             help='set timezone offset')
     parser.add_option('-r', '--root', metavar='FILENAME',
             action='append', dest='roots',
@@ -113,7 +113,7 @@ def main(argv):
     parser.set_defaults(flights=[])
     parser.set_defaults(output='igc2kmz.kmz')
     parser.set_defaults(roots=[])
-    parser.set_defaults(timezone_offset=0)
+    parser.set_defaults(tz_offset=0)
     #
     options, args = parser.parse_args(argv)
     if len(options.flights) == 0:
@@ -123,8 +123,8 @@ def main(argv):
     #
     roots = [igc2kmz.kml.Verbatim(open(root).read()) for root in options.roots]
     kmz = igc2kmz.flights2kmz(options.flights,
-            roots=roots,
-            timezone_offset=options.timezone_offset)
+                              roots=roots,
+                              tz_offset=options.tz_offset)
     kmz.write(options.output, debug=options.debug)
 
 

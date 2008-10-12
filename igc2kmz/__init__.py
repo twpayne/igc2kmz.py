@@ -154,10 +154,10 @@ class Flight(object):
         if self.glider_id:
             rows.append(('Glider ID', self.glider_id))
         take_off_time = (self.track.bounds.time.min
-                         + globals.timezone_offset).strftime('%H:%M:%S')
+                         + globals.tz_offset).strftime('%H:%M:%S')
         rows.append(('Take-off time', take_off_time))
         landing_time = (self.track.bounds.time.max
-                        + globals.timezone_offset).strftime('%H:%M:%S')
+                        + globals.tz_offset).strftime('%H:%M:%S')
         rows.append(('Landing time', landing_time))
         duration = (self.track.bounds.time.max 
                     - self.track.bounds.time.min).seconds
@@ -185,7 +185,7 @@ class Flight(object):
         trs = ['<tr><th align="right">%s</th><td>%s</td></tr>' % row
                for row in rows]
         table = '<table>%s</table>' % ''.join(trs)
-        return kmz.kmz(description=kml.CDATA(table))
+        return kmz.kmz(kml.description(kml.CDATA(table)))
 
     def make_snippet(self, globals):
         if self.xc:
@@ -198,7 +198,7 @@ class Flight(object):
         strings = [self.pilot_name,
                    xc,
                    (self.track.bounds.time.min
-                    + globals.timezone_offset).strftime('%Y-%m-%d')]
+                    + globals.tz_offset).strftime('%Y-%m-%d')]
         snippet = kml.Snippet(', '.join(s for s in strings if s))
         return kmz.kmz(snippet)
 
@@ -387,7 +387,7 @@ class Flight(object):
                 else:
                     altitude_mode = 'clampToGround'
             else:
-                coord = self.track.coord_at(photo.dt - globals.timezone_offset)
+                coord = self.track.coord_at(photo.dt - globals.tz_offset)
                 altitude_mode = self.altitude_mode
             point = kml.Point(coordinates=[coord], altitudeMode=altitude_mode)
             if photo.description:
@@ -416,20 +416,22 @@ class Flight(object):
                 td = '%.1fkm' % (distance / 1000.0)
             return (th, td)
         def make_leg(rte, i, j, name=True, arrow=False, styleUrl=None):
-            coordinates = [rte.rtepts[k].coord for k in (i, j)]
-            line_string = kml.LineString(coordinates=coordinates,
+            coord0 = rte.rtepts[i].coord
+            coord1 = rte.rtepts[j].coord
+            line_string = kml.LineString(coordinates=[coord0, coord1],
                                          altitudeMode='clampToGround',
                                          tessellate=1)
             multi_geometry = kml.MultiGeometry(line_string)
             if name:
-                coord = rte.rtepts[i].coord.halfway_to(rte.rtepts[j].coord)
-                point = kml.Point(coordinates=[coord])
+                point = kml.Point(coordinates=[coord0.halfway_to(coord1)])
                 multi_geometry.add(point)
-                distance = rte.rtepts[i].coord.distance_to(rte.rtepts[j].coord)
+                distance = coord0.distance_to(coord1)
                 name = kml.name('%.1fkm' % (distance / 1000.0))
             if arrow:
-                bearing = rte.rtepts[j].coord.initial_bearing_to(rte.rtepts[i].coord)
-                coordinates = [rte.rtepts[j].coord.coord_at(bearing - math.pi / 12.0, 400.0), rte.rtepts[j].coord, rte.rtepts[j].coord.coord_at(bearing + math.pi / 12.0, 400.0)]
+                bearing = coord1.coord.initial_bearing_to(coord0)
+                coordinates = [coord1.coord_at(bearing - math.pi / 12.0, 400.0),
+                               coord1,
+                               coord1.coord_at(bearing + math.pi / 12.0, 400.0)]
                 line_string = kml.LineString(coordinates=coordinates,
                                              altitudeMode='clampToGround',
                                              tessellate=1)
@@ -557,9 +559,9 @@ class Flight(object):
                 rows.append(('Peak descent', '%.1fm/s' % peak_climb.min))
             rows.append(('Start altitude', '%dm' % coord0.ele))
             rows.append(('Finish alitude', '%dm' % coord1.ele))
-            start_time = coord0.dt + globals.timezone_offset
+            start_time = coord0.dt + globals.tz_offset
             rows.append(('Start time', start_time.strftime('%H:%M:%S')))
-            stop_time = coord1.dt + globals.timezone_offset
+            stop_time = coord1.dt + globals.tz_offset
             rows.append(('Finish time', stop_time.strftime('%H:%M:%S')))
             duration = self.track.t[sl.stop] - self.track.t[sl.start]
             rows.append(('Duration', '%d:%02d' % divmod(duration, 60)))
@@ -632,7 +634,7 @@ class Flight(object):
 
     def make_time_mark(self, globals, coord, dt, styleUrl):
         point = kml.Point(coordinates=[coord], altitudeMode=self.altitude_mode)
-        name = (dt + globals.timezone_offset).strftime('%H:%M')
+        name = (dt + globals.tz_offset).strftime('%H:%M')
         return kml.Placemark(point, name=name, styleUrl=styleUrl)
 
     def make_time_marks_folder(self, globals, step=datetime.timedelta(0, 900)):
@@ -696,7 +698,7 @@ class Flight(object):
         return folder
 
 
-def flights2kmz(flights, roots=[], timezone_offset=0):
+def flights2kmz(flights, roots=[], tz_offset=0):
     stock = Stock()
     globals = util.OpenStruct()
     globals.stock = stock
@@ -705,7 +707,7 @@ def flights2kmz(flights, roots=[], timezone_offset=0):
         globals.bounds.update(flight.track.bounds)
     if globals.bounds.climb.min < -5.0:
         globals.bounds.climb.min = -5.0
-    globals.timezone_offset = datetime.timedelta(0, 3600 * timezone_offset)
+    globals.tz_offset = datetime.timedelta(0, 3600 * tz_offset)
     globals.scales = util.OpenStruct()
     globals.scales.altitude = scale.Scale(globals.bounds.ele.tuple(),
                                           title='altitude',
@@ -730,7 +732,7 @@ def flights2kmz(flights, roots=[], timezone_offset=0):
                                        title='ground speed',
                                        gradient=color.default_gradient)
     globals.scales.time = scale.TimeScale(globals.bounds.time.tuple(),
-                                          timezone_offset=globals.timezone_offset)
+                                          tz_offset=globals.tz_offset)
     if hasattr(globals.bounds, 'tas'):
         globals.scales.tas = scale.Scale(globals.bounds.tas.tuple(),
                                          title='air speed',
