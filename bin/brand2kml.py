@@ -33,7 +33,6 @@ DEFAULT_ICON = 'http://www.paraglidingforum.com/modules/leonardo/templates/basic
 DEFAULT_URL = 'http://www.paraglidingforum.com/modules.php?name=leonardo&op=list_flights'
 
 
-
 def main(argv):
     parser = optparse.OptionParser(usage='Usage; %prog [options]')
     parser.add_option('-o', '--output', metavar='FILENAME')
