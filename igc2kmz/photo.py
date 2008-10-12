@@ -26,39 +26,43 @@ import exif
 
 class Photo(object):
 
-  def __init__(self, url):
-    components = urlparse.urlparse(url)
-    self.name = os.path.splitext(os.path.basename(components.path))[0]
-    self.url = url if components.scheme else 'file://' + os.path.realpath(url)
-    file = urllib2.urlopen(self.url)
-    if file.info().typeheader != 'image/jpeg':
-      raise RuntimeError, '%s: not an image/jpeg' % self.url
-    self.jpeg = exif.JPEG(file)
-    if 'DateTimeOriginal' in self.jpeg.exif:
-      self.dt = exif.parse_datetime(self.jpeg.exif['DateTimeOriginal'])
-    elif 'DateTime' in self.jpeg.exif:
-      self.dt = exif.parse_datetime(self.jpeg.exif['DateTime'])
-    else:
-      self.dt = datetime.datetime(2000, 1, 1)
-    if 'GPSVersionID' in self.jpeg.exif:
-      lat = exif.parse_angle(self.jpeg.exif['GPSLatitude'])
-      if self.jpeg.exif['GPSLatitudeRef'] == 'S\0':
-        lat = -lat
-      lon = exif.parse_angle(self.jpeg.exif['GPSLongitude'])
-      if self.jpeg.exif['GPSLongitudeRef'] == 'W\0':
-        lon = -lon
-      if 'GPSAltitude' in self.jpeg.exif:
-        gps_altitude = self.jpeg.exif['GPSAltitude']
-        ele = float(gps_altitude[0]) / gps_altitude[1]
-        self.elevation_data = True
-      else:
-        ele = 0
-        self.elevation_data = False
-      self.coord = coord.Coord.deg(lat, lon, ele)
-    else:
-      self.coord = None
-      self.elevation_data = None
-    if 'UserComment' in self.jpeg.exif:
-      self.description = exif.parse_usercomment(self.jpeg.exif['UserComment'])
-    else:
-      self.description = None
+    def __init__(self, url):
+        components = urlparse.urlparse(url)
+        self.name = os.path.splitext(os.path.basename(components.path))[0]
+        if components.scheme:
+            self.url = url
+        else:
+            self.url = 'file://' + os.path.realpath(url)
+        file = urllib2.urlopen(self.url)
+        if file.info().typeheader != 'image/jpeg':
+            raise RuntimeError, '%s: not an image/jpeg' % self.url
+        self.jpeg = exif.JPEG(file)
+        if 'DateTimeOriginal' in self.jpeg.exif:
+            self.dt = exif.parse_datetime(self.jpeg.exif['DateTimeOriginal'])
+        elif 'DateTime' in self.jpeg.exif:
+            self.dt = exif.parse_datetime(self.jpeg.exif['DateTime'])
+        else:
+            self.dt = datetime.datetime(2000, 1, 1)
+        if 'GPSVersionID' in self.jpeg.exif:
+            lat = exif.parse_angle(self.jpeg.exif['GPSLatitude'])
+            if self.jpeg.exif['GPSLatitudeRef'] == 'S\0':
+                lat = -lat
+            lon = exif.parse_angle(self.jpeg.exif['GPSLongitude'])
+            if self.jpeg.exif['GPSLongitudeRef'] == 'W\0':
+                lon = -lon
+            if 'GPSAltitude' in self.jpeg.exif:
+                gps_altitude = self.jpeg.exif['GPSAltitude']
+                ele = float(gps_altitude[0]) / gps_altitude[1]
+                self.elevation_data = True
+            else:
+                ele = 0
+                self.elevation_data = False
+            self.coord = coord.Coord.deg(lat, lon, ele)
+        else:
+            self.coord = None
+            self.elevation_data = None
+        if 'UserComment' in self.jpeg.exif:
+            user_comment = self.jpeg.exif['UserComment']
+            self.description = exif.parse_usercomment(user_comment)
+        else:
+            self.description = None
