@@ -29,13 +29,33 @@ DIVE = 3
 class Track(object):
 
   def __init__(self, coords, **kwargs):
-    self.coords = coords
+    self.coords = Track.filter(coords)
     self.t = [int(time.mktime(c.dt.timetuple())) for c in self.coords]
     self.pilot_name = None
     self.glider_type = None
     self.glider_id = None
     self.__dict__.update(kwargs)
     self.analyse(20)
+
+  @classmethod
+  def filter(self, coords):
+    """Filter out erroneous points."""
+    # TODO replace with Kahlman filter?
+    result = [coords[0]]
+    last_c = coords[0]
+    for c in coords:
+      if c.dt <= last_c.dt:
+        continue
+      ds = last_c.distance_to(c)
+      dt = (c.dt - last_c.dt).seconds
+      if ds / dt > 40.0:
+        continue
+      dz = c.ele - last_c.ele
+      if dz / dt < -30.0 or 30.0 < dz / dt:
+        continue
+      result.append(c)
+      last_c = c
+    return result
 
   def coord_at(self, dt):
     t = int(time.mktime(dt.timetuple()))
