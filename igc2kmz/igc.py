@@ -97,7 +97,9 @@ class BRecord(Record):
     self.validity = m.group(10)
     self.alt = int(m.group(11))
     self.ele = int(m.group(12))
-    if igc.b and igc.b[-1].dt > self.dt:
+    if igc.b and igc.b[-1].dt == self.dt:
+      raise Error, '%s: duplicate time stamps %s' % (igc.filename, self.dt)
+    elif igc.b and igc.b[-1].dt > self.dt:
       raise Error, '%s: decreasing time stamps %s to %s' % (igc.filename, igc.b[-1].dt, self.dt)
     igc.b.append(self)
 
