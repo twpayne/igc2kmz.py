@@ -1,10 +1,8 @@
 HIGH
 Check indexes in thermal folder
 Check indexes in colored tracklogs
-Enable faster unpretty output by default
 
 MEDIUM
-Test performance of igc2kml.kml using ElementTree
 Allow override of photo time
 Add comments
 Add nice thermal and glide icons
