@@ -23,30 +23,31 @@ import coord
 
 class RtePt(object):
 
-  def __init__(self, etree):
-    self.fix = etree.findtext('fix').encode('utf_8')
-    self.name = etree.findtext('name').encode('utf_8')
-    lat = float(etree.get('lat'))
-    lon = float(etree.get('lon'))
-    ele = int(etree.findtext('ele')) if self.fix == '3d' else 0
-    dt = datetime.datetime.strptime(etree.findtext('time'), '%Y-%m-%dT%H:%M:%SZ')
-    self.coord = coord.Coord.deg(lat, lon, ele, dt)
+    def __init__(self, etree):
+        self.fix = etree.findtext('fix').encode('utf_8')
+        self.name = etree.findtext('name').encode('utf_8')
+        lat = float(etree.get('lat'))
+        lon = float(etree.get('lon'))
+        ele = int(etree.findtext('ele')) if self.fix == '3d' else 0
+        dt = datetime.datetime.strptime(etree.findtext('time'),
+                                        '%Y-%m-%dT%H:%M:%SZ')
+        self.coord = coord.Coord.deg(lat, lon, ele, dt)
 
 
 class Rte(object):
 
-  def __init__(self, etree):
-    self.name = etree.findtext('name').encode('utf_8')
-    self.league = etree.findtext('extensions/league').encode('utf_8')
-    self.distance = float(etree.findtext('extensions/distance'))
-    self.multiplier = float(etree.findtext('extensions/multiplier'))
-    self.score = float(etree.findtext('extensions/score'))
-    self.circuit = not etree.find('extensions/circuit') is None
-    self.rtepts = [RtePt(rtept) for rtept in etree.findall('rtept')]
+    def __init__(self, etree):
+        self.name = etree.findtext('name').encode('utf_8')
+        self.league = etree.findtext('extensions/league').encode('utf_8')
+        self.distance = float(etree.findtext('extensions/distance'))
+        self.multiplier = float(etree.findtext('extensions/multiplier'))
+        self.score = float(etree.findtext('extensions/score'))
+        self.circuit = not etree.find('extensions/circuit') is None
+        self.rtepts = [RtePt(rtept) for rtept in etree.findall('rtept')]
 
 
 class XC(object):
 
-  def __init__(self, file):
-    etree = xml.etree.ElementTree.parse(file)
-    self.rtes = [Rte(rte) for rte in etree.findall('/rte')]
+    def __init__(self, file):
+        etree = xml.etree.ElementTree.parse(file)
+        self.rtes = [Rte(rte) for rte in etree.findall('/rte')]
