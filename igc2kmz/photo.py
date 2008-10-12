@@ -1,4 +1,4 @@
-#   igc2kmz/__init__.py  igc2kmz photo module
+#   igc2kmz/photo.py  igc2kmz photo functions
 #   Copyright (C) 2008  Tom Payne
 #
 #   This program is free software: you can redistribute it and/or modify
