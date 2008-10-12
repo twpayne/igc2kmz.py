@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-#   igc2kmz.py  IGC to Google Earth converter
+#   bin/igc2kmz.py  IGC to Google Earth converter
 #   Copyright (C) 2008  Tom Payne
 #
 #   This program is free software: you can redistribute it and/or modify

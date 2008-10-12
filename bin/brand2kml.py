@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-#   igc2kmz.py  igc2kmz brand generator
+#   bin/brand2kml.py  igc2kmz brand generator
 #   Copyright (C) 2008  Tom Payne
 #
 #   This program is free software: you can redistribute it and/or modify
