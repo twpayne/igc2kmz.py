@@ -154,7 +154,7 @@ def douglas_peucker(x, y, epsilon):
     return sorted(indexes)
 
 
-def incremental_douglas_peucker(x, y, epsilon, max_indexes=sys.maxint):
+def incr_douglas_peucker(x, y, epsilon, max_indexes=sys.maxint):
     indexes = set([0])
     queue = [(0, len(x) - 1)]
     i = 0
