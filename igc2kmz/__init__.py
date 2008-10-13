@@ -41,16 +41,15 @@ class Stock(object):
         icon = kml.Icon(href=self.pixel_url)
         overlay_xy = kml.overlayXY(x=0, xunits='fraction',
                                    y=0, yunits='fraction')
-        screen_xy = kml.screenXY(x=0, y=0, xunits='fraction', yunits='fraction')
-        size = kml.size(x=0, y=0, xunits='fraction', yunits='fraction')
+        screen_xy = kml.screenXY(x=0, xunits='fraction', y=0, yunits='fraction')
+        size = kml.size(x=0, xunits='fraction', y=0, yunits='fraction')
         screen_overlay = kml.ScreenOverlay(icon,
                                            overlay_xy,
                                            screen_xy,
                                            size,
                                            visibility=visibility)
-        return kml.Folder(screen_overlay,
-                          name='None',
-                          styleUrl=self.check_hide_children_style.url())
+        style_url = self.check_hide_children_style.url()
+        return kml.Folder(screen_overlay, name='None', styleUrl=style_url)
 
     def make_analysis_style(self, color):
         text = kml.text(kml.CDATA('<h3>$[name]</h3>$[description]'))
@@ -64,21 +63,26 @@ class Stock(object):
 
     def __init__(self):
         self.kmz = kmz.kmz()
+        #
         self.icon_scales = [math.sqrt(x) for x in [0.6, 0.5, 0.4, 0.3]]
         self.icons = [kml.Icon.palette(4, i) for i in [25, 25, 24, 24]]
         self.label_scales = [math.sqrt(x) for x in [0.6, 0.5, 0.4, 0.3]]
+        #
         list_style = kml.ListStyle(listItemType='radioFolder')
         self.radio_folder_style = kml.Style(list_style)
         self.kmz.add_roots(self.radio_folder_style)
+        #
         list_style = kml.ListStyle(listItemType='checkHideChildren')
         self.check_hide_children_style = kml.Style(list_style)
         self.kmz.add_roots(self.check_hide_children_style)
+        #
         self.thermal_style = self.make_analysis_style('cc3333ff')
         self.kmz.add_roots(self.thermal_style)
         self.dive_style = self.make_analysis_style('ccff3333')
         self.kmz.add_roots(self.dive_style)
         self.glide_style = self.make_analysis_style('cc33ff33')
         self.kmz.add_roots(self.glide_style)
+        #
         self.time_mark_styles = []
         for i in xrange(0, len(self.icons)):
             icon_style = kml.IconStyle(self.icons[i], scale=self.icon_scales[i])
@@ -86,12 +90,14 @@ class Stock(object):
                                          scale=self.label_scales[i])
             self.time_mark_styles.append(kml.Style(icon_style, label_style))
         self.kmz.add_roots(*self.time_mark_styles)
+        #
         balloon_style = kml.BalloonStyle(text=kml.CDATA('$[description]'))
         icon_style = kml.IconStyle(kml.Icon.palette(4, 46),
                                    scale=self.icon_scales[0])
         label_style = kml.LabelStyle(scale=self.label_scales[0])
         self.photo_style = kml.Style(balloon_style, icon_style, label_style)
         self.kmz.add_roots(self.photo_style)
+        #
         text = kml.text(kml.CDATA('<h3>$[name]</h3>$[description]'))
         balloon_style = kml.BalloonStyle(text)
         icon_style = kml.IconStyle(self.icons[0],
@@ -105,6 +111,7 @@ class Stock(object):
                                   label_style,
                                   line_style)
         self.kmz.add_roots(self.xc_style)
+        #
         text = kml.text(kml.CDATA('<h3>$[name]</h3>$[description]'))
         balloon_style = kml.BalloonStyle(text)
         icon_style = kml.IconStyle(self.icons[0], color='ccff33ff',
@@ -117,10 +124,13 @@ class Stock(object):
                                    label_style,
                                    line_style)
         self.kmz.add_roots(self.xc_style2)
+        #
         self.pixel_url = 'images/pixel.png'
         self.kmz.add_files({self.pixel_url: open(self.pixel_url).read()})
+        #
         self.visible_none_folder = self.make_none_folder(1)
         self.invisible_none_folder = self.make_none_folder(0)
+        #
         animation_icon_url = 'images/paraglider.png'
         self.animation_icon = kml.Icon(href=animation_icon_url)
         files = {animation_icon_url: open(animation_icon_url).read()}
@@ -153,12 +163,10 @@ class Flight(object):
             rows.append(('Glider type', self.glider_type))
         if self.glider_id:
             rows.append(('Glider ID', self.glider_id))
-        take_off_time = (self.track.bounds.time.min
-                         + globals.tz_offset).strftime('%H:%M:%S')
-        rows.append(('Take-off time', take_off_time))
-        landing_time = (self.track.bounds.time.max
-                        + globals.tz_offset).strftime('%H:%M:%S')
-        rows.append(('Landing time', landing_time))
+        take_off_time = self.track.bounds.time.min + globals.tz_offset
+        rows.append(('Take-off time', take_off_time.strftime('%H:%M:%S')))
+        landing_time = self.track.bounds.time.max + globals.tz_offset
+        rows.append(('Landing time', landing_time.strftime('%H:%M:%S')))
         duration = (self.track.bounds.time.max 
                     - self.track.bounds.time.min).seconds
         hour, seconds = divmod(duration, 3600)
@@ -195,10 +203,8 @@ class Flight(object):
             xc = '%.1fkm %s' % (rte.distance, rte.name)
         else:
             xc = None
-        strings = [self.pilot_name,
-                   xc,
-                   (self.track.bounds.time.min
-                    + globals.tz_offset).strftime('%Y-%m-%d')]
+        date = self.track.bounds.time.min + globals.tz_offset
+        strings = [self.pilot_name, xc, date.strftime('%Y-%m-%d')]
         snippet = kml.Snippet(', '.join(s for s in strings if s))
         return kmz.kmz(snippet)
 
@@ -209,8 +215,8 @@ class Flight(object):
         if extrude:
             line_string.add(extrude=1)
         placemark = kml.Placemark(style, line_string)
-        styleUrl = globals.stock.check_hide_children_style.url()
-        folder_options['styleUrl'] = styleUrl
+        style_url = globals.stock.check_hide_children_style.url()
+        folder_options['styleUrl'] = style_url
         return kmz.kmz(kml.Folder(placemark, **folder_options))
 
     def make_scale_chart(self, globals, scale):
@@ -235,9 +241,9 @@ class Flight(object):
 
     def make_colored_track(self, globals, values, scale, altitude_mode,
                            **folder_options):
-        styleUrl = globals.stock.check_hide_children_style.url()
+        style_url = globals.stock.check_hide_children_style.url()
         folder = kml.Folder(name='Colored by %s' % scale.title,
-                            styleUrl=styleUrl,
+                            styleUrl=style_url,
                             **folder_options)
         styles = [kml.Style(kml.LineStyle(color=color, width=self.width))
                   for color in scale.colors()]
@@ -260,8 +266,8 @@ class Flight(object):
         return kmz.kmz(folder).add_roots(*styles)
 
     def make_track_folder(self, globals):
-        styleUrl = globals.stock.radio_folder_style.url()
-        folder = kmz.kmz(kml.Folder(name='Track', open=1, styleUrl=styleUrl))
+        style_url = globals.stock.radio_folder_style.url()
+        folder = kmz.kmz(kml.Folder(name='Track', open=1, styleUrl=style_url))
         folder.add(globals.stock.invisible_none_folder)
         if self.track.elevation_data:
             folder.add(self.make_colored_track(globals,
@@ -296,8 +302,8 @@ class Flight(object):
     def make_shadow_folder(self, globals):
         if not self.track.elevation_data:
             return kmz.kmz()
-        styleUrl = globals.stock.radio_folder_style.url()
-        folder = kmz.kmz(kml.Folder(name='Shadow', open=0, styleUrl=styleUrl))
+        style_url = globals.stock.radio_folder_style.url()
+        folder = kmz.kmz(kml.Folder(name='Shadow', open=0, styleUrl=style_url))
         folder.add(globals.stock.invisible_none_folder)
         style = kml.Style(kml.LineStyle(color='ff000000', width=1))
         folder.add(self.make_solid_track(globals,
@@ -326,9 +332,9 @@ class Flight(object):
                                    color=self.color,
                                    scale=globals.stock.icon_scales[0])
         style = kml.Style(icon_style)
-        styleUrl = globals.stock.check_hide_children_style.url()
+        style_url = globals.stock.check_hide_children_style.url()
         # FIXME we seem to set both a style and a styleUrl
-        folder = kml.Folder(style, name='Animation', open=0, styleUrl=styleUrl)
+        folder = kml.Folder(style, name='Animation', open=0, styleUrl=style_url)
         point = kml.Point(coordinates=[self.track.coords[0]],
                           altitudeMode=self.altitude_mode)
         timespan = kml.TimeSpan(end=kml.dateTime(self.track.coords[0].dt))
@@ -351,29 +357,30 @@ class Flight(object):
         return kmz.kmz(folder)
 
     def make_placemark(self, globals, coord, altitudeMode=None, name=None,
-                       styleUrl=None):
+                       style_url=None):
         point = kml.Point(coordinates=[coord], altitudeMode=altitudeMode)
-        placemark = kml.Placemark(point, Snippet=None, name=name,
-                                  styleUrl=styleUrl)
-        return placemark
+        return kml.Placemark(point,
+                             name=name,
+                             Snippet=None,
+                             styleUrl=style_url)
 
     def make_altitude_marks_folder(self, globals):
-        if self.track.elevation_data:
-            styleUrl = globals.stock.check_hide_children_style.url()
-            folder = kml.Folder(name='Altitude marks', styleUrl=styleUrl,
-                                visibility=0)
-            for index in util.salient([c.ele for c in self.track.coords], 100):
-                coord = self.track.coords[index]
-                i = globals.scales.altitude.discretize(coord.ele)
-                styleUrl = globals.altitude_styles[i].url()
-                placemark = self.make_placemark(globals, coord,
-                                                altitudeMode='absolute',
-                                                name='%dm' % coord.ele,
-                                                styleUrl=styleUrl)
-                folder.add(placemark)
-            return kmz.kmz(folder)
-        else:
+        if not self.track.elevation_data:
             return kmz.kmz()
+        style_url = globals.stock.check_hide_children_style.url()
+        folder = kml.Folder(name='Altitude marks',
+                            styleUrl=style_url,
+                            visibility=0)
+        for index in util.salient([c.ele for c in self.track.coords], 100):
+            coord = self.track.coords[index]
+            i = globals.scales.altitude.discretize(coord.ele)
+            style_url = globals.altitude_styles[i].url()
+            folder.add(self.make_placemark(globals,
+                                           coord,
+                                           altitudeMode='absolute',
+                                           name='%dm' % coord.ele,
+                                           styleUrl=style_url))
+        return kmz.kmz(folder)
 
     def make_photos_folder(self, globals):
         if not len(self.photos):
@@ -395,12 +402,12 @@ class Flight(object):
             else:
                 title = photo.name
             description = '<h3>%s</h3>%s' % (title, photo.to_html_img())
-            styleUrl = globals.stock.photo_style.url()
+            style_url = globals.stock.photo_style.url()
             placemark = kml.Placemark(point,
                                       name=photo.name,
                                       description=kml.CDATA(description),
                                       Snippet=kml.CDATA(description),
-                                      styleUrl=styleUrl)
+                                      styleUrl=style_url)
             folder.add(placemark)
         return kmz.kmz(folder)
 
@@ -437,12 +444,12 @@ class Flight(object):
                                              tessellate=1)
                 multi_geometry.add(line_string)
             if styleUrl is None:
-                styleUrl = globals.stock.xc_style.url()
-            return kml.Placemark(name, multi_geometry, styleUrl=styleUrl)
+                style_url = globals.stock.xc_style.url()
+            return kml.Placemark(name, multi_geometry, styleUrl=style_url)
         if not self.xc:
             return kmz.kmz()
-        styleUrl = globals.stock.radio_folder_style.url()
-        folder = kml.Folder(name='Cross country', open=0, styleUrl=styleUrl)
+        style_url = globals.stock.radio_folder_style.url()
+        folder = kml.Folder(name='Cross country', open=0, styleUrl=style_url)
         folder.add(globals.stock.invisible_none_folder)
         for rank, rte in enumerate(sorted(self.xc.rtes,
                                           key=operator.attrgetter('score'),
@@ -472,21 +479,21 @@ class Flight(object):
             name = '%.1fkm %s (%.2f points)' \
                    % (rte.distance, rte.name, rte.score)
             visibility = 1 if rank == 0 else 0
-            styleUrl = globals.stock.check_hide_children_style.url()
+            style_url = globals.stock.check_hide_children_style.url()
             rte_folder = kml.Folder(name=name,
                                     description=kml.CDATA(description),
                                     Snippet=None,
-                                    styleUrl=styleUrl,
+                                    styleUrl=style_url,
                                     visibility=visibility)
             for rtept in rte.rtepts:
                 coord = self.track.coord_at(rtept.coord.dt)
                 point = kml.Point(coordinates=[coord],
                                   altitudeMode=self.altitude_mode,
                                   extrude=1)
-                styleUrl = globals.stock.xc_style.url()
+                style_url = globals.stock.xc_style.url()
                 placemark = kml.Placemark(point,
                                           name=rtept.name,
-                                          styleUrl=styleUrl)
+                                          styleUrl=style_url)
                 rte_folder.add(placemark)
             if rte.circuit:
                 rte_folder.add(make_leg(rte, 0, 1, name=None, arrow=True))
@@ -495,8 +502,8 @@ class Flight(object):
                 else:
                     for i in xrange(1, len(rte.rtepts) - 2):
                         rte_folder.add(make_leg(rte, i, i + 1, arrow=True))
-                    styleUrl = globals.stock.xc_style2.url()
-                    rte_folder.add(make_leg(rte, -2, 1, styleUrl=styleUrl))
+                    style_url = globals.stock.xc_style2.url()
+                    rte_folder.add(make_leg(rte, -2, 1, styleUrl=style_url))
                 rte_folder.add(make_leg(rte, -2, -1, name=None, arrow=True))
             else:
                 for i in xrange(0, len(rte.rtepts) - 1):
@@ -504,12 +511,12 @@ class Flight(object):
             folder.add(rte_folder)
         return kmz.kmz(folder)
 
-    def make_analysis_folder(self, globals, title, slices, styleUrl):
+    def make_analysis_folder(self, globals, title, slices, style_url):
         if not self.track.elevation_data or len(slices) == 0:
             return kmz.kmz()
-        styleUrl = globals.stock.check_hide_children_style.url()
+        style_url = globals.stock.check_hide_children_style.url()
         folder = kml.Folder(name=title.capitalize() + "s",
-                            styleUrl=styleUrl,
+                            styleUrl=style_url,
                             visibility=0)
         for sl in slices:
             coord0 = self.track.coords[sl.start]
@@ -589,7 +596,7 @@ class Flight(object):
                                       name=name,
                                       description=kml.CDATA(table),
                                       Snippet=None,
-                                      styleUrl=styleUrl)
+                                      styleUrl=style_url)
             folder.add(placemark)
         return kmz.kmz(folder)
 
@@ -625,24 +632,24 @@ class Flight(object):
         size = kml.size(x=0, xunits='fraction', y=0, yunits='fraction')
         screen_overlay = kml.ScreenOverlay(icon, overlay_xy, screen_xy, size)
         name = scale.title.capitalize() + " graph"
-        styleUrl = globals.stock.check_hide_children_style.url()
+        style_url = globals.stock.check_hide_children_style.url()
         folder = kml.Folder(screen_overlay,
                             name=name,
-                            styleUrl=styleUrl,
+                            styleUrl=style_url,
                             visibility=0)
         return folder
 
-    def make_time_mark(self, globals, coord, dt, styleUrl):
+    def make_time_mark(self, globals, coord, dt, style_url):
         point = kml.Point(coordinates=[coord], altitudeMode=self.altitude_mode)
         name = (dt + globals.tz_offset).strftime('%H:%M')
-        return kml.Placemark(point, name=name, styleUrl=styleUrl)
+        return kml.Placemark(point, name=name, styleUrl=style_url)
 
     def make_time_marks_folder(self, globals, step=datetime.timedelta(0, 900)):
-        styleUrl = globals.stock.check_hide_children_style.url()
-        folder = kml.Folder(name='Time marks', styleUrl=styleUrl, visibility=0)
+        style_url = globals.stock.check_hide_children_style.url()
+        folder = kml.Folder(name='Time marks', styleUrl=style_url, visibility=0)
         coord = self.track.coords[0]
-        styleUrl = globals.stock.time_mark_styles[0].url()
-        folder.add(self.make_time_mark(globals, coord, coord.dt, styleUrl))
+        style_url = globals.stock.time_mark_styles[0].url()
+        folder.add(self.make_time_mark(globals, coord, coord.dt, style_url))
         dt = util.datetime_floor(self.track.coords[0].dt, step)
         while dt <= self.track.coords[0].dt:
             dt += step
@@ -656,12 +663,12 @@ class Flight(object):
                 style_index = 2
             else:
                 style_index = 3
-            styleUrl = globals.stock.time_mark_styles[style_index].url()
-            folder.add(self.make_time_mark(globals, coord, dt, styleUrl))
+            style_url = globals.stock.time_mark_styles[style_index].url()
+            folder.add(self.make_time_mark(globals, coord, dt, style_url))
             dt += step
         coord = self.track.coords[-1]
-        styleUrl = globals.stock.time_mark_styles[0].url()
-        folder.add(self.make_time_mark(globals, coord, coord.dt, styleUrl))
+        style_url = globals.stock.time_mark_styles[0].url()
+        folder.add(self.make_time_mark(globals, coord, coord.dt, style_url))
         return folder
 
     def to_kmz(self, globals):
