@@ -190,8 +190,8 @@ class Flight(object):
             components = urlparse.urlparse(self.url)
             html = '<a href="%s">%s</a>' % (self.url, components.netloc)
             rows.append(('Flight URL', html))
-        trs = ['<tr><th align="right">%s</th><td>%s</td></tr>' % row
-               for row in rows]
+        trs = ('<tr><th align="right">%s</th><td>%s</td></tr>' % row
+               for row in rows)
         table = '<table>%s</table>' % ''.join(trs)
         return kmz.kmz(kml.description(kml.CDATA(table)))
 
