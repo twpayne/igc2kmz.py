@@ -1,5 +1,5 @@
 OLC2002=contrib/leonardo/olc2002
-IGC2KMZ=./igc2kmz.py
+IGC2KMZ=bin/igc2kmz.py
 BRAND2KML=bin/brand2kml.py
 
 CC=gcc

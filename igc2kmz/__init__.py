@@ -379,7 +379,7 @@ class Flight(object):
                                            coord,
                                            altitudeMode='absolute',
                                            name='%dm' % coord.ele,
-                                           styleUrl=style_url))
+                                           style_url=style_url))
         return kmz.kmz(folder)
 
     def make_photos_folder(self, globals):
@@ -422,7 +422,7 @@ class Flight(object):
             else:
                 td = '%.1fkm' % (distance / 1000.0)
             return (th, td)
-        def make_leg(rte, i, j, name=True, arrow=False, styleUrl=None):
+        def make_leg(rte, i, j, name=True, arrow=False, style_url=None):
             coord0 = rte.rtepts[i].coord
             coord1 = rte.rtepts[j].coord
             line_string = kml.LineString(coordinates=[coord0, coord1],
@@ -435,7 +435,7 @@ class Flight(object):
                 distance = coord0.distance_to(coord1)
                 name = kml.name('%.1fkm' % (distance / 1000.0))
             if arrow:
-                bearing = coord1.coord.initial_bearing_to(coord0)
+                bearing = coord1.initial_bearing_to(coord0)
                 coordinates = [coord1.coord_at(bearing - math.pi / 12.0, 400.0),
                                coord1,
                                coord1.coord_at(bearing + math.pi / 12.0, 400.0)]
@@ -443,7 +443,7 @@ class Flight(object):
                                              altitudeMode='clampToGround',
                                              tessellate=1)
                 multi_geometry.add(line_string)
-            if styleUrl is None:
+            if style_url is None:
                 style_url = globals.stock.xc_style.url()
             return kml.Placemark(name, multi_geometry, styleUrl=style_url)
         if not self.xc:
@@ -503,7 +503,7 @@ class Flight(object):
                     for i in xrange(1, len(rte.rtepts) - 2):
                         rte_folder.add(make_leg(rte, i, i + 1, arrow=True))
                     style_url = globals.stock.xc_style2.url()
-                    rte_folder.add(make_leg(rte, -2, 1, styleUrl=style_url))
+                    rte_folder.add(make_leg(rte, -2, 1, style_url=style_url))
                 rte_folder.add(make_leg(rte, -2, -1, name=None, arrow=True))
             else:
                 for i in xrange(0, len(rte.rtepts) - 1):
@@ -514,15 +514,15 @@ class Flight(object):
     def make_analysis_folder(self, globals, title, slices, style_url):
         if not self.track.elevation_data or len(slices) == 0:
             return kmz.kmz()
-        style_url = globals.stock.check_hide_children_style.url()
+        folder_style_url = globals.stock.check_hide_children_style.url()
         folder = kml.Folder(name=title.capitalize() + "s",
-                            styleUrl=style_url,
+                            styleUrl=folder_style_url,
                             visibility=0)
         for sl in slices:
             coord0 = self.track.coords[sl.start]
             coord1 = self.track.coords[sl.stop]
-            coord = coord0.halfway_to(coord1)
-            point = kml.Point(coordinates=[coord], altitudeMode='absolute')
+            midpoint = coord0.halfway_to(coord1)
+            point = kml.Point(coordinates=[midpoint], altitudeMode='absolute')
             line_string = kml.LineString(coordinates=[coord0, coord1],
                                          altitudeMode='absolute')
             multi_geometry = kml.MultiGeometry(point, line_string)
