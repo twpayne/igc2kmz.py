@@ -23,17 +23,17 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-import igc2kmz
-import igc2kmz.igc
-import igc2kmz.kml
-import igc2kmz.photo
-import igc2kmz.xc
+from igc2kmz import Flight, flights2kmz
+from igc2kmz.igc import IGC
+from igc2kmz.kml import Verbatim
+from igc2kmz.photo import Photo
+from igc2kmz.xc import XC
 
 
 def add_flight(option, opt, value, parser):
     """Add a flight."""
-    igc = igc2kmz.igc.IGC(open(value))
-    parser.values.flights.append(igc2kmz.Flight(igc.track()))
+    igc = IGC(open(value))
+    parser.values.flights.append(Flight(igc.track()))
 
 
 def set_flight_option(option, opt, value, parser):
@@ -45,7 +45,7 @@ def set_flight_option(option, opt, value, parser):
 def add_photo(option, opt, value, parser):
     """Add a photo to the last flight."""
     flight = parser.values.flights[-1]
-    photo = igc2kmz.photo.Photo(value)
+    photo = Photo(value)
     flight.photos.append(photo)
 
 
@@ -59,7 +59,7 @@ def set_photo_option(option, opt, value, parser):
 def set_flight_xc(option, opt, value, parser):
     """Set the XC of the last flight."""
     flight = parser.values.flights[-1]
-    xc = igc2kmz.xc.XC.from_file(open(value))
+    xc = XC.from_file(open(value))
     flight.xc = xc
 
 
@@ -121,10 +121,8 @@ def main(argv):
     if len(args) != 1:
         parser.error('extra arguments on command line: %s' % repr(args[1:]))
     #
-    roots = [igc2kmz.kml.Verbatim(open(root).read()) for root in options.roots]
-    kmz = igc2kmz.flights2kmz(options.flights,
-                              roots=roots,
-                              tz_offset=options.tz_offset)
+    roots = [Verbatim(open(root).read()) for root in options.roots]
+    kmz = flights2kmz(options.flights, roots=roots, tz_offset=options.tz_offset)
     kmz.write(options.output, debug=options.debug)
 
 
