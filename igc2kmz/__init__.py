@@ -24,6 +24,7 @@ import urlparse
 import third_party.pygooglechart as pygooglechart
 
 import color
+from coord import rad_to_compass
 import kml
 import kmz
 import scale
@@ -521,8 +522,8 @@ class Flight(object):
         for sl in slices:
             coord0 = self.track.coords[sl.start]
             coord1 = self.track.coords[sl.stop]
-            midpoint = coord0.halfway_to(coord1)
-            point = kml.Point(coordinates=[midpoint], altitudeMode='absolute')
+            coord = coord0.halfway_to(coord1)
+            point = kml.Point(coordinates=[coord], altitudeMode='absolute')
             line_string = kml.LineString(coordinates=[coord0, coord1],
                                          altitudeMode='absolute')
             multi_geometry = kml.MultiGeometry(point, line_string)
@@ -578,7 +579,7 @@ class Flight(object):
                          '%dm' % total_dz_negative))
             if title == 'thermal':
                 drift_speed = dp / dt
-                drift_direction = coord.rad_to_compass(theta + math.pi)
+                drift_direction = rad_to_compass(theta + math.pi)
                 rows.append(('Drift', '%.1fkm/h %s'
                                       % (3.6 * drift_speed, drift_direction)))
             trs = ''.join('<tr><th align="right">%s</th><td>%s</td></tr>' % row
