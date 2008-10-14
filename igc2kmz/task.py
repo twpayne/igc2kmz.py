@@ -19,9 +19,9 @@ from __future__ import with_statement
 
 import datetime
 try:
-    from xml.etree.cElementTree import ElementTree, TreeBuilder
+    from xml.etree.cElementTree import ElementTree, TreeBuilder, parse
 except ImportError:
-    from xml.etree.ElementTree import ElementTree, TreeBuilder
+    from xml.etree.ElementTree import ElementTree, TreeBuilder, parse
 
 from coord import Coord
 from etree import tag
@@ -118,7 +118,13 @@ class Task(object):
         return self.build_tree(TreeBuilder()).close()
 
     @classmethod
-    def from_element(self, element):
-        name = etree.findtext('name').encord('utf_8')
+    def from_element(cls, element):
+        name_tag = element.find('name')
+        name = name_tag.text.encode('utf_8') if name_tag else None
         tps = map(Turnpoint.from_element, element.findall('rtept'))
         return cls(name, tps)
+
+    @classmethod
+    def from_file(cls, file):
+        element = parse(file)
+        return cls.from_element(element)
