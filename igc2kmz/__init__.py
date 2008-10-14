@@ -706,7 +706,7 @@ class Flight(object):
         return folder
 
 
-def flights2kmz(flights, roots=[], tz_offset=0):
+def flights2kmz(flights, roots=[], tz_offset=0, task=None):
     stock = Stock()
     globals = util.OpenStruct()
     globals.stock = stock
@@ -716,6 +716,7 @@ def flights2kmz(flights, roots=[], tz_offset=0):
     if globals.bounds.climb.min < -5.0:
         globals.bounds.climb.min = -5.0
     globals.tz_offset = datetime.timedelta(0, 3600 * tz_offset)
+    globals.task = task
     globals.scales = util.OpenStruct()
     globals.scales.altitude = scale.Scale(globals.bounds.ele.tuple(),
                                           title='altitude',

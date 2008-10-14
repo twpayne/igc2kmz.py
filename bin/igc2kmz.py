@@ -27,6 +27,7 @@ from igc2kmz import Flight, flights2kmz
 from igc2kmz.igc import IGC
 from igc2kmz.kml import Verbatim
 from igc2kmz.photo import Photo
+from igc2kmz.task import Task
 from igc2kmz.xc import XC
 
 
@@ -74,6 +75,8 @@ def main(argv):
     parser.add_option('-r', '--root', metavar='FILENAME',
             action='append', dest='roots',
             help='add root element')
+    parser.add_option('-t', '--task', metavar='FILENAME',
+            help='set task')
     parser.add_option('--debug',
             action='store_true',
             help='enable pretty KML output')
@@ -122,7 +125,11 @@ def main(argv):
         parser.error('extra arguments on command line: %s' % repr(args[1:]))
     #
     roots = [Verbatim(open(root).read()) for root in options.roots]
-    kmz = flights2kmz(options.flights, roots=roots, tz_offset=options.tz_offset)
+    task = Task.from_file(open(options.task)) if options.task else None
+    kmz = flights2kmz(options.flights,
+                      roots=roots,
+                      tz_offset=options.tz_offset,
+                      task=task)
     kmz.write(options.output, debug=options.debug)
 
 
