@@ -17,19 +17,22 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import with_statement
+
 from datetime import timedelta
-try:
-    from xml.etree.cElementTree import ElementTree
-except ImportError:
-    from xml.etree.ElementTree import ElementTree
 from optparse import OptionParser
 import os
 import re
 import sys
+try:
+    from xml.etree.cElementTree import ElementTree, TreeBuilder
+except ImportError:
+    from xml.etree.ElementTree import ElementTree, TreeBuilder
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from igc2kmz.coord import Coord
+from igc2kmz.etree import tag
 from igc2kmz.igc import IGC
 from igc2kmz.task import Task, Turnpoint
 
@@ -144,9 +147,13 @@ def main(argv):
     if options.goal_radius:
         goal.radius = int(options.goal_radius)
     #
+    attrs = {'version': '1.1',
+             'creator': 'http://github.com/twpayne/igc2kmz/wikis'}
+    with tag(TreeBuilder(), 'gpx', attrs) as tb:
+        element = task.build_tree(tb).close()
     output = open(options.output, 'w') if options.output else sys.stdout
     output.write('<?xml version="1.0" encoding="utf-8"?>')
-    ElementTree(task.to_element()).write(output)
+    ElementTree(element).write(output)
 
 if __name__ == '__main__':
     main(sys.argv)
