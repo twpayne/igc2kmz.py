@@ -706,6 +706,48 @@ class Flight(object):
         return folder
 
 
+def make_task_folder(globals, task):
+    # TODO add description
+    style_url = globals.stock.check_hide_children_style.url()
+    folder = kml.Folder(name='Task', styleUrl=style_url)
+    style_url = globals.stock.xc_style.url()
+    done = set()
+    for tp in task.tps:
+        key = tp.name
+        if key in done:
+            continue
+        else:
+            done.add(key)
+        point = kml.Point(coordinates=[tp.coord])
+        folder.add(kml.Placemark(point, name=tp.name, styleUrl=style_url))
+    done = set()
+    for tp in task.tps:
+        key = (tp.name, tp.radius)
+        if key in done:
+            continue
+        else:
+            done.add(key)
+        coordinates = kml.coordinates.circle(tp.coord, tp.radius)
+        line_string = kml.LineString(coordinates, tessellate=1)
+        folder.add(kml.Placemark(line_string, styleUrl=style_url))
+    for i in xrange(0, len(task.tps) - 1):
+        tp0 = task.tps[i]
+        tp1 = task.tps[i + 1]
+        coord0 = tp0.coord.coord_at(tp0.coord.initial_bearing_to(tp1.coord),
+                                    tp0.radius)
+        theta = tp1.coord.initial_bearing_to(tp0.coord)
+        coord1 = tp1.coord.coord_at(theta, tp1.radius)
+        line_string1 = kml.LineString(coordinates=[coord0, coord1],
+                                      tessellate=1)
+        coords = [coord1.coord_at(theta - math.pi / 12.0, 400.0),
+                  coord1,
+                  coord1.coord_at(theta + math.pi / 12.0, 400.0)]
+        line_string2 = kml.LineString(coordinates=coords, tessellate=1)
+        multi_geometry = kml.MultiGeometry(line_string1, line_string2)
+        folder.add(kml.Placemark(multi_geometry, styleUrl=style_url))
+    return kmz.kmz(folder)
+
+
 def flights2kmz(flights, roots=[], tz_offset=0, task=None):
     stock = Stock()
     globals = util.OpenStruct()
@@ -751,6 +793,8 @@ def flights2kmz(flights, roots=[], tz_offset=0, task=None):
     result = kmz.kmz()
     result.add_siblings(stock.kmz)
     result.add_roots(*roots)
+    if globals.task:
+        result.add_siblings(make_task_folder(globals, globals.task))
     for flight in flights:
         result.add_siblings(flight.to_kmz(globals))
     return result

@@ -85,14 +85,14 @@ class Turnpoint(object):
         desc = desc_tag.text.encode('utf_8') if desc_tag else None
         lat = float(element.get('lat'))
         lon = float(element.get('lon'))
-        ele_tag = element.findtag('ele')
+        ele_tag = element.find('ele')
         ele = int(ele_tag.text) if ele_tag else 0
         time_tag = element.find('time')
         if time_tag:
             dt = datetime.datetime.strptime(time_tag.text, '%Y-%m-%dT%H:%M:%SZ')
         else:
             dt = None
-        coord = Coord(lat, lon, ele, dt)
+        coord = Coord.deg(lat, lon, ele, dt)
         radius_tag = element.find('extensions/radius')
         radius = int(radius_tag.text) if radius_tag else 400
         enter = element.find('extensions/exit') is None
@@ -127,4 +127,4 @@ class Task(object):
     @classmethod
     def from_file(cls, file):
         element = parse(file)
-        return cls.from_element(element)
+        return cls.from_element(element.find('/rte'))

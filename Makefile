@@ -195,7 +195,7 @@ examples/2008-07-28-XPG-KVE-02.kmz: examples/2008-07-28-XPG-KVE-02.igc examples/
 		-x examples/2008-07-28-XPG-KVE-02.gpx
 
 examples/2008-09-05-CGP-XAGC-01-ebessos.kmz: examples/2008-09-05-CGP-XAGC-01-ebessos.igc
-	$(IGC2KMZ) -z 2 -o $@ \
+	$(IGC2KMZ) -z 3 -o $@ \
 		-i $< \
 		-t examples/2008-09-05-CGP-XAGC-01-ebessos.gpx
 
