@@ -59,7 +59,7 @@ def set_photo_option(option, opt, value, parser):
 def set_flight_xc(option, opt, value, parser):
     """Set the XC of the last flight."""
     flight = parser.values.flights[-1]
-    xc = igc2kmz.xc.XC(open(value))
+    xc = igc2kmz.xc.XC.from_file(open(value))
     flight.xc = xc
 
 

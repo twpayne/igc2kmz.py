@@ -197,10 +197,10 @@ class Flight(object):
 
     def make_snippet(self, globals):
         if self.xc:
-            rte = sorted(self.xc.rtes,
-                         key=operator.attrgetter('score'),
-                         reverse=True)[0]
-            xc = '%.1fkm %s' % (rte.distance, rte.name)
+            route = sorted(self.xc.routes,
+                           key=operator.attrgetter('score'),
+                           reverse=True)[0]
+            xc = '%.1fkm %s' % (route.distance, route.name)
         else:
             xc = None
         date = self.track.bounds.time.min + globals.tz_offset
@@ -412,19 +412,19 @@ class Flight(object):
         return kmz.kmz(folder)
 
     def make_xc_folder(self, globals):
-        def make_row(rte, i, j, percentage=False):
-            distance = rte.rtepts[i].coord.distance_to(rte.rtepts[j].coord)
+        def make_row(route, i, j, percentage=False):
+            distance = route.tps[i].coord.distance_to(route.tps[j].coord)
             th = '%s %s %s' \
-                 % (rte.rtepts[i].name, RIGHTWARDS_ARROW, rte.rtepts[j].name)
+                 % (route.tps[i].name, RIGHTWARDS_ARROW, route.tps[j].name)
             if percentage:
                 td = '%.1fkm (%.1f%%)' \
-                     % (distance / 1000.0, 0.1 * distance / rte.distance)
+                     % (distance / 1000.0, 0.1 * distance / route.distance)
             else:
                 td = '%.1fkm' % (distance / 1000.0)
             return (th, td)
-        def make_leg(rte, i, j, name=True, arrow=False, style_url=None):
-            coord0 = rte.rtepts[i].coord
-            coord1 = rte.rtepts[j].coord
+        def make_leg(route, i, j, name=True, arrow=False, style_url=None):
+            coord0 = route.tps[i].coord
+            coord1 = route.tps[j].coord
             line_string = kml.LineString(coordinates=[coord0, coord1],
                                          altitudeMode='clampToGround',
                                          tessellate=1)
@@ -451,64 +451,64 @@ class Flight(object):
         style_url = globals.stock.radio_folder_style.url()
         folder = kml.Folder(name='Cross country', open=0, styleUrl=style_url)
         folder.add(globals.stock.invisible_none_folder)
-        for rank, rte in enumerate(sorted(self.xc.rtes,
+        for rank, route in enumerate(sorted(self.xc.routes,
                                           key=operator.attrgetter('score'),
                                           reverse=True)):
             rows = []
-            rows.append(('League', rte.league))
-            rows.append(('Type', rte.name[0].upper() + rte.name[1:]))
-            if rte.circuit:
-                if len(rte.rtepts) == 4:
-                    rows.append(make_row(rte, 1, 2))
-                    rows.append(make_row(rte, 2, 1))
+            rows.append(('League', route.league))
+            rows.append(('Type', route.name[0].upper() + route.name[1:]))
+            if route.circuit:
+                if len(route.tps) == 4:
+                    rows.append(make_row(route, 1, 2))
+                    rows.append(make_row(route, 2, 1))
                 else:
-                    for i in xrange(1, len(rte.rtepts) - 2):
-                        rows.append(make_row(rte, i, i + 1, percentage=True))
-                    rows.append(make_row(rte, -2, 1, percentage=True))
+                    for i in xrange(1, len(route.tps) - 2):
+                        rows.append(make_row(route, i, i + 1, percentage=True))
+                    rows.append(make_row(route, -2, 1, percentage=True))
             else:
-                for i in xrange(0, len(rte.rtepts) - 1):
-                    rows.append(make_row(rte, i, i + 1))
-            rows.append(('Distance', '%.1fkm' % rte.distance))
+                for i in xrange(0, len(route.tps) - 1):
+                    rows.append(make_row(route, i, i + 1))
+            rows.append(('Distance', '%.1fkm' % route.distance))
             rows.append(('Multiplier',
                          '%s %.2f points/km' % (MULTIPLICATION_SIGN,
-                                                rte.multiplier)))
-            rows.append(('Score', '<b>%.2f points</b>' % rte.score))
-            if rte.circuit:
-                rows.append(make_row(rte, -1, 0))
+                                                route.multiplier)))
+            rows.append(('Score', '<b>%.2f points</b>' % route.score))
+            if route.circuit:
+                rows.append(make_row(route, -1, 0))
             description = '<table>%s</table>' % ''.join('<tr><th align="right">%s</th><td>%s</td></tr>' % row for row in rows)
             name = '%.1fkm %s (%.2f points)' \
-                   % (rte.distance, rte.name, rte.score)
+                   % (route.distance, route.name, route.score)
             visibility = 1 if rank == 0 else 0
             style_url = globals.stock.check_hide_children_style.url()
-            rte_folder = kml.Folder(name=name,
+            route_folder = kml.Folder(name=name,
                                     description=kml.CDATA(description),
                                     Snippet=None,
                                     styleUrl=style_url,
                                     visibility=visibility)
-            for rtept in rte.rtepts:
-                coord = self.track.coord_at(rtept.coord.dt)
+            for tp in route.tps:
+                coord = self.track.coord_at(tp.coord.dt)
                 point = kml.Point(coordinates=[coord],
                                   altitudeMode=self.altitude_mode,
                                   extrude=1)
                 style_url = globals.stock.xc_style.url()
                 placemark = kml.Placemark(point,
-                                          name=rtept.name,
+                                          name=tp.name,
                                           styleUrl=style_url)
-                rte_folder.add(placemark)
-            if rte.circuit:
-                rte_folder.add(make_leg(rte, 0, 1, name=None, arrow=True))
-                if len(rte.rtepts) == 4:
-                    rte_folder.add(make_leg(rte, 1, 2))
+                route_folder.add(placemark)
+            if route.circuit:
+                route_folder.add(make_leg(route, 0, 1, name=None, arrow=True))
+                if len(route.tps) == 4:
+                    route_folder.add(make_leg(route, 1, 2))
                 else:
-                    for i in xrange(1, len(rte.rtepts) - 2):
-                        rte_folder.add(make_leg(rte, i, i + 1, arrow=True))
+                    for i in xrange(1, len(route.tps) - 2):
+                        route_folder.add(make_leg(route, i, i + 1, arrow=True))
                     style_url = globals.stock.xc_style2.url()
-                    rte_folder.add(make_leg(rte, -2, 1, style_url=style_url))
-                rte_folder.add(make_leg(rte, -2, -1, name=None, arrow=True))
+                    route_folder.add(make_leg(route, -2, 1, style_url=style_url))
+                route_folder.add(make_leg(route, -2, -1, name=None, arrow=True))
             else:
-                for i in xrange(0, len(rte.rtepts) - 1):
-                    rte_folder.add(make_leg(rte, i, i + 1, arrow=True))
-            folder.add(rte_folder)
+                for i in xrange(0, len(route.tps) - 1):
+                    route_folder.add(make_leg(route, i, i + 1, arrow=True))
+            folder.add(route_folder)
         return kmz.kmz(folder)
 
     def make_analysis_folder(self, globals, title, slices, style_url):
