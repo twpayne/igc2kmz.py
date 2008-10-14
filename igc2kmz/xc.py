@@ -15,10 +15,16 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from __future__ import with_statement
+
 import datetime
-import xml.etree.ElementTree
+try:
+    from xml.etree.cElementTree import ElementTree, parse
+except ImportError:
+    from xml.etree.ElementTree import ElementTree, parse
 
 from coord import Coord
+from etree import tag
 
 
 class Turnpoint(object):
@@ -26,6 +32,18 @@ class Turnpoint(object):
     def __init__(self, name, coord):
         self.name = name
         self.coord = coord
+
+    def build_tree(self, tb):
+        attrs = {'lat': str(self.coord.lat), 'lon': str(self.coord.lon)}
+        with tag(tb, 'rtept', attrs):
+            if self.coord.ele:
+                with tag(tb, 'ele'):
+                    tb.data('%d' % ele)
+            with tag(tb, 'name'):
+                tb.data(self.name)
+            with tag(tb, 'time'):
+                tb.data(self.coord.dt.strftime('%Y-%m-%dT%H:%M:%SZ'))
+        return tb
 
     @classmethod
     def from_element(cls, rtept):
@@ -40,7 +58,7 @@ class Turnpoint(object):
         return cls(name, coord)
 
 
-class Rte(object):
+class Route(object):
 
     def __init__(self, name, league, distance, multiplier, score, circuit, tps):
         self.name = name
@@ -50,6 +68,26 @@ class Rte(object):
         self.score = score
         self.circuit = circuit
         self.tps = tps
+
+    def build_tree(self, tb):
+        with tag(tb, 'rte'):
+            with tag(tb, 'name'):
+                tb.data(self.name)
+            with tag(tb, 'extensions'):
+                with tag(tb, 'league'):
+                    tb.data(self.league)
+                with tag(tb, 'distance'):
+                    tb.data(str(self.distance))
+                with tag(tb, 'multiplier'):
+                    tb.data('%.2f' % self.multiplier)
+                with tag(tb, 'score'):
+                    tb.data(str(self.score))
+                if self.circuit:
+                    with tag(tb, 'circuit'):
+                        pass
+            for tp in self.tps:
+                tp.build_tree(tb)
+        return tb
 
     @classmethod
     def from_element(cls, rte):
@@ -68,12 +106,17 @@ class XC(object):
     def __init__(self, routes):
         self.routes = routes
 
+    def build_tree(self, tb):
+        for route in self.routes:
+            route.build_tree(tb)
+        return tb
+
     @classmethod
     def from_element(cls, element):
-        routes = map(Rte.from_element, element.findall('/rte'))
+        routes = map(Route.from_element, element.findall('/rte'))
         return cls(routes)
 
     @classmethod
     def from_file(cls, file):
-        element = xml.etree.ElementTree.parse(file)
+        element = parse(file)
         return cls.from_element(element)

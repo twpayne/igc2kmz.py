@@ -24,6 +24,7 @@ class tag(object):
 
     def __enter__(self):
         self.tb.start(self.name, self.attrs)
+        return self.tb
 
     def __exit__(self, type, value, traceback):
         self.tb.end(self.name)
