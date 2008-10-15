@@ -23,11 +23,11 @@ import urlparse
 
 import third_party.pygooglechart as pygooglechart
 
-import color
+from color import bilinear_gradient, default_gradient
 from coord import rad_to_compass
 import kml
 import kmz
-import scale
+from scale import Scale, TimeScale, ZeroCenteredScale
 import util
 
 
@@ -763,9 +763,9 @@ def flights2kmz(flights, roots=[], tz_offset=0, task=None):
     globals.tz_offset = datetime.timedelta(0, 3600 * tz_offset)
     globals.task = task
     globals.scales = util.OpenStruct()
-    globals.scales.altitude = scale.Scale(globals.bounds.ele.tuple(),
-                                          title='altitude',
-                                          gradient=color.default_gradient)
+    globals.scales.altitude = Scale(globals.bounds.ele.tuple(),
+                                    title='altitude',
+                                    gradient=default_gradient)
     globals.altitude_styles = []
     for i in xrange(0, 3):
         altitude_styles = []
@@ -780,20 +780,20 @@ def flights2kmz(flights, roots=[], tz_offset=0, task=None):
             altitude_styles.append(style)
         stock.kmz.add_roots(*altitude_styles)
         globals.altitude_styles.append(altitude_styles)
-    gradient = color.bilinear_gradient
-    globals.scales.climb = scale.ZeroCenteredScale(globals.bounds.climb.tuple(),
-                                                   title='climb',
-                                                   step=0.1,
-                                                   gradient=gradient)
-    globals.scales.speed = scale.Scale(globals.bounds.speed.tuple(),
-                                       title='ground speed',
-                                       gradient=color.default_gradient)
-    globals.scales.time = scale.TimeScale(globals.bounds.time.tuple(),
-                                          tz_offset=globals.tz_offset)
+    gradient = bilinear_gradient
+    globals.scales.climb = ZeroCenteredScale(globals.bounds.climb.tuple(),
+                                             title='climb',
+                                             step=0.1,
+                                             gradient=gradient)
+    globals.scales.speed = Scale(globals.bounds.speed.tuple(),
+                                 title='ground speed',
+                                 gradient=default_gradient)
+    globals.scales.time = TimeScale(globals.bounds.time.tuple(),
+                                    tz_offset=globals.tz_offset)
     if hasattr(globals.bounds, 'tas'):
-        globals.scales.tas = scale.Scale(globals.bounds.tas.tuple(),
-                                         title='air speed',
-                                         gradient=color.default_gradient)
+        globals.scales.tas = Scale(globals.bounds.tas.tuple(),
+                                   title='air speed',
+                                   gradient=default_gradient)
     globals.graph_width = 600
     globals.graph_height = 300
     result = kmz.kmz()
