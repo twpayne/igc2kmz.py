@@ -194,7 +194,7 @@ examples/2008-07-28-XPG-KVE-02.kmz: examples/2008-07-28-XPG-KVE-02.igc examples/
 		-u http://www.xcontest.org/2008/world/en/flights/detail:charlie/28.7.2008/09:23 \
 		-x examples/2008-07-28-XPG-KVE-02.gpx
 
-examples/2008-09-05-CGP-XAGC-01-ebessos.kmz: examples/2008-09-05-CGP-XAGC-01-ebessos.igc
+examples/2008-09-05-CGP-XAGC-01-ebessos.kmz: examples/2008-09-05-CGP-XAGC-01-ebessos.igc examples/2008-09-05-CGP-XAGC-01-ebessos.gpx
 	$(IGC2KMZ) -z 3 -o $@ \
 		-i $< \
 		-t examples/2008-09-05-CGP-XAGC-01-ebessos.gpx
