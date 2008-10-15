@@ -15,7 +15,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import math
+from math import acos, ceil, pi
 
 
 class_by_name = {}
@@ -75,7 +75,8 @@ class _SimpleElement(_Element):
         if self.text is None:
             return '<%s%s/>' % (self.name(), attrs)
         else:
-            return '<%s%s>%s</%s>' % (self.name(), attrs, self.text, self.name())
+            return '<%s%s>%s</%s>' \
+                   % (self.name(), attrs, self.text, self.name())
 
 
 class _CompoundElement(_Element):
@@ -130,7 +131,10 @@ class _CompoundElement(_Element):
         if len(self.children) == 0:
             return '<%s%s/>' % (self.name(), attrs)
         else:
-            return '<%s%s>%s</%s>' % (self.name(), attrs, ''.join(map(str, self.children)), self.name())
+            return '<%s%s>%s</%s>' % (self.name(),
+                                      attrs,
+                                      ''.join(map(str, self.children)),
+                                      self.name())
 
 
 class Verbatim(_Element):
@@ -183,7 +187,20 @@ class color(_SimpleElement):
 class coordinates(_SimpleElement):
 
     def __init__(self, coords):
-        _SimpleElement.__init__(self, ' '.join('%f,%f,%d' % (180.0 * coord.lon / math.pi, 180.0 * coord.lat / math.pi, coord.ele) for coord in coords))
+        texts = ('%f,%f,%d' % (180.0 * c.lon / pi, 180.0 * c.lat / pi, c.ele)
+                 for c in coords)
+        _SimpleElement.__init__(self, ' '.join(texts))
+
+    @classmethod
+    def circle(cls, center, radius, ele=None, error=0.1):
+        decimation = int(ceil(pi / acos((radius - error) / (radius + error))))
+        coords = []
+        for i in xrange(0, decimation + 1):
+            coord = center.coord_at(-2.0 * pi * i / decimation, radius + error)
+            if ele:
+                coord.ele = ele
+            coords.append(coord)
+        return cls(coords)
 
 
 class description(_SimpleElement): pass
@@ -199,9 +216,11 @@ class Icon(_CompoundElement):
     @classmethod
     def character(cls, c, extra=''):
         if ord('1') <= ord(c) <= ord('9'):
-            return cls.palette(3, (ord(c) - ord('1')) % 8 + 16 * ((ord(c) - ord('1')) / 8), extra)
+            icon = (ord(c) - ord('1')) % 8 + 16 * ((ord(c) - ord('1')) / 8)
+            return cls.palette(3, icon, extra)
         elif ord('A') <= ord(c) <= ord('Z'):
-            return cls.palette(5, (ord(c) - ord('A')) % 8 + 16 * ((31 - ord(c) + ord('A')) / 8), extra)
+            icon = (ord(c) - ord('A')) % 8 + 16 * ((31 - ord(c) + ord('A')) / 8)
+            return cls.palette(5, icon, extra)
         else:
             return cls.default()
 
@@ -211,7 +230,9 @@ class Icon(_CompoundElement):
 
     @classmethod
     def palette(cls, pal, icon, extra=''):
-        return cls(href='http://maps.google.com/mapfiles/kml/pal%d/icon%d%s.png' % (pal, icon, extra))
+        href = 'http://maps.google.com/mapfiles/kml/pal%d/icon%d%s.png' \
+               % (pal, icon, extra)
+        return cls(href=href)
 
     @classmethod
     def none(cls):

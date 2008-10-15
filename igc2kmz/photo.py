@@ -20,7 +20,7 @@ import os.path
 import urllib2
 import urlparse
 
-import coord
+from coord import Coord
 import exif
 
 
@@ -57,7 +57,7 @@ class Photo(object):
             else:
                 ele = 0
                 self.elevation_data = False
-            self.coord = coord.Coord.deg(lat, lon, ele)
+            self.coord = Coord.deg(lat, lon, ele)
         else:
             self.coord = None
             self.elevation_data = None

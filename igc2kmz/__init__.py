@@ -24,6 +24,7 @@ import urlparse
 import third_party.pygooglechart as pygooglechart
 
 import color
+from coord import rad_to_compass
 import kml
 import kmz
 import scale
@@ -197,10 +198,10 @@ class Flight(object):
 
     def make_snippet(self, globals):
         if self.xc:
-            rte = sorted(self.xc.rtes,
-                         key=operator.attrgetter('score'),
-                         reverse=True)[0]
-            xc = '%.1fkm %s' % (rte.distance, rte.name)
+            route = sorted(self.xc.routes,
+                           key=operator.attrgetter('score'),
+                           reverse=True)[0]
+            xc = '%.1fkm %s' % (route.distance, route.name)
         else:
             xc = None
         date = self.track.bounds.time.min + globals.tz_offset
@@ -371,10 +372,11 @@ class Flight(object):
         folder = kml.Folder(name='Altitude marks',
                             styleUrl=style_url,
                             visibility=0)
-        for index in util.salient([c.ele for c in self.track.coords], 100):
+        for index, j in util.salient2([c.ele for c in self.track.coords],
+                                      [100, 50, 10]):
             coord = self.track.coords[index]
             i = globals.scales.altitude.discretize(coord.ele)
-            style_url = globals.altitude_styles[i].url()
+            style_url = globals.altitude_styles[j][i].url()
             folder.add(self.make_placemark(globals,
                                            coord,
                                            altitudeMode='absolute',
@@ -412,19 +414,19 @@ class Flight(object):
         return kmz.kmz(folder)
 
     def make_xc_folder(self, globals):
-        def make_row(rte, i, j, percentage=False):
-            distance = rte.rtepts[i].coord.distance_to(rte.rtepts[j].coord)
+        def make_row(route, i, j, percentage=False):
+            distance = route.tps[i].coord.distance_to(route.tps[j].coord)
             th = '%s %s %s' \
-                 % (rte.rtepts[i].name, RIGHTWARDS_ARROW, rte.rtepts[j].name)
+                 % (route.tps[i].name, RIGHTWARDS_ARROW, route.tps[j].name)
             if percentage:
                 td = '%.1fkm (%.1f%%)' \
-                     % (distance / 1000.0, 0.1 * distance / rte.distance)
+                     % (distance / 1000.0, 0.1 * distance / route.distance)
             else:
                 td = '%.1fkm' % (distance / 1000.0)
             return (th, td)
-        def make_leg(rte, i, j, name=True, arrow=False, style_url=None):
-            coord0 = rte.rtepts[i].coord
-            coord1 = rte.rtepts[j].coord
+        def make_leg(route, i, j, name=True, arrow=False, style_url=None):
+            coord0 = route.tps[i].coord
+            coord1 = route.tps[j].coord
             line_string = kml.LineString(coordinates=[coord0, coord1],
                                          altitudeMode='clampToGround',
                                          tessellate=1)
@@ -451,64 +453,64 @@ class Flight(object):
         style_url = globals.stock.radio_folder_style.url()
         folder = kml.Folder(name='Cross country', open=0, styleUrl=style_url)
         folder.add(globals.stock.invisible_none_folder)
-        for rank, rte in enumerate(sorted(self.xc.rtes,
+        for rank, route in enumerate(sorted(self.xc.routes,
                                           key=operator.attrgetter('score'),
                                           reverse=True)):
             rows = []
-            rows.append(('League', rte.league))
-            rows.append(('Type', rte.name[0].upper() + rte.name[1:]))
-            if rte.circuit:
-                if len(rte.rtepts) == 4:
-                    rows.append(make_row(rte, 1, 2))
-                    rows.append(make_row(rte, 2, 1))
+            rows.append(('League', route.league))
+            rows.append(('Type', route.name[0].upper() + route.name[1:]))
+            if route.circuit:
+                if len(route.tps) == 4:
+                    rows.append(make_row(route, 1, 2))
+                    rows.append(make_row(route, 2, 1))
                 else:
-                    for i in xrange(1, len(rte.rtepts) - 2):
-                        rows.append(make_row(rte, i, i + 1, percentage=True))
-                    rows.append(make_row(rte, -2, 1, percentage=True))
+                    for i in xrange(1, len(route.tps) - 2):
+                        rows.append(make_row(route, i, i + 1, percentage=True))
+                    rows.append(make_row(route, -2, 1, percentage=True))
             else:
-                for i in xrange(0, len(rte.rtepts) - 1):
-                    rows.append(make_row(rte, i, i + 1))
-            rows.append(('Distance', '%.1fkm' % rte.distance))
+                for i in xrange(0, len(route.tps) - 1):
+                    rows.append(make_row(route, i, i + 1))
+            rows.append(('Distance', '%.1fkm' % route.distance))
             rows.append(('Multiplier',
                          '%s %.2f points/km' % (MULTIPLICATION_SIGN,
-                                                rte.multiplier)))
-            rows.append(('Score', '<b>%.2f points</b>' % rte.score))
-            if rte.circuit:
-                rows.append(make_row(rte, -1, 0))
+                                                route.multiplier)))
+            rows.append(('Score', '<b>%.2f points</b>' % route.score))
+            if route.circuit:
+                rows.append(make_row(route, -1, 0))
             description = '<table>%s</table>' % ''.join('<tr><th align="right">%s</th><td>%s</td></tr>' % row for row in rows)
             name = '%.1fkm %s (%.2f points)' \
-                   % (rte.distance, rte.name, rte.score)
+                   % (route.distance, route.name, route.score)
             visibility = 1 if rank == 0 else 0
             style_url = globals.stock.check_hide_children_style.url()
-            rte_folder = kml.Folder(name=name,
+            route_folder = kml.Folder(name=name,
                                     description=kml.CDATA(description),
                                     Snippet=None,
                                     styleUrl=style_url,
                                     visibility=visibility)
-            for rtept in rte.rtepts:
-                coord = self.track.coord_at(rtept.coord.dt)
+            for tp in route.tps:
+                coord = self.track.coord_at(tp.coord.dt)
                 point = kml.Point(coordinates=[coord],
                                   altitudeMode=self.altitude_mode,
                                   extrude=1)
                 style_url = globals.stock.xc_style.url()
                 placemark = kml.Placemark(point,
-                                          name=rtept.name,
+                                          name=tp.name,
                                           styleUrl=style_url)
-                rte_folder.add(placemark)
-            if rte.circuit:
-                rte_folder.add(make_leg(rte, 0, 1, name=None, arrow=True))
-                if len(rte.rtepts) == 4:
-                    rte_folder.add(make_leg(rte, 1, 2))
+                route_folder.add(placemark)
+            if route.circuit:
+                route_folder.add(make_leg(route, 0, 1, name=None, arrow=True))
+                if len(route.tps) == 4:
+                    route_folder.add(make_leg(route, 1, 2))
                 else:
-                    for i in xrange(1, len(rte.rtepts) - 2):
-                        rte_folder.add(make_leg(rte, i, i + 1, arrow=True))
+                    for i in xrange(1, len(route.tps) - 2):
+                        route_folder.add(make_leg(route, i, i + 1, arrow=True))
                     style_url = globals.stock.xc_style2.url()
-                    rte_folder.add(make_leg(rte, -2, 1, style_url=style_url))
-                rte_folder.add(make_leg(rte, -2, -1, name=None, arrow=True))
+                    route_folder.add(make_leg(route, -2, 1, style_url=style_url))
+                route_folder.add(make_leg(route, -2, -1, name=None, arrow=True))
             else:
-                for i in xrange(0, len(rte.rtepts) - 1):
-                    rte_folder.add(make_leg(rte, i, i + 1, arrow=True))
-            folder.add(rte_folder)
+                for i in xrange(0, len(route.tps) - 1):
+                    route_folder.add(make_leg(route, i, i + 1, arrow=True))
+            folder.add(route_folder)
         return kmz.kmz(folder)
 
     def make_analysis_folder(self, globals, title, slices, style_url):
@@ -521,8 +523,8 @@ class Flight(object):
         for sl in slices:
             coord0 = self.track.coords[sl.start]
             coord1 = self.track.coords[sl.stop]
-            midpoint = coord0.halfway_to(coord1)
-            point = kml.Point(coordinates=[midpoint], altitudeMode='absolute')
+            coord = coord0.halfway_to(coord1)
+            point = kml.Point(coordinates=[coord], altitudeMode='absolute')
             line_string = kml.LineString(coordinates=[coord0, coord1],
                                          altitudeMode='absolute')
             multi_geometry = kml.MultiGeometry(point, line_string)
@@ -578,7 +580,7 @@ class Flight(object):
                          '%dm' % total_dz_negative))
             if title == 'thermal':
                 drift_speed = dp / dt
-                drift_direction = coord.rad_to_compass(theta + math.pi)
+                drift_direction = rad_to_compass(theta + math.pi)
                 rows.append(('Drift', '%.1fkm/h %s'
                                       % (3.6 * drift_speed, drift_direction)))
             trs = ''.join('<tr><th align="right">%s</th><td>%s</td></tr>' % row
@@ -705,7 +707,49 @@ class Flight(object):
         return folder
 
 
-def flights2kmz(flights, roots=[], tz_offset=0):
+def make_task_folder(globals, task):
+    # TODO add description
+    style_url = globals.stock.check_hide_children_style.url()
+    folder = kml.Folder(name='Task', styleUrl=style_url)
+    style_url = globals.stock.xc_style.url()
+    done = set()
+    for tp in task.tps:
+        key = tp.name
+        if key in done:
+            continue
+        else:
+            done.add(key)
+        point = kml.Point(coordinates=[tp.coord])
+        folder.add(kml.Placemark(point, name=tp.name, styleUrl=style_url))
+    done = set()
+    for tp in task.tps:
+        key = (tp.name, tp.radius)
+        if key in done:
+            continue
+        else:
+            done.add(key)
+        coordinates = kml.coordinates.circle(tp.coord, tp.radius)
+        line_string = kml.LineString(coordinates, tessellate=1)
+        folder.add(kml.Placemark(line_string, styleUrl=style_url))
+    for i in xrange(0, len(task.tps) - 1):
+        tp0 = task.tps[i]
+        tp1 = task.tps[i + 1]
+        coord0 = tp0.coord.coord_at(tp0.coord.initial_bearing_to(tp1.coord),
+                                    tp0.radius)
+        theta = tp1.coord.initial_bearing_to(tp0.coord)
+        coord1 = tp1.coord.coord_at(theta, tp1.radius)
+        line_string1 = kml.LineString(coordinates=[coord0, coord1],
+                                      tessellate=1)
+        coords = [coord1.coord_at(theta - math.pi / 12.0, 400.0),
+                  coord1,
+                  coord1.coord_at(theta + math.pi / 12.0, 400.0)]
+        line_string2 = kml.LineString(coordinates=coords, tessellate=1)
+        multi_geometry = kml.MultiGeometry(line_string1, line_string2)
+        folder.add(kml.Placemark(multi_geometry, styleUrl=style_url))
+    return kmz.kmz(folder)
+
+
+def flights2kmz(flights, roots=[], tz_offset=0, task=None):
     stock = Stock()
     globals = util.OpenStruct()
     globals.stock = stock
@@ -715,21 +759,25 @@ def flights2kmz(flights, roots=[], tz_offset=0):
     if globals.bounds.climb.min < -5.0:
         globals.bounds.climb.min = -5.0
     globals.tz_offset = datetime.timedelta(0, 3600 * tz_offset)
+    globals.task = task
     globals.scales = util.OpenStruct()
     globals.scales.altitude = scale.Scale(globals.bounds.ele.tuple(),
                                           title='altitude',
                                           gradient=color.default_gradient)
     globals.altitude_styles = []
-    for c in globals.scales.altitude.colors():
-        balloon_style = kml.BalloonStyle(text='$[description]')
-        icon_style = kml.IconStyle(globals.stock.icons[0],
-                                   color=c,
-                                   scale=globals.stock.icon_scales[0])
-        label_style = kml.LabelStyle(color=c,
-                                     scale=globals.stock.label_scales[0])
-        style = kml.Style(balloon_style, icon_style, label_style)
-        globals.altitude_styles.append(style)
-    stock.kmz.add_roots(*globals.altitude_styles)
+    for i in xrange(0, 3):
+        altitude_styles = []
+        for c in globals.scales.altitude.colors():
+            balloon_style = kml.BalloonStyle(text='$[description]')
+            icon_style = kml.IconStyle(globals.stock.icons[i],
+                                       color=c,
+                                       scale=globals.stock.icon_scales[i])
+            label_style = kml.LabelStyle(color=c,
+                                         scale=globals.stock.label_scales[i])
+            style = kml.Style(balloon_style, icon_style, label_style)
+            altitude_styles.append(style)
+        stock.kmz.add_roots(*altitude_styles)
+        globals.altitude_styles.append(altitude_styles)
     gradient = color.bilinear_gradient
     globals.scales.climb = scale.ZeroCenteredScale(globals.bounds.climb.tuple(),
                                                    title='climb',
@@ -749,6 +797,8 @@ def flights2kmz(flights, roots=[], tz_offset=0):
     result = kmz.kmz()
     result.add_siblings(stock.kmz)
     result.add_roots(*roots)
+    if globals.task:
+        result.add_siblings(make_task_folder(globals, globals.task))
     for flight in flights:
         result.add_siblings(flight.to_kmz(globals))
     return result

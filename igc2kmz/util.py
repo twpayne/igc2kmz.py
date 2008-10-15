@@ -258,6 +258,47 @@ def salient(seq, epsilon=0):
     return sorted(result)
 
 
+def salient2(seq, epsilons):
+    def helper(start, stop):
+        if stop - start < 2:
+            return
+        delta = 0
+        left, right = start, stop
+        if seq[start] <= seq[stop]:
+            max_index = start
+            for i in xrange(start + 1, stop + 1):
+                if seq[i] > seq[max_index]:
+                    max_index = i
+                elif seq[max_index] - seq[i] > delta:
+                    left, right = max_index, i
+                    delta = seq[max_index] - seq[i]
+        if seq[start] >= seq[stop]:
+            min_index = start
+            for i in xrange(start + 1, stop + 1):
+                if seq[i] < seq[min_index]:
+                    min_index = i
+                elif seq[i] - seq[min_index] > delta:
+                    left, right = min_index, i
+                    delta = seq[i] - seq[min_index]
+        if delta >= epsilons[-1] and (left != start or right != stop):
+            for i, epsilon in enumerate(epsilons):
+                if delta < epsilon:
+                    continue
+                if not left in result or result[left] > i:
+                    result[left] = i
+                if not right in result or result[right] > i:
+                    result[right] = i
+            helper(start, left)
+            helper(left, right)
+            helper(right, stop)
+    result = {}
+    if len(seq):
+        result[0] = 0
+        result[len(seq) - 1] = 0
+        helper(0, len(seq) - 1)
+    return result.items()
+
+
 def datetime_floor(dt, delta):
     if delta.seconds >= 3600:
         return dt.replace(minute=0, second=0) \

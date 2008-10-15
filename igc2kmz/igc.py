@@ -20,7 +20,7 @@ import logging
 import os.path
 import re
 
-import coord
+from coord import Coord
 import track
 
 
@@ -202,7 +202,7 @@ class IGC(object):
 
     def track(self):
         ele = 'ele' if any(b.ele for b in self.b) else 'alt'
-        coords = [coord.Coord.deg(b.lat, b.lon, getattr(b, ele), b.dt)
+        coords = [Coord.deg(b.lat, b.lon, getattr(b, ele), b.dt)
                   for b in self.b]
         kwargs = {}
         kwargs['filename'] = os.path.basename(self.filename)

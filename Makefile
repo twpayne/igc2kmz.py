@@ -1,5 +1,6 @@
 OLC2002=contrib/leonardo/olc2002
 IGC2KMZ=bin/igc2kmz.py
+IGC2TASK=bin/igc2task.py
 BRAND2KML=bin/brand2kml.py
 
 CC=gcc
@@ -27,7 +28,11 @@ clean:
 %: %.o
 	$(CC) -o $@ $(CFLAGS) $^ $(LIBS)
 
-EXAMPLES=examples/2008-07-28-XPG-KVE-02.kmz examples/2008-06-16-xgd-001-01.kmz examples/858umbh1.kmz examples/2007-04-22-FLY-5094-01.kmz
+EXAMPLES=examples/2008-07-28-XPG-KVE-02.kmz \
+	 examples/2008-06-16-xgd-001-01.kmz \
+	 examples/2008-09-05-CGP-XAGC-01-ebessos.kmz \
+	 examples/858umbh1.kmz \
+	 examples/2007-04-22-FLY-5094-01.kmz
 .PRECIOUS: $(EXAMPLES:%.kmz=%.olc)
 
 examples: $(EXAMPLES)
@@ -188,6 +193,18 @@ examples/2008-07-28-XPG-KVE-02.kmz: examples/2008-07-28-XPG-KVE-02.igc examples/
 		-i $< \
 		-u http://www.xcontest.org/2008/world/en/flights/detail:charlie/28.7.2008/09:23 \
 		-x examples/2008-07-28-XPG-KVE-02.gpx
+
+examples/2008-09-05-CGP-XAGC-01-ebessos.kmz: examples/2008-09-05-CGP-XAGC-01-ebessos.igc examples/2008-09-05-CGP-XAGC-01-ebessos.gpx
+	$(IGC2KMZ) -z 3 -o $@ \
+		-i $< \
+		-t examples/2008-09-05-CGP-XAGC-01-ebessos.gpx
+
+examples/2008-09-05-CGP-XAGC-01-ebessos.gpx: examples/2008-09-05-CGP-XAGC-01-ebessos.igc
+	$(IGC2TASK) examples/2008-09-05-CGP-XAGC-01-ebessos.igc \
+		-o $@ \
+		--tz-offset 3 \
+		--start-time 14:30 \
+		--start-radius 1000
 
 examples/858umbh1.kmz: examples/858umbh1.igc examples/858umbh1.gpx examples/xcontest.kml
 	$(IGC2KMZ) -z 2 -o $@ -r examples/xcontest.kml \
