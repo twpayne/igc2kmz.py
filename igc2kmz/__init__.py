@@ -484,10 +484,10 @@ class Flight(object):
             visibility = 1 if rank == 0 else 0
             style_url = globals.stock.check_hide_children_style.url()
             route_folder = kml.Folder(name=name,
-                                    description=kml.CDATA(table),
-                                    Snippet=None,
-                                    styleUrl=style_url,
-                                    visibility=visibility)
+                                      description=kml.CDATA(table),
+                                      Snippet=None,
+                                      styleUrl=style_url,
+                                      visibility=visibility)
             for tp in route.tps:
                 coord = self.track.coord_at(tp.coord.dt)
                 point = kml.Point(coordinates=[coord],
@@ -506,7 +506,8 @@ class Flight(object):
                     for i in xrange(1, len(route.tps) - 2):
                         route_folder.add(make_leg(route, i, i + 1, arrow=True))
                     style_url = globals.stock.xc_style2.url()
-                    route_folder.add(make_leg(route, -2, 1, style_url=style_url))
+                    route_folder.add(make_leg(route, -2, 1,
+                                              style_url=style_url))
                 route_folder.add(make_leg(route, -2, -1, name=None, arrow=True))
             else:
                 for i in xrange(0, len(route.tps) - 1):
@@ -709,10 +710,32 @@ class Flight(object):
 
 
 def make_task_folder(globals, task):
-    # TODO add description
     name = task.name or 'Task'
+    rows = []
+    tp0 = None
+    total = 0.0
+    count = -1
+    for sl in util.runs([tp.name for tp in task.tps]):
+        if tp0 is None:
+            tp0 = task.tps[sl.start]
+            continue
+        tp1 = task.tps[sl.stop - 1]
+        distance = tp0.coord.distance_to(tp1.coord)
+        th = '%s %s %s' % (tp0.name, RIGHTWARDS_ARROW, tp1.name)
+        td = '%.1fkm' % (distance / 1000.0)
+        rows.append((th, td))
+        total += distance
+        count += 1
+        tp0 = tp1
+    rows.append(('Total', '%.1fkm' % (total / 1000.0)))
+    trs = ('<tr><th>%s</th><td>%s</td></tr>' % row for row in rows)
+    table = '<table>%s</table>' % ''.join(trs)
+    snippet = '%.1fkm via %d turnpoints' % (total / 1000.0, count)
     style_url = globals.stock.check_hide_children_style.url()
-    folder = kml.Folder(name=name, styleUrl=style_url)
+    folder = kml.Folder(name=name,
+                        description=kml.CDATA(table),
+                        Snippet=snippet,
+                        styleUrl=style_url)
     style_url = globals.stock.xc_style.url()
     done = set()
     for tp in task.tps:
@@ -733,11 +756,12 @@ def make_task_folder(globals, task):
         coordinates = kml.coordinates.circle(tp.coord, tp.radius)
         line_string = kml.LineString(coordinates, tessellate=1)
         folder.add(kml.Placemark(line_string, styleUrl=style_url))
-    for i in xrange(0, len(task.tps) - 1):
-        tp0 = task.tps[i]
-        tp1 = task.tps[i + 1]
-        if tp0.name == tp1.name and tp0.radius == tp1.radius:
+    tp0 = None
+    for sl in util.runs([tp.name for tp in task.tps]):
+        if tp0 is None:
+            tp0 = task.tps[sl.start]
             continue
+        tp1 = task.tps[sl.stop - 1]
         coord0 = tp0.coord.coord_at(tp0.coord.initial_bearing_to(tp1.coord),
                                     tp0.radius)
         theta = tp1.coord.initial_bearing_to(tp0.coord)
@@ -750,6 +774,7 @@ def make_task_folder(globals, task):
         line_string2 = kml.LineString(coordinates=coords, tessellate=1)
         multi_geometry = kml.MultiGeometry(line_string1, line_string2)
         folder.add(kml.Placemark(multi_geometry, styleUrl=style_url))
+        tp0 = tp1
     return kmz.kmz(folder)
 
 

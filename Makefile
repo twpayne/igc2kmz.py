@@ -191,7 +191,7 @@ examples/2008-06-07-FLY-6113-01.gpx: examples/2008-06-07-FLY-6113-01.igc
 	$(IGC2TASK) -o $@ $< \
 		-n "British Open Pedro Bernardo Task 5" \
 		--tz-offset 2 \
-		--start-radius 21000 \
+		--start-radius 23000 \
 		--start-time 14:45 \
 		--ess-radius 1000
 
