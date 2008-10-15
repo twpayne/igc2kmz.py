@@ -88,7 +88,7 @@ def main(argv):
     if len(args) > 2:
         parser.error('excess arguments on command line: %s' % repr(args[2:]))
     #
-    igc = IGC(open(argv[1]))
+    igc = IGC(open(args[1]))
     if not igc.c:
         parser.error('%s does not contain a task' % repr(argv[1]))
     tps = []
@@ -113,7 +113,7 @@ def main(argv):
         if not start:
             parser.error('start turnpoint %s not found' % repr(options.start))
     else:
-        start = task.tps[0]
+        start = task.tps[1]
     if options.start_radius:
         start.radius = int(options.start_radius)
     if options.start_time:
@@ -133,7 +133,7 @@ def main(argv):
             parser.error('end of speed section turnpoint %s not found'
                          % repr(options.ess))
     else:
-        options.ess = task.tps[-2]
+        ess = task.tps[-2]
     if options.ess_radius:
         ess.radius = int(options.ess_radius)
     #

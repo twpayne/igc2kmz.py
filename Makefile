@@ -29,6 +29,7 @@ clean:
 	$(CC) -o $@ $(CFLAGS) $^ $(LIBS)
 
 EXAMPLES=examples/2008-07-28-XPG-KVE-02.kmz \
+	 examples/2008-06-07-FLY-6113-01.kmz \
 	 examples/2008-06-16-xgd-001-01.kmz \
 	 examples/2008-09-05-CGP-XAGC-01-ebessos.kmz \
 	 examples/858umbh1.kmz \
@@ -181,6 +182,19 @@ examples/2007-04-22-FLY-5094-01.kmz: examples/2007-04-22-FLY-5094-01.igc example
 		-p http://qking.web.cern.ch/qking/2007/p_chamonix/images/img_8180.jpg \
 			-d "After seven and half hours and 155km I finally prepare to land back at the landing field near the Plan Praz telecabine - what an amazing day!"
 
+examples/2008-06-07-FLY-6113-01.kmz: examples/2008-06-07-FLY-6113-01.igc examples/2008-06-07-FLY-6113-01.gpx examples/pgcomps.org.uk.kml
+	$(IGC2KMZ) -z 2 -o $@ -r examples/pgcomps.org.uk.kml \
+		-t examples/2008-06-07-FLY-6113-01.gpx \
+		-i examples/2008-06-07-FLY-6113-01.igc
+
+examples/2008-06-07-FLY-6113-01.gpx: examples/2008-06-07-FLY-6113-01.igc
+	$(IGC2TASK) -o $@ $< \
+		-n "British Open Pedro Bernardo Task 5" \
+		--tz-offset 2 \
+		--start-radius 21000 \
+		--start-time 14:45 \
+		--ess-radius 1000
+
 examples/2008-06-16-xgd-001-01.kmz: examples/2008-06-16-xgd-001-01.igc examples/2008-06-16-xgd-001-01.gpx examples/ukxcl.kml
 	$(IGC2KMZ) -z 2 -o $@ -r examples/ukxcl.kml \
 		-i $< \
@@ -227,6 +241,13 @@ examples/xcontest.kml: $(BRAND2KML)
 		-n XContest \
 		-u http://www.xcontest.org/ \
 		-i http://www.xcontest.org/img/xcontest.gif
+
+examples/pgcomps.org.uk.kml: $(BRAND2KML)
+	$(BRAND2KML) \
+		-o $@ \
+		-n "British Paragliding Competitions" \
+		-u http://www.pgcomps.org.uk/ \
+		-i http://www.pgcomps.org.uk/ssl/aerofoil_shadow_348.gif
 
 examples/ukxcl.kml: $(BRAND2KML)
 	$(BRAND2KML) \

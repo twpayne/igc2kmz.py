@@ -734,6 +734,8 @@ def make_task_folder(globals, task):
     for i in xrange(0, len(task.tps) - 1):
         tp0 = task.tps[i]
         tp1 = task.tps[i + 1]
+        if tp0.name == tp1.name and tp0.radius == tp1.radius:
+            continue
         coord0 = tp0.coord.coord_at(tp0.coord.initial_bearing_to(tp1.coord),
                                     tp0.radius)
         theta = tp1.coord.initial_bearing_to(tp0.coord)

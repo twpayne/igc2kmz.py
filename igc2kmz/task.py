@@ -82,19 +82,19 @@ class Turnpoint(object):
     def from_element(cls, element):
         name = element.findtext('name').encode('utf_8')
         desc_tag = element.find('desc')
-        desc = desc_tag.text.encode('utf_8') if desc_tag else None
+        desc = None if desc_tag is None else desc_tag.text.encode('utf_8')
         lat = float(element.get('lat'))
         lon = float(element.get('lon'))
         ele_tag = element.find('ele')
-        ele = int(ele_tag.text) if ele_tag else 0
+        ele = 0 if ele_tag is None else int(ele_tag.text)
         time_tag = element.find('time')
-        if time_tag:
-            dt = datetime.datetime.strptime(time_tag.text, '%Y-%m-%dT%H:%M:%SZ')
-        else:
+        if time_tag is None:
             dt = None
+        else:
+            dt = datetime.datetime.strptime(time_tag.text, '%Y-%m-%dT%H:%M:%SZ')
         coord = Coord.deg(lat, lon, ele, dt)
         radius_tag = element.find('extensions/radius')
-        radius = int(radius_tag.text) if radius_tag else 400
+        radius = 400 if radius_tag is None else int(radius_tag.text)
         enter = element.find('extensions/exit') is None
         return cls(name, coord, radius, enter, desc)
 
@@ -120,7 +120,7 @@ class Task(object):
     @classmethod
     def from_element(cls, element):
         name_tag = element.find('name')
-        name = name_tag.text.encode('utf_8') if name_tag else None
+        name = None if name_tag is None else name_tag.text.encode('utf_8')
         tps = map(Turnpoint.from_element, element.findall('rtept'))
         return cls(name, tps)
 
