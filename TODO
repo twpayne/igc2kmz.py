@@ -1,6 +1,9 @@
 HIGH
 Check indexes in thermal folder
 Check indexes in colored tracklogs
+Check why balloons don't point at point
+Clean up heirarchical altitude marks
+Clean up global styles
 
 MEDIUM
 Allow override of photo time

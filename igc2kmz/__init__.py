@@ -372,10 +372,11 @@ class Flight(object):
         folder = kml.Folder(name='Altitude marks',
                             styleUrl=style_url,
                             visibility=0)
-        for index in util.salient([c.ele for c in self.track.coords], 100):
+        for index, j in util.salient2([c.ele for c in self.track.coords],
+                                      [100, 50, 10]):
             coord = self.track.coords[index]
             i = globals.scales.altitude.discretize(coord.ele)
-            style_url = globals.altitude_styles[i].url()
+            style_url = globals.altitude_styles[j][i].url()
             folder.add(self.make_placemark(globals,
                                            coord,
                                            altitudeMode='absolute',
@@ -764,16 +765,19 @@ def flights2kmz(flights, roots=[], tz_offset=0, task=None):
                                           title='altitude',
                                           gradient=color.default_gradient)
     globals.altitude_styles = []
-    for c in globals.scales.altitude.colors():
-        balloon_style = kml.BalloonStyle(text='$[description]')
-        icon_style = kml.IconStyle(globals.stock.icons[0],
-                                   color=c,
-                                   scale=globals.stock.icon_scales[0])
-        label_style = kml.LabelStyle(color=c,
-                                     scale=globals.stock.label_scales[0])
-        style = kml.Style(balloon_style, icon_style, label_style)
-        globals.altitude_styles.append(style)
-    stock.kmz.add_roots(*globals.altitude_styles)
+    for i in xrange(0, 3):
+        altitude_styles = []
+        for c in globals.scales.altitude.colors():
+            balloon_style = kml.BalloonStyle(text='$[description]')
+            icon_style = kml.IconStyle(globals.stock.icons[i],
+                                       color=c,
+                                       scale=globals.stock.icon_scales[i])
+            label_style = kml.LabelStyle(color=c,
+                                         scale=globals.stock.label_scales[i])
+            style = kml.Style(balloon_style, icon_style, label_style)
+            altitude_styles.append(style)
+        stock.kmz.add_roots(*altitude_styles)
+        globals.altitude_styles.append(altitude_styles)
     gradient = color.bilinear_gradient
     globals.scales.climb = scale.ZeroCenteredScale(globals.bounds.climb.tuple(),
                                                    title='climb',
