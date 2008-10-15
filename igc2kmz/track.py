@@ -41,6 +41,7 @@ class Track(object):
     def filter(self, coords):
         """Filter out erroneous points."""
         # TODO replace with Kahlman filter?
+        # TODO cope with erroneous points at start of track
         result = [coords[0]]
         last_c = coords[0]
         for c in coords:
