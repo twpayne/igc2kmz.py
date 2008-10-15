@@ -332,10 +332,9 @@ class Flight(object):
         icon_style = kml.IconStyle(globals.stock.animation_icon,
                                    color=self.color,
                                    scale=globals.stock.icon_scales[0])
-        style = kml.Style(icon_style)
-        style_url = globals.stock.check_hide_children_style.url()
-        # FIXME we seem to set both a style and a styleUrl
-        folder = kml.Folder(style, name='Animation', open=0, styleUrl=style_url)
+        list_style = kml.ListStyle(listItemType='checkHideChildren')
+        style = kml.Style(icon_style, list_style)
+        folder = kml.Folder(style, name='Animation')
         point = kml.Point(coordinates=[self.track.coords[0]],
                           altitudeMode=self.altitude_mode)
         timespan = kml.TimeSpan(end=kml.dateTime(self.track.coords[0].dt))
