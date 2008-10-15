@@ -708,8 +708,9 @@ class Flight(object):
 
 def make_task_folder(globals, task):
     # TODO add description
+    name = task.name or 'Task'
     style_url = globals.stock.check_hide_children_style.url()
-    folder = kml.Folder(name='Task', styleUrl=style_url)
+    folder = kml.Folder(name=name, styleUrl=style_url)
     style_url = globals.stock.xc_style.url()
     done = set()
     for tp in task.tps:
