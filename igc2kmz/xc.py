@@ -51,7 +51,7 @@ class Turnpoint(object):
         lat = float(rtept.get('lat'))
         lon = float(rtept.get('lon'))
         ele_tag = rtept.find('ele')
-        ele = int(ele_tag.text) if ele_tag else 0
+        ele = 0 if ele_tag is None else int(ele_tag.text)
         dt = datetime.datetime.strptime(rtept.findtext('time'),
                                         '%Y-%m-%dT%H:%M:%SZ')
         coord = Coord.deg(lat, lon, ele, dt)
