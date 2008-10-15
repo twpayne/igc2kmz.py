@@ -476,13 +476,15 @@ class Flight(object):
             rows.append(('Score', '<b>%.2f points</b>' % route.score))
             if route.circuit:
                 rows.append(make_row(route, -1, 0))
-            description = '<table>%s</table>' % ''.join('<tr><th align="right">%s</th><td>%s</td></tr>' % row for row in rows)
+            trs = ('<tr><th align="right">%s</th><td>%s</td></tr>'
+                   % row for row in rows)
+            table = '<table>%s</table>' % ''.join(trs)
             name = '%.1fkm %s (%.2f points)' \
                    % (route.distance, route.name, route.score)
             visibility = 1 if rank == 0 else 0
             style_url = globals.stock.check_hide_children_style.url()
             route_folder = kml.Folder(name=name,
-                                    description=kml.CDATA(description),
+                                    description=kml.CDATA(table),
                                     Snippet=None,
                                     styleUrl=style_url,
                                     visibility=visibility)
