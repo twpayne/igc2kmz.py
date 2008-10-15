@@ -760,6 +760,8 @@ def flights2kmz(flights, roots=[], tz_offset=0, task=None):
         globals.bounds.update(flight.track.bounds)
     if globals.bounds.climb.min < -5.0:
         globals.bounds.climb.min = -5.0
+    if globals.bounds.climb.max > 5.0:
+        globals.bounds.climb.max = 5.0
     globals.tz_offset = datetime.timedelta(0, 3600 * tz_offset)
     globals.task = task
     globals.scales = util.OpenStruct()
