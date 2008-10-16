@@ -18,6 +18,7 @@
 import datetime
 import math
 import operator
+import os
 import unicodedata
 import urlparse
 
@@ -34,6 +35,10 @@ import util
 RIGHTWARDS_ARROW = unicodedata.lookup('RIGHTWARDS ARROW').encode('utf_8')
 INFINITY = unicodedata.lookup('INFINITY').encode('utf_8')
 MULTIPLICATION_SIGN = unicodedata.lookup('MULTIPLICATION SIGN').encode('utf_8')
+
+IMAGES_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__),
+                                           '..',
+                                           'images'))
 
 
 class Stock(object):
@@ -126,13 +131,13 @@ class Stock(object):
                                    line_style)
         self.kmz.add_roots(self.xc_style2)
         #
-        self.pixel_url = 'images/pixel.png'
+        self.pixel_url = os.path.join(IMAGES_DIR, 'pixel.png')
         self.kmz.add_files({self.pixel_url: open(self.pixel_url).read()})
         #
         self.visible_none_folder = self.make_none_folder(1)
         self.invisible_none_folder = self.make_none_folder(0)
         #
-        animation_icon_url = 'images/paraglider.png'
+        animation_icon_url = os.path.join(IMAGES_DIR, 'paraglider.png')
         self.animation_icon = kml.Icon(href=animation_icon_url)
         files = {animation_icon_url: open(animation_icon_url).read()}
         self.kmz.add_files(files)
