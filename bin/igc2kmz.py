@@ -24,6 +24,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from igc2kmz import Flight, flights2kmz
+from igc2kmz.gpx import GPX
 from igc2kmz.igc import IGC
 from igc2kmz.kml import Verbatim
 from igc2kmz.photo import Photo
@@ -33,8 +34,14 @@ from igc2kmz.xc import XC
 
 def add_flight(option, opt, value, parser):
     """Add a flight."""
-    igc = IGC(open(value))
-    parser.values.flights.append(Flight(igc.track()))
+    ext = os.path.splitext(value)[1].lower()
+    if ext == 'igc':
+        track = IGC(open(value)).track()
+    elif ext == 'gpx':
+        track = GPX(open(value)).track()
+    else:
+        raise RuntimeError, 'unsupported file type %s' % repr(ext)
+    parser.values.flights.append(Flight(track()))
 
 
 def set_flight_option(option, opt, value, parser):
