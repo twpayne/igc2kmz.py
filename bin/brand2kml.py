@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2.5
 #
 #   bin/brand2kml.py  igc2kmz brand generator
 #   Copyright (C) 2008  Tom Payne

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2.5
 #
 #   bin/olc2gpx.py  olc2002 output to GPX converter
 #   Copyright (C) 2008  Tom Payne

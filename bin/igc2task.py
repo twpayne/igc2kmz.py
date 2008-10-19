@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python2.5
 #
 #   bin/igc2task.py  IGC to task converter
 #   Copyright (C) 2008  Tom Payne
