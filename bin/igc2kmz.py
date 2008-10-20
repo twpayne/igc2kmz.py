@@ -35,13 +35,13 @@ from igc2kmz.xc import XC
 def add_flight(option, opt, value, parser):
     """Add a flight."""
     ext = os.path.splitext(value)[1].lower()
-    if ext == 'igc':
+    if ext == '.igc':
         track = IGC(open(value)).track()
-    elif ext == 'gpx':
+    elif ext == '.gpx':
         track = GPX(open(value)).track()
     else:
         raise RuntimeError, 'unsupported file type %s' % repr(ext)
-    parser.values.flights.append(Flight(track()))
+    parser.values.flights.append(Flight(track))
 
 
 def set_flight_option(option, opt, value, parser):
