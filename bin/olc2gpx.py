@@ -35,6 +35,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from igc2kmz.coord import Coord
 from igc2kmz.etree import tag
+from igc2kmz.gpx import gpx_tag
 from igc2kmz.xc import Route, Turnpoint, XC
 
 
@@ -114,9 +115,7 @@ def main(argv):
     for route in routes:
         route.tps[-1].name = 'Finish'
     xc = XC(routes)
-    attrs = {'version': '1.1',
-             'creator': 'http://github.com/twpayne/igc2kmz/wikis'}
-    with tag(TreeBuilder(), 'gpx', attrs) as tb:
+    with gpx_tag(TreeBuilder()) as tb:
         element = xc.build_tree(tb).close()
     output = open(options.output, 'w') if options.output else sys.stdout
     output.write('<?xml version="1.0" encoding="UTF-8"?>')

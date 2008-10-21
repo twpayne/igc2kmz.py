@@ -25,6 +25,7 @@ except ImportError:
 
 from coord import Coord
 from etree import tag
+from gpx import GPX_DATETIME_FORMAT, GPX_NAMESPACE
 
 
 class Turnpoint(object):
@@ -67,7 +68,7 @@ class Turnpoint(object):
                     tb.data(str(self.coord.ele))
             if self.coord.dt:
                 with tag(tb, 'time'):
-                    tb.data(self.coord.dt.strftime('%Y-%m-%dT%H:%M:%SZ'))
+                    tb.data(self.coord.dt.strftime(GPX_DATETIME_FORMAT))
             if self.radius != 400 or not self.enter:
                 with tag(tb, 'extensions'):
                     if self.radius != 400:
@@ -80,22 +81,24 @@ class Turnpoint(object):
 
     @classmethod
     def from_element(cls, element):
-        name = element.findtext('name').encode('utf_8')
-        desc_tag = element.find('desc')
+        name = element.findtext('{%s}name' % GPX_NAMESPACE).encode('utf_8')
+        desc_tag = element.find('{%s}desc' % GPX_NAMESPACE)
         desc = None if desc_tag is None else desc_tag.text.encode('utf_8')
         lat = float(element.get('lat'))
         lon = float(element.get('lon'))
-        ele_tag = element.find('ele')
+        ele_tag = element.find('{%s}ele' % GPX_NAMESPACE)
         ele = 0 if ele_tag is None else int(ele_tag.text)
-        time_tag = element.find('time')
+        time_tag = element.find('{%s}time' % GPX_NAMESPACE)
         if time_tag is None:
             dt = None
         else:
-            dt = datetime.datetime.strptime(time_tag.text, '%Y-%m-%dT%H:%M:%SZ')
+            dt = datetime.datetime.strptime(time_tag.text, GPX_DATETIME_FORMAT)
         coord = Coord.deg(lat, lon, ele, dt)
-        radius_tag = element.find('extensions/radius')
+        radius_tag = element.find('{%s}extensions/{%s}radius'
+                                  % (GPX_NAMESPACE, GPX_NAMESPACE))
         radius = 400 if radius_tag is None else int(radius_tag.text)
-        enter = element.find('extensions/exit') is None
+        enter = element.find('{%s}extensions/{%s}exit'
+                             % (GPX_NAMESPACE, GPX_NAMESPACE)) is None
         return cls(name, coord, radius, enter, desc)
 
 
@@ -119,12 +122,13 @@ class Task(object):
 
     @classmethod
     def from_element(cls, element):
-        name_tag = element.find('name')
+        name_tag = element.find('{%s}name' % GPX_NAMESPACE)
         name = None if name_tag is None else name_tag.text.encode('utf_8')
-        tps = map(Turnpoint.from_element, element.findall('rtept'))
+        rtepts = element.findall('{%s}rtept' % GPX_NAMESPACE)
+        tps = map(Turnpoint.from_element, rtepts)
         return cls(name, tps)
 
     @classmethod
     def from_file(cls, file):
         element = parse(file)
-        return cls.from_element(element.find('/rte'))
+        return cls.from_element(element.find('/{%s}rte' % GPX_NAMESPACE))
