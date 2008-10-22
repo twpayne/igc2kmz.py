@@ -25,6 +25,30 @@ from coord import Coord
 from track import Track
 
 
+GPX_NAMESPACE = 'http://www.topografix.com/GPX/1/1'
+GPX_DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
+
+
+class gpx_tag(object):
+
+    def __init__(self, tb):
+        self.tb = tb
+
+    def __enter__(self):
+        attrs = {
+            'creator': 'http://github.com/twpayne/igc2kmz/wikis/quickstart',
+            'version': '1.1',
+            'xmlns': GPX_NAMESPACE,
+            'xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance',
+            'xsi:schemaLocation': 'http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd',
+            }
+        self.tb.start('gpx', attrs)
+        return self.tb
+
+    def __exit__(self, type, value, traceback):
+        self.tb.end('gpx')
+
+
 class GPX(object):
 
     def __init__(self, file):
@@ -33,11 +57,12 @@ class GPX(object):
         except AttributeError:
             self.filename = '(unknown)'
         self.coords = []
-        ns = 'http://www.topografix.com/GPX/1/1'
-        ele_tag_name = '{%s}ele' % ns
-        time_tag_name = '{%s}time' % ns
+        ele_tag_name = '{%s}ele' % GPX_NAMESPACE
+        time_tag_name = '{%s}time' % GPX_NAMESPACE
         for trkpt in parse(file).findall('/{%s}trk/{%s}trkseg/{%s}trkpt'
-                                         % (ns, ns, ns)):
+                                         % (GPX_NAMESPACE,
+                                            GPX_NAMESPACE,
+                                            GPX_NAMESPACE)):
             lat = float(trkpt.get('lat'))
             lon = float(trkpt.get('lon'))
             ele_tag = trkpt.find(ele_tag_name)
@@ -45,7 +70,7 @@ class GPX(object):
             time = trkpt.find(time_tag_name)
             if time is None:
                 continue
-            dt = datetime.strptime(time.text, '%Y-%m-%dT%H:%M:%SZ')
+            dt = datetime.strptime(time.text, GPX_DATETIME_FORMAT)
             coord = Coord(lat, lon, ele, dt)
             self.coords.append(coord)
 

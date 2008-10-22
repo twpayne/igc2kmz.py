@@ -17,7 +17,7 @@
 
 from __future__ import with_statement
 
-import datetime
+from datetime import datetime
 try:
     from xml.etree.cElementTree import ElementTree, parse
 except ImportError:
@@ -25,6 +25,7 @@ except ImportError:
 
 from coord import Coord
 from etree import tag
+from gpx import GPX_DATETIME_FORMAT, GPX_NAMESPACE
 
 
 class Turnpoint(object):
@@ -42,18 +43,18 @@ class Turnpoint(object):
             with tag(tb, 'name'):
                 tb.data(self.name)
             with tag(tb, 'time'):
-                tb.data(self.coord.dt.strftime('%Y-%m-%dT%H:%M:%SZ'))
+                tb.data(self.coord.dt.strftime(GPX_DATETIME_FORMAT))
         return tb
 
     @classmethod
     def from_element(cls, rtept):
-        name = rtept.findtext('name').encode('utf_8')
+        name = rtept.findtext('{%s}name' % GPX_NAMESPACE).encode('utf_8')
         lat = float(rtept.get('lat'))
         lon = float(rtept.get('lon'))
-        ele_tag = rtept.find('ele')
+        ele_tag = rtept.find('{%s}ele' % GPX_NAMESPACE)
         ele = 0 if ele_tag is None else int(ele_tag.text)
-        dt = datetime.datetime.strptime(rtept.findtext('time'),
-                                        '%Y-%m-%dT%H:%M:%SZ')
+        time_text = rtept.findtext('{%s}time' % GPX_NAMESPACE)
+        dt = datetime.strptime(time_text, GPX_DATETIME_FORMAT)
         coord = Coord.deg(lat, lon, ele, dt)
         return cls(name, coord)
 
@@ -91,13 +92,20 @@ class Route(object):
 
     @classmethod
     def from_element(cls, rte):
-        name = rte.findtext('name').encode('utf_8')
-        league = rte.findtext('extensions/league').encode('utf_8')
-        distance = float(rte.findtext('extensions/distance'))
-        multiplier = float(rte.findtext('extensions/multiplier'))
-        score = float(rte.findtext('extensions/score'))
-        circuit = not rte.find('extensions/circuit') is None
-        tps = map(Turnpoint.from_element, rte.findall('rtept'))
+        name = rte.findtext('{%s}name' % GPX_NAMESPACE).encode('utf_8')
+        extensions_tag = rte.find('{%s}extensions' % GPX_NAMESPACE)
+        league_text = extensions_tag.findtext('{%s}league' % GPX_NAMESPACE)
+        league = league_text.encode('utf_8')
+        distance_text = extensions_tag.findtext('{%s}distance' % GPX_NAMESPACE)
+        distance = float(distance_text)
+        multiplier_text = extensions_tag.findtext('{%s}multiplier'
+                                                  % GPX_NAMESPACE)
+        multiplier = float(multiplier_text)
+        score = float(extensions_tag.findtext('{%s}score' % GPX_NAMESPACE))
+        circuit_tag = extensions_tag.find('{%s}circuit' % GPX_NAMESPACE)
+        circuit = not circuit_tag is None
+        rtepts = rte.findall('{%s}rtept' % GPX_NAMESPACE)
+        tps = map(Turnpoint.from_element, rtepts)
         return cls(name, league, distance, multiplier, score, circuit, tps)
 
 
@@ -113,7 +121,8 @@ class XC(object):
 
     @classmethod
     def from_element(cls, element):
-        routes = map(Route.from_element, element.findall('/rte'))
+        rtes = element.findall('/{%s}rte' % GPX_NAMESPACE)
+        routes = map(Route.from_element, rtes)
         return cls(routes)
 
     @classmethod
