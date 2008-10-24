@@ -28,9 +28,32 @@ def rad_to_compass(rad):
     return compass[int(8 * rad / pi + 0.5) % 16]
 
 
+class degreeattr(object):
+
+    def __init__(self, attr):
+        self.attr = attr
+
+    def __get__(self, obj, type=None):
+        return 180.0 * getattr(obj, self.attr) / pi
+
+    def __set__(self, obj, value):
+        setattr(obj, self.attr, pi * value / 180.0)
+
+
+class degreemethod(object):
+
+    def __new__(cls, f):
+        def deg_f(*args, **kwargs):
+            return 180.0 * f(*args, **kwargs) / pi
+        return deg_f
+
+
 class Coord(object):
 
     __slots__ = ('lat', 'lon', 'ele', 'dt')
+
+    lat_deg = degreeattr('lat')
+    lon_deg = degreeattr('lon')
 
     def __init__(self, lat, lon, ele, dt=None):
         self.lat = lat
@@ -42,12 +65,17 @@ class Coord(object):
     def deg(cls, lat, lon, ele, dt=None):
         return cls(pi * lat / 180.0, pi * lon / 180.0, ele, dt)
 
+    def dup(self):
+        return Coord(self.lat, self.lon, self.ele, self.dt)
+
     def initial_bearing_to(self, other):
         """Return the initial bearing from self to other."""
         y = sin(other.lon - self.lon) * cos(other.lat)
         x = cos(self.lat) * sin(other.lat) \
             - sin(self.lat) * cos(other.lat) * cos(other.lon - self.lon)
         return atan2(y, x)
+
+    initial_bearing_to_deg = degreemethod(initial_bearing_to)
 
     def distance_to(self, other):
         """Return the distance from self to other."""
