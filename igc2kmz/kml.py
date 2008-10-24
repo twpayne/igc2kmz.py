@@ -187,8 +187,7 @@ class color(_SimpleElement):
 class coordinates(_SimpleElement):
 
     def __init__(self, coords):
-        texts = ('%f,%f,%d' % (180.0 * c.lon / pi, 180.0 * c.lat / pi, c.ele)
-                 for c in coords)
+        texts = ('%f,%f,%d' % (c.lon_deg, c.lat_deg, c.ele) for c in coords)
         _SimpleElement.__init__(self, ' '.join(texts))
 
     @classmethod
