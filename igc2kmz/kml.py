@@ -173,6 +173,7 @@ class altitude(_SimpleElement): pass
 class altitudeMode(_SimpleElement): pass
 class BalloonStyle(_CompoundElement): pass
 class begin(_SimpleElement): pass
+class Camera(_CompoundElement): pass
 
 
 class color(_SimpleElement):
@@ -207,6 +208,7 @@ class Document(_CompoundElement): pass
 class end(_SimpleElement): pass
 class extrude(_SimpleElement): pass
 class Folder(_CompoundElement): pass
+class heading(_SimpleElement): pass
 class href(_SimpleElement): pass
 
 
@@ -261,10 +263,12 @@ class kml(_CompoundElement):
 
 
 class LabelStyle(_CompoundElement): pass
+class latitude(_SimpleElement): pass
 class LineString(_CompoundElement): pass
 class LineStyle(_CompoundElement): pass
 class ListStyle(_CompoundElement): pass
 class listItemType(_SimpleElement): pass
+class longitude(_SimpleElement): pass
 class MultiGeometry(_CompoundElement): pass
 class name(_SimpleElement): pass
 class open(_SimpleElement): pass
@@ -272,6 +276,7 @@ class overlayXY(_SimpleElement): pass
 class Placemark(_CompoundElement): pass
 class Point(_CompoundElement): pass
 class PolyStyle(_CompoundElement): pass
+class roll(_SimpleElement): pass
 class scale(_SimpleElement): pass
 class ScreenOverlay(_CompoundElement): pass
 class screenXY(_SimpleElement): pass
@@ -289,6 +294,7 @@ class Style(_CompoundElement):
 class styleUrl(_SimpleElement): pass
 class tessellate(_SimpleElement): pass
 class text(_SimpleElement): pass
+class tilt(_SimpleElement): pass
 class TimeSpan(_CompoundElement): pass
 class visibility(_SimpleElement): pass
 class when(_SimpleElement): pass
