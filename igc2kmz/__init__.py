@@ -361,6 +361,29 @@ class Flight(object):
         folder.add(placemark)
         return kmz.kmz(folder)
 
+    def make_tour_folder(self, globals):
+        style_url = globals.stock.check_hide_children_style.url()
+        folder = kmz.kmz(kml.Folder(name='Tour', styleUrl=style_url))
+        dt = self.track.coords[0].dt
+        delta = datetime.timedelta(seconds=5 * 60)
+        coords = []
+        while dt < self.track.coords[-1].dt:
+            coords.append(self.track.coord_at(dt))
+            dt += delta
+        for i in xrange(0, len(coords)):
+            j = (i + 1) % len(coords)
+            point = kml.Point(coordinates=[coords[i]],
+                              altitudeMode=self.altitude_mode)
+            heading = coords[i].initial_bearing_to_deg(coords[j])
+            camera = kml.Camera(altitude=coords[i].ele,
+                                heading=heading,
+                                latitude=coords[i].lat_deg,
+                                longitude=coords[i].lon_deg,
+                                tilt=75)
+            placemark = kml.Placemark(point, camera)
+            folder.add(placemark)
+        return folder
+
     def make_placemark(self, globals, coord, altitudeMode=None, name=None,
                        style_url=None):
         point = kml.Point(coordinates=[coord], altitudeMode=altitudeMode)
@@ -692,6 +715,7 @@ class Flight(object):
         folder.add(self.make_track_folder(globals))
         folder.add(self.make_shadow_folder(globals))
         folder.add(self.make_animation(globals))
+        folder.add(self.make_tour_folder(globals))
         folder.add(self.make_photos_folder(globals))
         folder.add(self.make_xc_folder(globals))
         folder.add(self.make_altitude_marks_folder(globals))
