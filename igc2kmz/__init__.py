@@ -16,7 +16,7 @@
 
 
 import datetime
-import math
+from math import pi, sqrt
 import operator
 import os
 import unicodedata
@@ -70,9 +70,9 @@ class Stock(object):
     def __init__(self):
         self.kmz = kmz.kmz()
         #
-        self.icon_scales = [math.sqrt(x) for x in [0.6, 0.5, 0.4, 0.3]]
+        self.icon_scales = [sqrt(x) for x in [0.6, 0.5, 0.4, 0.3]]
         self.icons = [kml.Icon.palette(4, i) for i in [25, 25, 24, 24]]
-        self.label_scales = [math.sqrt(x) for x in [0.6, 0.5, 0.4, 0.3]]
+        self.label_scales = [sqrt(x) for x in [0.6, 0.5, 0.4, 0.3]]
         #
         list_style = kml.ListStyle(listItemType='radioFolder')
         self.radio_folder_style = kml.Style(list_style)
@@ -442,9 +442,9 @@ class Flight(object):
                 name = kml.name('%.1fkm' % (distance / 1000.0))
             if arrow:
                 bearing = coord1.initial_bearing_to(coord0)
-                coordinates = [coord1.coord_at(bearing - math.pi / 12.0, 400.0),
+                coordinates = [coord1.coord_at(bearing - pi / 12.0, 400.0),
                                coord1,
-                               coord1.coord_at(bearing + math.pi / 12.0, 400.0)]
+                               coord1.coord_at(bearing + pi / 12.0, 400.0)]
                 line_string = kml.LineString(coordinates=coordinates,
                                              altitudeMode='clampToGround',
                                              tessellate=1)
@@ -587,7 +587,7 @@ class Flight(object):
                          '%dm' % total_dz_negative))
             if title == 'thermal':
                 drift_speed = dp / dt
-                drift_direction = rad_to_compass(theta + math.pi)
+                drift_direction = rad_to_compass(theta + pi)
                 rows.append(('Drift', '%.1fkm/h %s'
                                       % (3.6 * drift_speed, drift_direction)))
             trs = ''.join('<tr><th align="right">%s</th><td>%s</td></tr>' % row
@@ -773,9 +773,9 @@ def make_task_folder(globals, task):
         coord1 = tp1.coord.coord_at(theta, tp1.radius)
         line_string1 = kml.LineString(coordinates=[coord0, coord1],
                                       tessellate=1)
-        coords = [coord1.coord_at(theta - math.pi / 12.0, 400.0),
+        coords = [coord1.coord_at(theta - pi / 12.0, 400.0),
                   coord1,
-                  coord1.coord_at(theta + math.pi / 12.0, 400.0)]
+                  coord1.coord_at(theta + pi / 12.0, 400.0)]
         line_string2 = kml.LineString(coordinates=coords, tessellate=1)
         multi_geometry = kml.MultiGeometry(line_string1, line_string2)
         folder.add(kml.Placemark(multi_geometry, styleUrl=style_url))
