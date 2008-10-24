@@ -137,7 +137,7 @@ def main(argv):
                       roots=roots,
                       tz_offset=options.tz_offset,
                       task=task)
-    kmz.write(options.output, debug=options.debug)
+    kmz.write(options.output, '2.2', debug=options.debug)
 
 
 if __name__ == '__main__':

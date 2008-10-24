@@ -832,7 +832,7 @@ def flights2kmz(flights, roots=[], tz_offset=0, task=None):
     globals.graph_height = 300
     result = kmz.kmz()
     result.add_siblings(stock.kmz)
-    result.add_roots(*roots)
+    result.add_roots(kml.open(1), *roots)
     if globals.task:
         result.add_siblings(make_task_folder(globals, globals.task))
     for flight in flights:
