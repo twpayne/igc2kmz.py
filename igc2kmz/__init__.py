@@ -16,7 +16,7 @@
 
 
 import datetime
-import math
+from math import pi, sqrt
 import operator
 import os
 import unicodedata
@@ -70,9 +70,9 @@ class Stock(object):
     def __init__(self):
         self.kmz = kmz.kmz()
         #
-        self.icon_scales = [math.sqrt(x) for x in [0.6, 0.5, 0.4, 0.3]]
+        self.icon_scales = [sqrt(x) for x in [0.6, 0.5, 0.4, 0.3]]
         self.icons = [kml.Icon.palette(4, i) for i in [25, 25, 24, 24]]
-        self.label_scales = [math.sqrt(x) for x in [0.6, 0.5, 0.4, 0.3]]
+        self.label_scales = [sqrt(x) for x in [0.6, 0.5, 0.4, 0.3]]
         #
         list_style = kml.ListStyle(listItemType='radioFolder')
         self.radio_folder_style = kml.Style(list_style)
@@ -361,6 +361,29 @@ class Flight(object):
         folder.add(placemark)
         return kmz.kmz(folder)
 
+    def make_tour_folder(self, globals):
+        style_url = globals.stock.check_hide_children_style.url()
+        folder = kmz.kmz(kml.Folder(name='Tour', styleUrl=style_url))
+        dt = self.track.coords[0].dt
+        delta = datetime.timedelta(seconds=5 * 60)
+        coords = []
+        while dt < self.track.coords[-1].dt:
+            coords.append(self.track.coord_at(dt))
+            dt += delta
+        for i in xrange(0, len(coords)):
+            j = (i + 1) % len(coords)
+            point = kml.Point(coordinates=[coords[i]],
+                              altitudeMode=self.altitude_mode)
+            heading = coords[i].initial_bearing_to_deg(coords[j])
+            camera = kml.Camera(altitude=coords[i].ele,
+                                heading=heading,
+                                latitude=coords[i].lat_deg,
+                                longitude=coords[i].lon_deg,
+                                tilt=75)
+            placemark = kml.Placemark(point, camera)
+            folder.add(placemark)
+        return folder
+
     def make_placemark(self, globals, coord, altitudeMode=None, name=None,
                        style_url=None):
         point = kml.Point(coordinates=[coord], altitudeMode=altitudeMode)
@@ -442,9 +465,9 @@ class Flight(object):
                 name = kml.name('%.1fkm' % (distance / 1000.0))
             if arrow:
                 bearing = coord1.initial_bearing_to(coord0)
-                coordinates = [coord1.coord_at(bearing - math.pi / 12.0, 400.0),
+                coordinates = [coord1.coord_at(bearing - pi / 12.0, 400.0),
                                coord1,
-                               coord1.coord_at(bearing + math.pi / 12.0, 400.0)]
+                               coord1.coord_at(bearing + pi / 12.0, 400.0)]
                 line_string = kml.LineString(coordinates=coordinates,
                                              altitudeMode='clampToGround',
                                              tessellate=1)
@@ -587,7 +610,7 @@ class Flight(object):
                          '%dm' % total_dz_negative))
             if title == 'thermal':
                 drift_speed = dp / dt
-                drift_direction = rad_to_compass(theta + math.pi)
+                drift_direction = rad_to_compass(theta + pi)
                 rows.append(('Drift', '%.1fkm/h %s'
                                       % (3.6 * drift_speed, drift_direction)))
             trs = ''.join('<tr><th align="right">%s</th><td>%s</td></tr>' % row
@@ -692,6 +715,7 @@ class Flight(object):
         folder.add(self.make_track_folder(globals))
         folder.add(self.make_shadow_folder(globals))
         folder.add(self.make_animation(globals))
+        folder.add(self.make_tour_folder(globals))
         folder.add(self.make_photos_folder(globals))
         folder.add(self.make_xc_folder(globals))
         folder.add(self.make_altitude_marks_folder(globals))
@@ -773,9 +797,9 @@ def make_task_folder(globals, task):
         coord1 = tp1.coord.coord_at(theta, tp1.radius)
         line_string1 = kml.LineString(coordinates=[coord0, coord1],
                                       tessellate=1)
-        coords = [coord1.coord_at(theta - math.pi / 12.0, 400.0),
+        coords = [coord1.coord_at(theta - pi / 12.0, 400.0),
                   coord1,
-                  coord1.coord_at(theta + math.pi / 12.0, 400.0)]
+                  coord1.coord_at(theta + pi / 12.0, 400.0)]
         line_string2 = kml.LineString(coordinates=coords, tessellate=1)
         multi_geometry = kml.MultiGeometry(line_string1, line_string2)
         folder.add(kml.Placemark(multi_geometry, styleUrl=style_url))
@@ -832,7 +856,7 @@ def flights2kmz(flights, roots=[], tz_offset=0, task=None):
     globals.graph_height = 300
     result = kmz.kmz()
     result.add_siblings(stock.kmz)
-    result.add_roots(*roots)
+    result.add_roots(kml.open(1), *roots)
     if globals.task:
         result.add_siblings(make_task_folder(globals, globals.task))
     for flight in flights:
