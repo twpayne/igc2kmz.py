@@ -365,7 +365,7 @@ class Flight(object):
         style_url = globals.stock.check_hide_children_style.url()
         folder = kmz.kmz(kml.Folder(name='Tour', styleUrl=style_url))
         dt = self.track.coords[0].dt
-        delta = datetime.timedelta(seconds=5 * 60)
+        delta = datetime.timedelta(seconds=15 * 60)
         coords = []
         while dt < self.track.coords[-1].dt:
             coords.append(self.track.coord_at(dt))
@@ -676,7 +676,7 @@ class Flight(object):
         name = (dt + globals.tz_offset).strftime('%H:%M')
         return kml.Placemark(point, name=name, styleUrl=style_url)
 
-    def make_time_marks_folder(self, globals, step=datetime.timedelta(0, 900)):
+    def make_time_marks_folder(self, globals, step=datetime.timedelta(0, 300)):
         style_url = globals.stock.check_hide_children_style.url()
         folder = kml.Folder(name='Time marks', styleUrl=style_url, visibility=0)
         coord = self.track.coords[0]
