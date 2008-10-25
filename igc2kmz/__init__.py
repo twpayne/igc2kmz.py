@@ -20,6 +20,7 @@ from math import pi, sqrt
 from itertools import cycle, izip
 import operator
 import os
+import re
 import unicodedata
 import urlparse
 
@@ -36,14 +37,14 @@ import util
 RIGHTWARDS_ARROW = unicodedata.lookup('RIGHTWARDS ARROW').encode('utf_8')
 INFINITY = unicodedata.lookup('INFINITY').encode('utf_8')
 MULTIPLICATION_SIGN = unicodedata.lookup('MULTIPLICATION SIGN').encode('utf_8')
+UP_TACK = unicodedata.lookup('UP TACK').encode('utf_8')
 
 IMAGES_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__),
                                            '..',
                                            'images'))
 
 
-def make_table(rows):
-    bgcolors = '#cccccc #ffffff'.split()
+def make_table(rows, bgcolors='#dddddd #ffffff'.split()):
     trs = ('<tr bgcolor="%s"><th align="right">%s</th><td>%s</td></tr>'
            % (bgcolor, row[0], row[1])
            for row, bgcolor in izip(rows, cycle(bgcolors)))
@@ -66,9 +67,10 @@ class Stock(object):
         style_url = self.check_hide_children_style.url()
         return kml.Folder(screen_overlay, name='None', styleUrl=style_url)
 
-    def make_analysis_style(self, color):
-        text = kml.text(kml.CDATA('<h3>$[name]</h3>$[description]'))
-        balloon_style = kml.BalloonStyle(text)
+    def make_analysis_style(self, color, bgcolors, rows):
+        text = '<h3>$[name]</h3>$[description]' + make_table(rows, bgcolors)
+        bg_color = 'ff' + ''.join(reversed(re.findall(r'..', bgcolors[1][1:])))
+        balloon_style = kml.BalloonStyle(text=kml.CDATA(text), bgColor=bg_color)
         icon_style = kml.IconStyle(self.icons[0],
                                    color=color,
                                    scale=self.icon_scales[0])
@@ -91,11 +93,57 @@ class Stock(object):
         self.check_hide_children_style = kml.Style(list_style)
         self.kmz.add_roots(self.check_hide_children_style)
         #
-        self.thermal_style = self.make_analysis_style('cc3333ff')
+        bgcolors = '#ffcccc #ffdddd'.split()
+        rows = [
+                ['Altitude gain', '$[altitude_change]m'],
+                ['Average climb', '$[average_climb]m/s'],
+                ['Maximum climb', '$[maximum_climb]m/s'],
+                ['Peak climb', '$[peak_climb]m/s'],
+                ['Efficiency', '$[efficiency]%'],
+                ['Start altitude', '$[start_altitude]m'],
+                ['Finish altitude', '$[finish_altitude]m'],
+                ['Start time', '$[start_time]'],
+                ['Finish time', '$[finish_time]'],
+                ['Duration', '$[duration]'],
+                ['Accumulated altitude gain', '$[accumulated_altitude_gain]m'],
+                ['Accumulated altitude loss', '$[accumulated_altitude_loss]m'],
+                ['Drift', '$[average_speed]km/h $[drift_direction]'],
+                ]
+        self.thermal_style = self.make_analysis_style('cc3333ff',
+                                                      bgcolors,
+                                                      rows)
         self.kmz.add_roots(self.thermal_style)
-        self.dive_style = self.make_analysis_style('ccff3333')
+        bgcolors = '#ccccff #ddddff'.split()
+        rows = [
+                ['Altitude change', '$[altitude_change]m'],
+                ['Average descent', '$[average_climb]m/s'],
+                ['Maximum descent', '$[maximum_descent]m/s'],
+                ['Peak descent', '$[peak_descent]m/s'],
+                ['Start altitude', '$[start_altitude]m'],
+                ['Finish altitude', '$[finish_altitude]m'],
+                ['Start time', '$[start_time]'],
+                ['Finish time', '$[finish_time]'],
+                ['Duration', '$[duration]'],
+                ['Accumulated altitude gain', '$[accumulated_altitude_gain]m'],
+                ['Accumulated altitude loss', '$[accumulated_altitude_loss]m'],
+                ]
+        self.dive_style = self.make_analysis_style('ccff3333', bgcolors, rows)
+        bgcolors = '#ccffcc #ddffdd'.split()
+        rows = [
+                ['Altitude change', '$[altitude_change]m'],
+                ['Distance', '$[distance]km'],
+                ['Average glide ratio', '$[average_ld]:1'],
+                ['Average speed', '$[average_speed]:1'],
+                ['Start altitude', '$[start_altitude]m'],
+                ['Finish altitude', '$[finish_altitude]m'],
+                ['Start time', '$[start_time]'],
+                ['Finish time', '$[finish_time]'],
+                ['Duration', '$[duration]'],
+                ['Accumulated altitude gain', '$[accumulated_altitude_gain]m'],
+                ['Accumulated altitude loss', '$[accumulated_altitude_loss]m'],
+                ]
         self.kmz.add_roots(self.dive_style)
-        self.glide_style = self.make_analysis_style('cc33ff33')
+        self.glide_style = self.make_analysis_style('cc33ff33', bgcolors, rows)
         self.kmz.add_roots(self.glide_style)
         #
         self.time_mark_styles = []
@@ -186,7 +234,7 @@ class Flight(object):
                     - self.track.bounds.time.min).seconds
         hour, seconds = divmod(duration, 3600)
         minute, second = divmod(seconds, 60)
-        rows.append(('Duration', '%d:%02d:%02d' % (hour, minute, second)))
+        rows.append(('Duration', '%dh %02dm %02ds' % (hour, minute, second)))
         if self.track.elevation_data:
             rows.append(('Take-off altitude', '%dm' % self.track.coords[0].ele))
             rows.append(('Maximum altitude', '%dm' % self.track.bounds.ele.max))
@@ -576,57 +624,44 @@ class Flight(object):
             dt = self.track.t[sl.stop] - self.track.t[sl.start]
             dp = coord0.distance_to(coord1)
             theta = coord0.initial_bearing_to(coord1)
-            rows = []
-            if title == 'thermal':
-                rows.append(('Altitude gain', '%dm' % dz))
-                rows.append(('Average climb', '%.1fm/s' % (dz / dt)))
-                rows.append(('Maximum climb', '%.1fm/s' % climb.max))
-                rows.append(('Peak climb', '%.1fm/s' % peak_climb.max))
-                efficiency = dz / (dt * climb.max)
-                rows.append(('Efficiency', '%d%%' % (100.0 * efficiency + 0.5)))
-            elif title == 'glide':
-                rows.append(('Altitude loss', '%dm' % dz))
-                rows.append(('Distance', '%.1fkm' % (dp / 1000.0)))
-                if dz < 0:
-                    average_ld = '%.1f:1' % (-dp / dz)
-                else:
-                    average_ld = '%s:1' % INFINITY
-                rows.append(('Average glide ratio', average_ld))
-                rows.append(('Average speed', '%.1fkm/h' % (3.6 * dp / dt)))
-            elif title == 'dive':
-                rows.append(('Altitude loss', '%dm' % dz))
-                rows.append(('Average descent', '%.1fm/s' % (dz / dt)))
-                rows.append(('Maximum descent', '%.1fm/s' % climb.min))
-                rows.append(('Peak descent', '%.1fm/s' % peak_climb.min))
-            rows.append(('Start altitude', '%dm' % coord0.ele))
-            rows.append(('Finish alitude', '%dm' % coord1.ele))
+            dict = {}
+            dict['altitude_change'] = int(round(dz))
+            dict['average_climb'] = round(dz / dt, 1)
+            dict['maximum_climb'] = round(climb.max, 1)
+            dict['peak_climb'] = round(peak_climb.max, 1)
+            divisor = dt * climb.max
+            if divisor == 0:
+                dict['efficiency'] = UP_TACK
+            else:
+                dict['efficiency'] = int(round(100.0 * dz / divisor))
+            dict['distance'] = round(dp / 1000.0, 1)
+            average_ld = round(-dp / dz, 1) if dz < 0 else INFINITY
+            dict['average_ld'] = average_ld
+            dict['average_speed'] = round(3.6 * dp / dt, 1)
+            dict['maximum_descent'] = round(climb.min, 1)
+            dict['peak_descent'] = round(peak_climb.min, 1)
+            dict['start_altitude'] = coord0.ele
+            dict['finish_altitude'] = coord1.ele
             start_time = coord0.dt + globals.tz_offset
-            rows.append(('Start time', start_time.strftime('%H:%M:%S')))
+            dict['start_time'] = start_time.strftime('%H:%M:%S')
             stop_time = coord1.dt + globals.tz_offset
-            rows.append(('Finish time', stop_time.strftime('%H:%M:%S')))
+            dict['finish_time'] = stop_time.strftime('%H:%M:%S')
             duration = self.track.t[sl.stop] - self.track.t[sl.start]
-            rows.append(('Duration', '%d:%02d' % divmod(duration, 60)))
-            rows.append(('Accumulated altitude gain',
-                         '%dm' % total_dz_positive))
-            rows.append(('Accumulated altitude loss',
-                         '%dm' % total_dz_negative))
-            if title == 'thermal':
-                drift_speed = dp / dt
-                drift_direction = rad_to_compass(theta + pi)
-                rows.append(('Drift', '%.1fkm/h %s'
-                                      % (3.6 * drift_speed, drift_direction)))
-            table = make_table(rows)
+            dict['duration'] = '%dm %02ds' % divmod(duration, 60)
+            dict['accumulated_altitude_gain'] = total_dz_positive
+            dict['accumulated_altitude_loss'] = total_dz_negative
+            dict['drift_direction'] = rad_to_compass(theta + pi)
+            extended_data = kml.ExtendedData.dict(dict)
             if title == 'thermal':
                 name = '%dm at %.1fm/s' % (dz, dz / dt)
             elif title == 'glide':
-                ld = '%.1f:1' % (-dp / dz) if dz < 0 else '%s:1' % INFINITY
-                name = '%.1fkm at %s, %dkm/h' % (dp / 1000.0, ld,
-                                                 3.6 * dp / dt + 0.5)
+                name = '%.1fkm at %s:1, %dkm/h' \
+                       % (dp / 1000.0, average_ld, round(3.6 * dp / dt))
             elif title == 'dive':
                 name = '%dm at %.1fm/s' % (-dz, dz / dt)
             placemark = kml.Placemark(point,
+                                      extended_data,
                                       name=name,
-                                      description=kml.CDATA(table),
                                       Snippet=None,
                                       styleUrl=style_url)
             folder.add(placemark)

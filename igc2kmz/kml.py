@@ -173,6 +173,7 @@ class altitude(_SimpleElement): pass
 class altitudeMode(_SimpleElement): pass
 class BalloonStyle(_CompoundElement): pass
 class begin(_SimpleElement): pass
+class bgColor(_SimpleElement): pass
 class Camera(_CompoundElement): pass
 
 
