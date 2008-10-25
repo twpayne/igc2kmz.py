@@ -560,9 +560,6 @@ class Flight(object):
             coord1 = self.track.coords[sl.stop]
             coord = coord0.halfway_to(coord1)
             point = kml.Point(coordinates=[coord], altitudeMode='absolute')
-            line_string = kml.LineString(coordinates=[coord0, coord1],
-                                         altitudeMode='absolute')
-            multi_geometry = kml.MultiGeometry(point, line_string)
             total_dz_positive = total_dz_negative = 0
             peak_climb = util.Bounds(0.0)
             for i in xrange(sl.start, sl.stop):
@@ -627,11 +624,15 @@ class Flight(object):
                                                  3.6 * dp / dt + 0.5)
             elif title == 'dive':
                 name = '%dm at %.1fm/s' % (-dz, dz / dt)
-            placemark = kml.Placemark(multi_geometry,
+            placemark = kml.Placemark(point,
                                       name=name,
                                       description=kml.CDATA(table),
                                       Snippet=None,
                                       styleUrl=style_url)
+            folder.add(placemark)
+            line_string = kml.LineString(coordinates=[coord0, coord1],
+                                         altitudeMode='absolute')
+            placemark = kml.Placemark(line_string, styleUrl=style_url)
             folder.add(placemark)
         return kmz.kmz(folder)
 
