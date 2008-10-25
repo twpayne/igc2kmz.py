@@ -715,7 +715,6 @@ class Flight(object):
         folder.add(self.make_track_folder(globals))
         folder.add(self.make_shadow_folder(globals))
         folder.add(self.make_animation(globals))
-        folder.add(self.make_tour_folder(globals))
         folder.add(self.make_photos_folder(globals))
         folder.add(self.make_xc_folder(globals))
         folder.add(self.make_altitude_marks_folder(globals))
