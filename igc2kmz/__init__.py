@@ -17,6 +17,7 @@
 
 import datetime
 from math import pi, sqrt
+from itertools import cycle, izip
 import operator
 import os
 import unicodedata
@@ -39,6 +40,14 @@ MULTIPLICATION_SIGN = unicodedata.lookup('MULTIPLICATION SIGN').encode('utf_8')
 IMAGES_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__),
                                            '..',
                                            'images'))
+
+
+def make_table(rows):
+    bgcolors = '#cccccc #ffffff'.split()
+    trs = ('<tr bgcolor="%s"><th align="right">%s</th><td>%s</td></tr>'
+           % (bgcolor, row[0], row[1])
+           for row, bgcolor in izip(rows, cycle(bgcolors)))
+    return '<table cellpadding="0" cellspacing="0">%s</table>' % ''.join(trs)
 
 
 class Stock(object):
@@ -196,9 +205,7 @@ class Flight(object):
             components = urlparse.urlparse(self.url)
             html = '<a href="%s">%s</a>' % (self.url, components.netloc)
             rows.append(('Flight URL', html))
-        trs = ('<tr><th align="right">%s</th><td>%s</td></tr>' % row
-               for row in rows)
-        table = '<table>%s</table>' % ''.join(trs)
+        table = make_table(rows)
         return kmz.kmz(kml.description(kml.CDATA(table)))
 
     def make_snippet(self, globals):
@@ -504,9 +511,7 @@ class Flight(object):
             rows.append(('Score', '<b>%.2f points</b>' % route.score))
             if route.circuit:
                 rows.append(make_row(route, -1, 0))
-            trs = ('<tr><th align="right">%s</th><td>%s</td></tr>'
-                   % row for row in rows)
-            table = '<table>%s</table>' % ''.join(trs)
+            table = make_table(rows)
             name = '%.1fkm %s (%.2f points)' \
                    % (route.distance, route.name, route.score)
             visibility = 1 if rank == 0 else 0
@@ -613,9 +618,7 @@ class Flight(object):
                 drift_direction = rad_to_compass(theta + pi)
                 rows.append(('Drift', '%.1fkm/h %s'
                                       % (3.6 * drift_speed, drift_direction)))
-            trs = ''.join('<tr><th align="right">%s</th><td>%s</td></tr>' % row
-                          for row in rows)
-            table = '<table>%s</table>' % trs
+            table = make_table(rows)
             if title == 'thermal':
                 name = '%dm at %.1fm/s' % (dz, dz / dt)
             elif title == 'glide':
@@ -756,8 +759,7 @@ def make_task_folder(globals, task):
         count += 1
         tp0 = tp1
     rows.append(('Total', '%.1fkm' % (total / 1000.0)))
-    trs = ('<tr><th>%s</th><td>%s</td></tr>' % row for row in rows)
-    table = '<table>%s</table>' % ''.join(trs)
+    table = make_table(rows)
     snippet = '%.1fkm via %d turnpoints' % (total / 1000.0, count)
     style_url = globals.stock.check_hide_children_style.url()
     folder = kml.Folder(name=name,
