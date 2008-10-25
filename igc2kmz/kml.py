@@ -203,9 +203,25 @@ class coordinates(_SimpleElement):
         return cls(coords)
 
 
+class Data(_CompoundElement):
+
+    def __init__(self, name, *args, **kwargs):
+        _CompoundElement.__init__(self, *args, **kwargs)
+        self.add_attrs(name=name)
+
+
 class description(_SimpleElement): pass
 class Document(_CompoundElement): pass
 class end(_SimpleElement): pass
+
+
+class ExtendedData(_CompoundElement):
+
+    @classmethod
+    def dict(cls, dict):
+        return cls(*[Data(key, value=value) for key, value in dict.items()])
+
+
 class extrude(_SimpleElement): pass
 class Folder(_CompoundElement): pass
 class heading(_SimpleElement): pass
@@ -296,6 +312,7 @@ class tessellate(_SimpleElement): pass
 class text(_SimpleElement): pass
 class tilt(_SimpleElement): pass
 class TimeSpan(_CompoundElement): pass
+class value(_SimpleElement): pass
 class visibility(_SimpleElement): pass
 class when(_SimpleElement): pass
 class width(_SimpleElement): pass
