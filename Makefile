@@ -216,9 +216,11 @@ examples/2008-09-05-CGP-XAGC-01-ebessos.kmz: examples/2008-09-05-CGP-XAGC-01-ebe
 examples/2008-09-05-CGP-XAGC-01-ebessos.gpx: examples/2008-09-05-CGP-XAGC-01-ebessos.igc
 	$(IGC2TASK) examples/2008-09-05-CGP-XAGC-01-ebessos.igc \
 		-o $@ \
+		--name "Hellenic Paragliding Championships 2008 task 1" \
 		--tz-offset 3 \
 		--start-time 14:30 \
-		--start-radius 1000
+		--start-radius 12000 \
+		--goal-radius 200
 
 examples/858umbh1.kmz: examples/858umbh1.igc examples/858umbh1.gpx examples/xcontest.kml
 	$(IGC2KMZ) -z 2 -o $@ -r examples/xcontest.kml \
