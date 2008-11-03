@@ -18,6 +18,7 @@
 from __future__ import with_statement
 
 from datetime import datetime
+import re
 try:
     from xml.etree.cElementTree import ElementTree, parse
 except ImportError:
@@ -25,7 +26,7 @@ except ImportError:
 
 from coord import Coord
 from etree import tag
-from gpx import GPX_DATETIME_FORMAT, GPX_NAMESPACE
+from gpx import GPX_DATETIME_FORMAT
 
 
 class Turnpoint(object):
@@ -47,13 +48,13 @@ class Turnpoint(object):
         return tb
 
     @classmethod
-    def from_element(cls, rtept):
-        name = rtept.findtext('{%s}name' % GPX_NAMESPACE).encode('utf_8')
+    def from_element(cls, rtept, namespace):
+        name = rtept.findtext('{%s}name' % namespace).encode('utf_8')
         lat = float(rtept.get('lat'))
         lon = float(rtept.get('lon'))
-        ele_tag = rtept.find('{%s}ele' % GPX_NAMESPACE)
+        ele_tag = rtept.find('{%s}ele' % namespace)
         ele = 0 if ele_tag is None else int(ele_tag.text)
-        time_text = rtept.findtext('{%s}time' % GPX_NAMESPACE)
+        time_text = rtept.findtext('{%s}time' % namespace)
         dt = datetime.strptime(time_text, GPX_DATETIME_FORMAT)
         coord = Coord.deg(lat, lon, ele, dt)
         return cls(name, coord)
@@ -91,21 +92,20 @@ class Route(object):
         return tb
 
     @classmethod
-    def from_element(cls, rte):
-        name = rte.findtext('{%s}name' % GPX_NAMESPACE).encode('utf_8')
-        extensions_tag = rte.find('{%s}extensions' % GPX_NAMESPACE)
-        league_text = extensions_tag.findtext('{%s}league' % GPX_NAMESPACE)
+    def from_element(cls, rte, namespace):
+        name = rte.findtext('{%s}name' % namespace).encode('utf_8')
+        extensions_tag = rte.find('{%s}extensions' % namespace)
+        league_text = extensions_tag.findtext('{%s}league' % namespace)
         league = league_text.encode('utf_8')
-        distance_text = extensions_tag.findtext('{%s}distance' % GPX_NAMESPACE)
+        distance_text = extensions_tag.findtext('{%s}distance' % namespace)
         distance = float(distance_text)
-        multiplier_text = extensions_tag.findtext('{%s}multiplier'
-                                                  % GPX_NAMESPACE)
+        multiplier_text = extensions_tag.findtext('{%s}multiplier' % namespace)
         multiplier = float(multiplier_text)
-        score = float(extensions_tag.findtext('{%s}score' % GPX_NAMESPACE))
-        circuit_tag = extensions_tag.find('{%s}circuit' % GPX_NAMESPACE)
+        score = float(extensions_tag.findtext('{%s}score' % namespace))
+        circuit_tag = extensions_tag.find('{%s}circuit' % namespace)
         circuit = not circuit_tag is None
-        rtepts = rte.findall('{%s}rtept' % GPX_NAMESPACE)
-        tps = map(Turnpoint.from_element, rtepts)
+        rtepts = rte.findall('{%s}rtept' % namespace)
+        tps = [Turnpoint.from_element(rtept, namespace) for rtept in rtepts]
         return cls(name, league, distance, multiplier, score, circuit, tps)
 
 
@@ -120,12 +120,13 @@ class XC(object):
         return tb
 
     @classmethod
-    def from_element(cls, element):
-        rtes = element.findall('/{%s}rte' % GPX_NAMESPACE)
-        routes = map(Route.from_element, rtes)
+    def from_element(cls, element, namespace):
+        rtes = element.findall('/{%s}rte' % namespace)
+        routes = [Route.from_element(rte, namespace) for rte in rtes]
         return cls(routes)
 
     @classmethod
     def from_file(cls, file):
         element = parse(file)
-        return cls.from_element(element)
+        namespace = re.match(r'\{(.*)\}', element.getroot().tag).group(1)
+        return cls.from_element(element, namespace)

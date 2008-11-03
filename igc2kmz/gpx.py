@@ -16,6 +16,7 @@
 
 
 from datetime import datetime
+import re
 try:
     from xml.etree.cElementTree import parse
 except ImportError:
@@ -25,7 +26,6 @@ from coord import Coord
 from track import Track
 
 
-GPX_NAMESPACE = 'http://www.topografix.com/GPX/1/1'
 GPX_DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 
 
@@ -38,7 +38,7 @@ class gpx_tag(object):
         attrs = {
             'creator': 'http://github.com/twpayne/igc2kmz/wikis',
             'version': '1.1',
-            'xmlns': GPX_NAMESPACE,
+            'xmlns': 'http://www.topografix.com/GPX/1/1',
             'xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance',
             'xsi:schemaLocation': 'http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd',
             }
@@ -56,13 +56,13 @@ class GPX(object):
             self.filename = file.name
         except AttributeError:
             self.filename = '(unknown)'
+        element = parse(file)
+        namespace = re.match('\{(.*)\}', element.getroot().tag).group(1)
+        ele_tag_name = '{%s}ele' % namespace
+        time_tag_name = '{%s}time' % namespace
         self.coords = []
-        ele_tag_name = '{%s}ele' % GPX_NAMESPACE
-        time_tag_name = '{%s}time' % GPX_NAMESPACE
-        for trkpt in parse(file).findall('/{%s}trk/{%s}trkseg/{%s}trkpt'
-                                         % (GPX_NAMESPACE,
-                                            GPX_NAMESPACE,
-                                            GPX_NAMESPACE)):
+        for trkpt in element.findall('/{%s}trk/{%s}trkseg/{%s}trkpt'
+                                     % (namespace, namespace, namespace)):
             lat = float(trkpt.get('lat'))
             lon = float(trkpt.get('lon'))
             ele_tag = trkpt.find(ele_tag_name)

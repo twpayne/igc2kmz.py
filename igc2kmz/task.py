@@ -18,6 +18,7 @@
 from __future__ import with_statement
 
 import datetime
+import re
 try:
     from xml.etree.cElementTree import ElementTree, TreeBuilder, parse
 except ImportError:
@@ -25,7 +26,7 @@ except ImportError:
 
 from coord import Coord
 from etree import tag
-from gpx import GPX_DATETIME_FORMAT, GPX_NAMESPACE
+from gpx import GPX_DATETIME_FORMAT
 
 
 class Turnpoint(object):
@@ -80,25 +81,25 @@ class Turnpoint(object):
         return tb
 
     @classmethod
-    def from_element(cls, element):
-        name = element.findtext('{%s}name' % GPX_NAMESPACE).encode('utf_8')
-        desc_tag = element.find('{%s}desc' % GPX_NAMESPACE)
+    def from_element(cls, element, namespace):
+        name = element.findtext('{%s}name' % namespace).encode('utf_8')
+        desc_tag = element.find('{%s}desc' % namespace)
         desc = None if desc_tag is None else desc_tag.text.encode('utf_8')
         lat = float(element.get('lat'))
         lon = float(element.get('lon'))
-        ele_tag = element.find('{%s}ele' % GPX_NAMESPACE)
+        ele_tag = element.find('{%s}ele' % namespace)
         ele = 0 if ele_tag is None else int(ele_tag.text)
-        time_tag = element.find('{%s}time' % GPX_NAMESPACE)
+        time_tag = element.find('{%s}time' % namespace)
         if time_tag is None:
             dt = None
         else:
             dt = datetime.datetime.strptime(time_tag.text, GPX_DATETIME_FORMAT)
         coord = Coord.deg(lat, lon, ele, dt)
         radius_tag = element.find('{%s}extensions/{%s}radius'
-                                  % (GPX_NAMESPACE, GPX_NAMESPACE))
+                                  % (namespace, namespace))
         radius = 400 if radius_tag is None else int(radius_tag.text)
         enter = element.find('{%s}extensions/{%s}exit'
-                             % (GPX_NAMESPACE, GPX_NAMESPACE)) is None
+                             % (namespace, namespace)) is None
         return cls(name, coord, radius, enter, desc)
 
 
@@ -121,14 +122,15 @@ class Task(object):
         return self.build_tree(TreeBuilder()).close()
 
     @classmethod
-    def from_element(cls, element):
-        name_tag = element.find('{%s}name' % GPX_NAMESPACE)
+    def from_element(cls, element, namespace):
+        name_tag = element.find('{%s}name' % namespace)
         name = None if name_tag is None else name_tag.text.encode('utf_8')
-        rtepts = element.findall('{%s}rtept' % GPX_NAMESPACE)
+        rtepts = element.findall('{%s}rtept' % namespace)
         tps = map(Turnpoint.from_element, rtepts)
         return cls(name, tps)
 
     @classmethod
     def from_file(cls, file):
         element = parse(file)
-        return cls.from_element(element.find('/{%s}rte' % GPX_NAMESPACE))
+        namespace = re.match('\{(.*)\}', element.getroot().tag).group(1)
+        return cls.from_element(element.find('/{%s}rte' % namespace), element)
