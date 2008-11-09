@@ -52,9 +52,7 @@ class _Element(object):
 
     def pretty_write(self, file, indent='\t', prefix=''):
         """Write self to file."""
-        file.write(prefix)
-        file.write(str(self))
-        file.write('\n')
+        file.write('%s%s\n' % (prefix, self))
 
 
 class _SimpleElement(_Element):
@@ -112,18 +110,12 @@ class _CompoundElement(_Element):
         """Write self to file."""
         attrs = ''.join(' %s="%s"' % pair for pair in self.attrs.items())
         if len(self.children) == 0:
-            file.write(prefix)
-            file.write('<%s%s/>' % (self.name(), attrs))
-            file.write('\n')
+            file.write('%s<%s%s/>\n' % (prefix, self.name(), attrs))
         else:
-            file.write(prefix)
-            file.write('<%s%s>' % (self.name(), attrs))
-            file.write('\n')
+            file.write('%s<%s%s>\n' % (prefix, self.name(), attrs))
             for child in self.children:
                 child.pretty_write(file, indent, indent + prefix)
-            file.write(prefix)
-            file.write('</%s>' % self.name())
-            file.write('\n')
+            file.write('%s</%s>\n' % (prefix, self.name()))
 
     def __str__(self):
         """Return the KML representation of self."""
