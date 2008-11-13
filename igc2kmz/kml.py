@@ -195,6 +195,22 @@ class coordinates(_SimpleElement):
             coords.append(coord)
         return cls(coords)
 
+    @classmethod
+    def arc(cls, center, radius, start, stop, error=0.1):
+        delta_theta = 2 * pi / int(ceil(pi / acos((radius - error) / (radius + error))))
+        while start < 0:
+            start += 2 * pi
+            stop += 2 * pi
+        while stop < start:
+            stop += 2 * pi
+        coords = []
+        theta = start
+        while theta < stop:
+            coords.append(center.coord_at(theta, radius + error))
+            theta += delta_theta
+        coords.append(center.coord_at(stop, radius + error))
+        return cls(coords)
+
 
 class Data(_CompoundElement):
 
