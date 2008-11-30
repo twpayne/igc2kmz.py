@@ -26,16 +26,16 @@ import exif
 
 class Photo(object):
 
-    def __init__(self, url):
-        components = urlparse.urlparse(url)
+    def __init__(self, url, path=None):
+        self.url = url
+        components = urlparse.urlparse(self.url)
         self.name = os.path.splitext(os.path.basename(components.path))[0]
-        if components.scheme:
-            self.url = url
+        if path:
+            file = open(path)
         else:
-            self.url = 'file://' + os.path.realpath(url)
-        file = urllib2.urlopen(self.url)
-        if file.info().typeheader != 'image/jpeg':
-            raise RuntimeError, '%s: not an image/jpeg' % self.url
+            file = urllib2.urlopen(self.url) 
+            if file.info().typeheader != 'image/jpeg':
+                raise RuntimeError, '%s: not an image/jpeg' % self.url
         self.jpeg = exif.JPEG(file)
         if 'DateTimeOriginal' in self.jpeg.exif:
             self.dt = exif.parse_datetime(self.jpeg.exif['DateTimeOriginal'])
