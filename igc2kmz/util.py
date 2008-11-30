@@ -1,4 +1,4 @@
-#   igc2kmz/util.py  igc2kmz utility functions
+#   igc2kmz utility functions
 #   Copyright (C) 2008  Tom Payne
 #
 #   This program is free software: you can redistribute it and/or modify

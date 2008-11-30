@@ -1,4 +1,4 @@
-#   igc2kmz/etree.py  igc2kmz ElementTree functions
+#   igc2kmz ElementTree functions
 #   Copyright (C) 2008  Tom Payne
 #
 #   This program is free software: you can redistribute it and/or modify

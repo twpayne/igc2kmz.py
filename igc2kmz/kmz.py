@@ -1,4 +1,4 @@
-#   igc2kmz/kmz.py  igc2kmz KMZ functions
+#   igc2kmz KMZ functions
 #   Copyright (C) 2008  Tom Payne
 #
 #   This program is free software: you can redistribute it and/or modify

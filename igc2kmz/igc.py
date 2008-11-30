@@ -1,4 +1,4 @@
-#   igc2kmz/igc.py  igc2kmz IGC functions
+#   igc2kmz IGC functions
 #   Copyright (C) 2008  Tom Payne
 #
 #   This program is free software: you can redistribute it and/or modify

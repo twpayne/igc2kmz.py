@@ -1,4 +1,4 @@
-#   igc2kmz/color.py  igc2kmz color functions
+#   igc2kmz color functions
 #   Copyright (C) 2008  Tom Payne
 #
 #   This program is free software: you can redistribute it and/or modify

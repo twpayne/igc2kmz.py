@@ -1,4 +1,4 @@
-#   igc2kmz/coord.py  igc2kmz coordinate functions
+#   igc2kmz coordinate functions
 #   Copyright (C) 2008  Tom Payne
 #
 #   This program is free software: you can redistribute it and/or modify

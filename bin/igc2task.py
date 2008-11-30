@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.5
 #
-#   bin/igc2task.py  IGC to task converter
+#   IGC to task converter
 #   Copyright (C) 2008  Tom Payne
 #
 #   This program is free software: you can redistribute it and/or modify

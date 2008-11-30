@@ -1,4 +1,4 @@
-#   igc2kmz/exif.py  igc2kmz EXIF functions
+#   igc2kmz EXIF functions
 #   Copyright (C) 2008  Tom Payne
 #
 #   This program is free software: you can redistribute it and/or modify

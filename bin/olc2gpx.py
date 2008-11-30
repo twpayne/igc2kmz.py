@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.5
 #
-#   bin/olc2gpx.py  olc2002 output to GPX converter
+#   olc2002 output to GPX converter
 #   Copyright (C) 2008  Tom Payne
 #
 #   This program is free software: you can redistribute it and/or modify

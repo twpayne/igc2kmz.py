@@ -1,4 +1,4 @@
-#   igc2kmz/__init__.py  igc2kmz main module
+#   igc2kmz main module
 #   Copyright (C) 2008  Tom Payne
 #
 #   This program is free software: you can redistribute it and/or modify
