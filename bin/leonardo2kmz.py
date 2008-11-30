@@ -69,11 +69,10 @@ def main(argv):
               'igc2kmz</a><br/>Copyright &copy; Tom Payne, 2008')
     html = '<center>%s</center' % ''.join('<p>%s</p>' % p for p in ps)
     description = kml.CDATA(html)
-    snippet = kml.Snippet()
     balloon_style = kml.BalloonStyle(text=kml.CDATA('$[description]'))
     style = kml.Style(balloon_style)
     screen_overlay = kml.ScreenOverlay(icon, overlay_xy, screen_xy, size,
-            snippet, style, name=options.name, description=description)
+            style, Snippet=None, name=options.name, description=description)
     #
     engine = create_engine(options.engine)
     metadata = MetaData(bind=engine)
