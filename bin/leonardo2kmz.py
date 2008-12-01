@@ -41,7 +41,7 @@ DEFAULT_DIRECTORY = '/home/twp/src/phpbb2-leonardo'
 DEFAULT_ENGINE = 'mysql://phpbb2:VDuURtNK02Nb@localhost/phpbb2'
 
 LEAGUE = (None, 'OLC', 'FAI')
-NAME = (None, 'free flight', 'free triangle', 'FAI triangle',
+ROUTE_NAME = (None, 'free flight', 'free triangle', 'FAI triangle',
         'free flight without turnpoints', 'maximum distance from take-off')
 CIRCUIT = (None, False, True, True, False, False)
 
@@ -129,12 +129,11 @@ def main(argv):
         select = flights_score_table.select(flights_score_table.c.flightID
                                             == flight_row.ID)
         for flight_score_row in select.execute().fetchall():
-            route_name = NAME[flight_score_row.type]
+            route_name = ROUTE_NAME[flight_score_row.type]
             league = LEAGUE[flight_score_row.method]
             distance = flight_score_row.distance
             score = flight_score_row.score
-            multiplier = round(flight_score_row.score
-                               / flight_score_row.distance, 2)
+            multiplier = round(score / distance, 2)
             circuit = CIRCUIT[flight_score_row.type]
             tps = []
             for i in xrange(1, 8):
