@@ -46,7 +46,7 @@ ROUTE_NAME = (None, 'free flight', 'free triangle', 'FAI triangle',
 CIRCUIT = (None, False, True, True, False, False)
 
 SHOW_FLIGHT_URL = 'modules.php?name=leonardo&op=show_flight&flightID=%(ID)d'
-PHOTO_URL = 'modules/leonardo/flights/%(pat)s/%(name)s'
+PHOTO_URL = 'modules/leonardo/flights/%(path)s/%(name)s'
 
 B_RECORD_RE = re.compile(r'B(\d{2})(\d{2})(\d{2})'
                          r'(\d{2})(\d{5})([NS])(\d{3})(\d{5})([EW])')
