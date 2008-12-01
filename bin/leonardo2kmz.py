@@ -16,8 +16,10 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import datetime
 import optparse
 import os.path
+import re
 import sys
 from urlparse import urljoin
 
@@ -29,6 +31,21 @@ from igc2kmz import flights2kmz, Flight
 from igc2kmz.igc import IGC
 import igc2kmz.kml as kml
 from igc2kmz.photo import Photo
+from igc2kmz.xc import Coord, Route, Turnpoint, XC
+
+
+DEFAULT_NAME = 'Leonardo'
+DEFAULT_URL = 'http://localhost/phpbb2-leonardo/'
+DEFAULT_ICON = 'modules/leonardo/templates/basic/tpl/leonardo_logo.gif'
+DEFAULT_DIRECTORY = '/home/twp/src/phpbb2-leonardo'
+DEFAULT_ENGINE = 'mysql://phpbb2:VDuURtNK02Nb@localhost/phpbb2'
+
+LEAGUE = (None, 'OLC', 'FAI')
+NAME = (None, 'free flight', 'free triangle', 'FAI triangle', 'free flight (no turnpoints)', 'maximum distance from take-off')
+CIRCUIT = (None, False, True, True, False, False)
+
+B_RECORD_RE = re.compile(r'B(\d{2})(\d{2})(\d{2})'
+                         r'(\d{2})(\d{5})([NS])(\d{3})(\d{5})([EW])')
 
 
 def main(argv):
@@ -45,23 +62,23 @@ def main(argv):
     parser.add_option('--debug', action='store_true',
                       help='enable pretty KML output')
     parser.set_defaults(output='igc2kmz.kmz')
-    parser.set_defaults(name='Leonardo')
-    parser.set_defaults(icon='http://www.paraglidingforum.com/modules/leonardo/templates/basic/tpl/leonardo_logo.gif')
-    parser.set_defaults(url='http://localhost/phpbb2-leonardo/')
-    parser.set_defaults(directory='/home/twp/src/phpbb2-leonardo')
-    parser.set_defaults(engine='mysql://phpbb2:VDuURtNK02Nb@localhost/phpbb2')
+    parser.set_defaults(name=DEFAULT_NAME)
+    parser.set_defaults(icon=DEFAULT_ICON)
+    parser.set_defaults(url=DEFAULT_URL)
+    parser.set_defaults(directory=DEFAULT_DIRECTORY)
+    parser.set_defaults(engine=DEFAULT_ENGINE)
     parser.set_defaults(debug=False)
     options, args = parser.parse_args(argv)
     #
-    leonardo_dir = os.path.join(options.directory, 'modules', 'leonardo')
-    flights_dir = os.path.join(leonardo_dir, 'flights')
+    flights_dir = os.path.join(options.directory, 'modules', 'leonardo', 'flights')
     leonardo_url = urljoin(options.url, 'modules.php?name=leonardo')
+    icon_url = urljoin(options.url, options.icon)
     #
-    icon = kml.Icon(href=options.icon)
+    icon = kml.Icon(href=icon_url)
     overlay_xy = kml.overlayXY(x=0.5, y=1, xunits='fraction', yunits='fraction')
     screen_xy = kml.screenXY(x=0.5, y=1, xunits='fraction', yunits='fraction')
     size = kml.size(x=0, y=0, xunits='fraction', yunits='fraction')
-    d = {'name': options.name, 'icon': options.icon, 'url': leonardo_url}
+    d = {'name': options.name, 'icon': icon_url, 'url': leonardo_url}
     ps = []
     ps.append('<a href="%(url)s"><img alt="%(name)s" src="%(icon)s" /></a>' % d)
     ps.append('<a href="%(url)s">%(name)s</a>' % d)
@@ -81,6 +98,7 @@ def main(argv):
     flights_score_table = Table('leonardo_flights_score', metadata,
                                 autoload=True)
     photos_table = Table('leonardo_photos', metadata, autoload=True)
+    #
     flights = []
     for flightID in args[1:]:
         flight_row = flights_table.select(flights_table.c.ID == int(flightID)).execute().fetchone()
@@ -91,10 +109,42 @@ def main(argv):
         flight = Flight(track)
         flight.glider_type = flight_row.glider
         flight.url = urljoin(options.url, 'modules.php?name=leonardo&op=show_flight&flightID=%d' % flight_row.ID)
+        #
         pilot_row = pilots_table.select(pilots_table.c.pilotID == flight_row.userID).execute().fetchone()
         if pilot_row is None:
             raise KeyError, flight_row.userID
         flight.pilot_name = '%(FirstName)s %(LastName)s' % pilot_row
+        #
+        routes = []
+        for flight_score_row in flights_score_table.select(flights_score_table.c.flightID == flight_row.ID).execute().fetchall():
+            route_name = NAME[flight_score_row.type]
+            league = LEAGUE[flight_score_row.method]
+            distance = flight_score_row.distance
+            score = flight_score_row.score
+            multiplier = round(flight_score_row.score / flight_score_row.distance, 2)
+            circuit = CIRCUIT[flight_score_row.type]
+            tps = []
+            for i in xrange(1, 8):
+                m = B_RECORD_RE.match(flight_score_row['turnpoint%d' % i])
+                if not m:
+                    continue
+                time = datetime.time(*map(int, m.group(1, 2, 3)))
+                dt = datetime.datetime.combine(flight_row.DATE, time)
+                lat = int(m.group(4)) + int(m.group(5)) / 60000.0
+                if m.group(6) == 'S':
+                    lat = -lat
+                lon = int(m.group(7)) + int(m.group(8)) / 60000.0
+                if m.group(9) == 'W':
+                    lon = -lon
+                coord = Coord.deg(lat, lon, 0, dt)
+                name = 'Start' if i == 1 else 'TP%d' % (i - 1)
+                tp = Turnpoint(name, coord)
+                tps.append(tp)
+            tps[-1].name = 'Finish'
+            route = Route(route_name, league, distance, multiplier, score, circuit, tps)
+            routes.append(route)
+        flight.xc = XC(routes)
+        #
         if flight_row.hasPhotos:
             for photo_row in photos_table.select(photos_table.c.flightID == flight_row.ID).execute().fetchall():
                 photo_url = urljoin(options.url, 'modules/leonardo/flights/%s/%s' % (photo_row.path, photo_row.name))
@@ -103,7 +153,9 @@ def main(argv):
                 if photo_row.description:
                     photo.description = photo_row.description
                 flight.photos.append(photo)
+        #
         flights.append(flight)
+    #
     kmz = flights2kmz(flights, roots=[screen_overlay])
     kmz.write(options.output, '2.2', debug=options.debug)
 
