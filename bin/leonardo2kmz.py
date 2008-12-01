@@ -96,8 +96,7 @@ def main(argv):
     screen_overlay = kml.ScreenOverlay(icon, overlay_xy, screen_xy, size,
             style, Snippet=None, name=options.name, description=description)
     #
-    engine = create_engine(options.engine)
-    metadata = MetaData(bind=engine)
+    metadata = MetaData(options.engine)
     pilots_table = Table('leonardo_pilots', metadata, autoload=True)
     flights_table = Table('leonardo_flights', metadata, autoload=True)
     flights_score_table = Table('leonardo_flights_score', metadata,
