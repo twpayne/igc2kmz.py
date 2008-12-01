@@ -1,5 +1,5 @@
 #!/usr/bin/env python2.5
-#   igc2kmz Leonardo integration
+#   igc2kmz IGC to Google Earth converter (Leonardo integration)
 #   Copyright (C) 2008  Tom Payne
 #
 #   This program is free software: you can redistribute it and/or modify
@@ -40,9 +40,14 @@ DEFAULT_ICON = 'modules/leonardo/templates/basic/tpl/leonardo_logo.gif'
 DEFAULT_DIRECTORY = '/home/twp/src/phpbb2-leonardo'
 DEFAULT_ENGINE = 'mysql://phpbb2:VDuURtNK02Nb@localhost/phpbb2'
 
-LEAGUE = (None, 'OLC', 'FAI')
-ROUTE_NAME = (None, 'free flight', 'free triangle', 'FAI triangle',
-        'free flight without turnpoints', 'maximum distance from take-off')
+LEAGUE = (None, 'Online Contest', 'World XC Online Contest')
+ROUTE_NAME = (
+        None,
+        'free flight',
+        'free triangle',
+        'FAI triangle',
+        'free flight without turnpoints',
+        'maximum distance from take-off')
 CIRCUIT = (None, False, True, True, False, False)
 
 SHOW_FLIGHT_URL = 'modules.php?name=leonardo&op=show_flight&flightID=%(ID)d'
