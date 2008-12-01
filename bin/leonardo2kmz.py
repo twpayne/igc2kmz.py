@@ -55,7 +55,7 @@ B_RECORD_RE = re.compile(r'B(\d{2})(\d{2})(\d{2})'
 def main(argv):
     parser = optparse.OptionParser(
             usage='Usage: %prog [options] flightID',
-            description='IGC to Google Earth converter')
+            description='IGC to Google Earth converter (Leonardo integration)')
     parser.add_option('-o', '--output', metavar='FILENAME',
                       help='set output filename')
     parser.add_option('-n', '--name', metavar='STRING')
