@@ -41,8 +41,12 @@ DEFAULT_DIRECTORY = '/home/twp/src/phpbb2-leonardo'
 DEFAULT_ENGINE = 'mysql://phpbb2:VDuURtNK02Nb@localhost/phpbb2'
 
 LEAGUE = (None, 'OLC', 'FAI')
-NAME = (None, 'free flight', 'free triangle', 'FAI triangle', 'free flight (no turnpoints)', 'maximum distance from take-off')
+NAME = (None, 'free flight', 'free triangle', 'FAI triangle',
+        'free flight without turnpoints', 'maximum distance from take-off')
 CIRCUIT = (None, False, True, True, False, False)
+
+SHOW_FLIGHT_URL = 'modules.php?name=leonardo&op=show_flight&flightID=%(ID)d'
+PHOTO_URL = 'modules/leonardo/flights/%(pat)s/%(name)s'
 
 B_RECORD_RE = re.compile(r'B(\d{2})(\d{2})(\d{2})'
                          r'(\d{2})(\d{5})([NS])(\d{3})(\d{5})([EW])')
@@ -70,7 +74,8 @@ def main(argv):
     parser.set_defaults(debug=False)
     options, args = parser.parse_args(argv)
     #
-    flights_dir = os.path.join(options.directory, 'modules', 'leonardo', 'flights')
+    flights_dir = os.path.join(options.directory,
+                               'modules', 'leonardo', 'flights')
     leonardo_url = urljoin(options.url, 'modules.php?name=leonardo')
     icon_url = urljoin(options.url, options.icon)
     #
@@ -101,27 +106,35 @@ def main(argv):
     #
     flights = []
     for flightID in args[1:]:
-        flight_row = flights_table.select(flights_table.c.ID == int(flightID)).execute().fetchone()
+        select = flights_table.select(flights_table.c.ID == int(flightID))
+        flight_row = select.execute().fetchone()
         if flight_row is None:
             raise KeyError, id
-        igc_path = os.path.join(*map(str, (flights_dir, flight_row.userID, 'flights', flight_row.DATE.year, flight_row.filename)))
+        igc_path_components = (flights_dir, flight_row.userID, 'flights',
+                               flight_row.DATE.year, flight_row.filename)
+        igc_path = os.path.join(*map(str, igc_path_components))
         track = IGC(open(igc_path)).track()
         flight = Flight(track)
         flight.glider_type = flight_row.glider
-        flight.url = urljoin(options.url, 'modules.php?name=leonardo&op=show_flight&flightID=%d' % flight_row.ID)
+        flight.url = urljoin(options.url, SHOW_FLIGHT_URL % flight_row)
         #
-        pilot_row = pilots_table.select(pilots_table.c.pilotID == flight_row.userID).execute().fetchone()
+        select = pilots_table.select(pilots_table.c.pilotID
+                                     == flight_row.userID)
+        pilot_row = select.execute().fetchone()
         if pilot_row is None:
             raise KeyError, flight_row.userID
         flight.pilot_name = '%(FirstName)s %(LastName)s' % pilot_row
         #
         routes = []
-        for flight_score_row in flights_score_table.select(flights_score_table.c.flightID == flight_row.ID).execute().fetchall():
+        select = flights_score_table.select(flights_score_table.c.flightID
+                                            == flight_row.ID)
+        for flight_score_row in select.execute().fetchall():
             route_name = NAME[flight_score_row.type]
             league = LEAGUE[flight_score_row.method]
             distance = flight_score_row.distance
             score = flight_score_row.score
-            multiplier = round(flight_score_row.score / flight_score_row.distance, 2)
+            multiplier = round(flight_score_row.score
+                               / flight_score_row.distance, 2)
             circuit = CIRCUIT[flight_score_row.type]
             tps = []
             for i in xrange(1, 8):
@@ -141,14 +154,18 @@ def main(argv):
                 tp = Turnpoint(name, coord)
                 tps.append(tp)
             tps[-1].name = 'Finish'
-            route = Route(route_name, league, distance, multiplier, score, circuit, tps)
+            route = Route(route_name, league, distance, multiplier, score,
+                          circuit, tps)
             routes.append(route)
         flight.xc = XC(routes)
         #
         if flight_row.hasPhotos:
-            for photo_row in photos_table.select(photos_table.c.flightID == flight_row.ID).execute().fetchall():
-                photo_url = urljoin(options.url, 'modules/leonardo/flights/%s/%s' % (photo_row.path, photo_row.name))
-                photo_path = os.path.join(flights_dir, photo_row.path, photo_row.name)
+            select = photos_table.select(photos_table.c.flightID
+                                         == flight_row.ID)
+            for photo_row in select.execute().fetchall():
+                photo_url = urljoin(options.url, PHOTO_URL % photo_row)
+                photo_path = os.path.join(flights_dir,
+                                          photo_row.path, photo_row.name)
                 photo = Photo(photo_url, path=photo_path)
                 if photo_row.description:
                     photo.description = photo_row.description
