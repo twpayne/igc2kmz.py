@@ -39,9 +39,7 @@ INFINITY = unicodedata.lookup('INFINITY').encode('utf_8')
 MULTIPLICATION_SIGN = unicodedata.lookup('MULTIPLICATION SIGN').encode('utf_8')
 UP_TACK = unicodedata.lookup('UP TACK').encode('utf_8')
 
-IMAGES_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__),
-                                           '..',
-                                           'images'))
+BASE_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
 
 
 def make_table(rows, bgcolors='#dddddd #ffffff'.split()):
@@ -188,15 +186,17 @@ class Stock(object):
                                    line_style)
         self.kmz.add_roots(self.xc_style2)
         #
-        self.pixel_url = os.path.join(IMAGES_DIR, 'pixel.png')
-        self.kmz.add_files({self.pixel_url: open(self.pixel_url).read()})
+        self.pixel_url = os.path.join('images', 'pixel.png')
+        pixel = open(os.path.join(BASE_DIR, self.pixel_url)).read()
+        self.kmz.add_files({self.pixel_url: pixel})
         #
         self.visible_none_folder = self.make_none_folder(1)
         self.invisible_none_folder = self.make_none_folder(0)
         #
-        animation_icon_url = os.path.join(IMAGES_DIR, 'paraglider.png')
+        animation_icon_url = os.path.join('images', 'paraglider.png')
         self.animation_icon = kml.Icon(href=animation_icon_url)
-        files = {animation_icon_url: open(animation_icon_url).read()}
+        animation_icon = open(os.path.join(BASE_DIR, animation_icon_url)).read()
+        files = {animation_icon_url: animation_icon}
         self.kmz.add_files(files)
 
 
