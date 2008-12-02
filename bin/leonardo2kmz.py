@@ -68,6 +68,8 @@ def main(argv):
     parser.add_option('-u', '--url', metavar='URL', help='set URL')
     parser.add_option('-d', '--directory', metavar='PATH', help='set directory')
     parser.add_option('-e', '--engine', metavar='URL', help='set engine')
+    parser.add_option('-z', '--tz-offset', metavar='HOURS', type='int',
+                      help='set timezone offset')
     parser.add_option('--debug', action='store_true',
                       help='enable pretty KML output')
     parser.set_defaults(output='igc2kmz.kmz')
@@ -76,6 +78,7 @@ def main(argv):
     parser.set_defaults(url=DEFAULT_URL)
     parser.set_defaults(directory=DEFAULT_DIRECTORY)
     parser.set_defaults(engine=DEFAULT_ENGINE)
+    parser.set_defaults(tz_offset=0)
     parser.set_defaults(debug=False)
     options, args = parser.parse_args(argv)
     #
@@ -176,7 +179,8 @@ def main(argv):
         #
         flights.append(flight)
     #
-    kmz = flights2kmz(flights, roots=[screen_overlay])
+    kmz = flights2kmz(flights, roots=[screen_overlay],
+                      tz_offset=options.tz_offset)
     kmz.write(options.output, '2.2', debug=options.debug)
 
 if __name__ == '__main__':
