@@ -35,10 +35,10 @@ from igc2kmz.xc import Coord, Route, Turnpoint, XC
 
 
 DEFAULT_NAME = 'Leonardo'
-DEFAULT_URL = 'http://localhost/phpbb2-leonardo/'
+DEFAULT_URL = 'http://www.paraglidingforum.com/'
 DEFAULT_ICON = 'modules/leonardo/templates/basic/tpl/leonardo_logo.gif'
-DEFAULT_DIRECTORY = '/home/twp/src/phpbb2-leonardo'
-DEFAULT_ENGINE = 'mysql://phpbb2:VDuURtNK02Nb@localhost/phpbb2'
+DEFAULT_DIRECTORY = '/var/www/html'
+DEFAULT_ENGINE = 'mysql://username:password@hostname/database'
 
 LEAGUE = (None, 'Online Contest', 'World XC Online Contest')
 ROUTE_NAME = (
