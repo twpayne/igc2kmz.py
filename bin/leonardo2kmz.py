@@ -97,7 +97,7 @@ def main(argv):
     ps.append('<a href="%(url)s">%(name)s</a>' % d)
     ps.append('Created by <a href="http://github.com/twpayne/igc2kmz/wikis">'
               'igc2kmz</a><br/>Copyright &copy; Tom Payne, 2008')
-    html = '<center>%s</center' % ''.join('<p>%s</p>' % p for p in ps)
+    html = '<center>%s</center>' % ''.join('<p>%s</p>' % p for p in ps)
     description = kml.CDATA(html)
     balloon_style = kml.BalloonStyle(text=kml.CDATA('$[description]'))
     style = kml.Style(balloon_style)
