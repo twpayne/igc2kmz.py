@@ -21,7 +21,6 @@ import optparse
 import os.path
 import re
 import sys
-from urlparse import urljoin
 
 from sqlalchemy import create_engine, MetaData, Table
 
@@ -35,10 +34,10 @@ from igc2kmz.xc import Coord, Route, Turnpoint, XC
 
 
 DEFAULT_NAME = 'Leonardo'
-DEFAULT_URL = 'http://www.paraglidingforum.com/'
-DEFAULT_ICON = 'modules/leonardo/templates/basic/tpl/leonardo_logo.gif'
+DEFAULT_URL = 'http://www.paraglidingforum.com'
+DEFAULT_ICON = '/modules/leonardo/templates/basic/tpl/leonardo_logo.gif'
 DEFAULT_DIRECTORY = '/var/www/html'
-DEFAULT_ENGINE = 'mysql://username:password@hostname/database'
+DEFAULT_TABLE_PREFIX = 'leonardo'
 
 LEAGUE = (None, 'Online Contest', 'World XC Online Contest')
 ROUTE_NAME = (
@@ -50,8 +49,8 @@ ROUTE_NAME = (
         'maximum distance from take-off')
 CIRCUIT = (None, False, True, True, False, False)
 
-SHOW_FLIGHT_URL = 'modules.php?name=leonardo&op=show_flight&flightID=%(ID)d'
-PHOTO_URL = 'modules/leonardo/flights/%(path)s/%(name)s'
+SHOW_FLIGHT_URL = '/modules.php?name=leonardo&op=show_flight&flightID=%(ID)d'
+PHOTO_URL = '/modules/leonardo/flights/%(path)s/%(name)s'
 
 B_RECORD_RE = re.compile(r'B(\d{2})(\d{2})(\d{2})'
                          r'(\d{2})(\d{5})([NS])(\d{3})(\d{5})([EW])')
@@ -81,17 +80,16 @@ def main(argv):
     parser.set_defaults(icon=DEFAULT_ICON)
     parser.set_defaults(url=DEFAULT_URL)
     parser.set_defaults(directory=DEFAULT_DIRECTORY)
-    parser.set_defaults(engine=DEFAULT_ENGINE)
     parser.set_defaults(tz_offset=0)
-    parser.set_defaults(table_prefix='leonardo')
+    parser.set_defaults(table_prefix=DEFAULT_TABLE_PREFIX)
     parser.set_defaults(igc_suffix='.saned.full.igc')
     parser.set_defaults(debug=False)
     options, args = parser.parse_args(argv)
     #
     flights_dir = os.path.join(options.directory,
                                'modules', 'leonardo', 'flights')
-    leonardo_url = urljoin(options.url, 'modules.php?name=leonardo')
-    icon_url = urljoin(options.url, options.icon)
+    leonardo_url = options.url + '/modules.php?name=leonardo'
+    icon_url = options.url + options.icon
     #
     icon = kml.Icon(href=icon_url)
     overlay_xy = kml.overlayXY(x=0.5, y=1, xunits='fraction', yunits='fraction')
@@ -137,7 +135,7 @@ def main(argv):
         track = IGC(open(igc_path), date=flight_row.DATE).track()
         flight = Flight(track)
         flight.glider_type = flight_row.glider
-        flight.url = urljoin(options.url, SHOW_FLIGHT_URL % flight_row)
+        flight.url = options.url + SHOW_FLIGHT_URL % flight_row
         #
         select = pilots_table.select((pilots_table.c.pilotID
                                      == flight_row.userID) &
@@ -185,7 +183,7 @@ def main(argv):
             select = photos_table.select(photos_table.c.flightID
                                          == flight_row.ID)
             for photo_row in select.execute().fetchall():
-                photo_url = urljoin(options.url, PHOTO_URL % photo_row)
+                photo_url = options.url + PHOTO_URL % photo_row
                 photo_path = os.path.join(flights_dir,
                                           photo_row.path, photo_row.name)
                 photo = Photo(photo_url, path=photo_path)
