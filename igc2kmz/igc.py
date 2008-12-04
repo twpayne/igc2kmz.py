@@ -65,113 +65,133 @@ class Record(object):
 
 class ARecord(Record):
 
-    def __init__(self, line, igc):
+    @classmethod
+    def parse(cls, line, igc):
+        result = cls()
         m = A_RECORD_RE.match(line)
         if not m:
             raise SyntaxError, line
-        self.value = m.group(1)
-        igc.a = self.value
+        result.value = m.group(1)
+        igc.a = result.value
+        return result
 
 
 class BRecord(Record):
 
     __slots__ = ('dt', 'lat', 'lon', 'validity', 'alt', 'ele')
 
-    def __init__(self, line, igc):
+    @classmethod
+    def parse(cls, line, igc):
+        result = cls()
         m = B_RECORD_RE.match(line)
         if not m:
             raise SyntaxError, line
         for key, value in igc.i.items():
-            setattr(self, key, int(line[value]))
+            setattr(result, key, int(line[value]))
         time = datetime.time(*map(int, m.group(1, 2, 3)))
-        self.dt = datetime.datetime.combine(igc.hfdterecord.date, time)
-        self.lat = int(m.group(4)) + int(m.group(5)) / 60000.0
+        result.dt = datetime.datetime.combine(igc.hfdterecord.date, time)
+        result.lat = int(m.group(4)) + int(m.group(5)) / 60000.0
         if 'lad' in igc.i:
-            self.lat += int(line[igc.i['lad']]) / 6000000.0
+            result.lat += int(line[igc.i['lad']]) / 6000000.0
         if m.group(6) == 'S':
-            self.lat *= -1
-        self.lon = int(m.group(7)) + int(m.group(8)) / 60000.0
+            result.lat *= -1
+        result.lon = int(m.group(7)) + int(m.group(8)) / 60000.0
         if 'lod' in igc.i:
-            self.lon += int(line[igc.i['lod']]) / 6000000.0
+            result.lon += int(line[igc.i['lod']]) / 6000000.0
         if m.group(9) == 'W':
-            self.lon *= -1
-        self.validity = m.group(10)
-        self.alt = int(m.group(11))
-        self.ele = int(m.group(12))
-        igc.b.append(self)
+            result.lon *= -1
+        result.validity = m.group(10)
+        result.alt = int(m.group(11))
+        result.ele = int(m.group(12))
+        igc.b.append(result)
+        return result
 
 
 class CRecord(Record):
 
-    def __init__(self, line, igc):
+    @classmethod
+    def parse(cls, line, igc):
+        result = cls()
         m = C_RECORD_RE.match(line)
         if not m:
             raise SyntaxError, line
-        self.lat = int(m.group(1)) + int(m.group(2)) / 60000.0
+        result.lat = int(m.group(1)) + int(m.group(2)) / 60000.0
         if m.group(3) == 'S':
-            self.lat *= -1
-        self.lon = int(m.group(4)) + int(m.group(5)) / 60000.0
+            result.lat *= -1
+        result.lon = int(m.group(4)) + int(m.group(5)) / 60000.0
         if m.group(6) == 'W':
-            self.lon *= -1
-        self.name = m.group(7)
-        igc.c.append(self)
+            result.lon *= -1
+        result.name = m.group(7)
+        igc.c.append(result)
+        return result
 
 
 class GRecord(Record):
 
-    def __init__(self, line, igc):
+    @classmethod
+    def parse(cls, line, igc):
+        result = cls()
         m = G_RECORD_RE.match(line)
         if not m:
             raise SyntaxError, line
-        self.value = m.group(1)
-        igc.g.append(self.value)
+        result.value = m.group(1)
+        igc.g.append(result.value)
+        return result
 
 
 class HRecord(Record):
 
-    def __init__(self, line, igc):
+    @classmethod
+    def parse(cls, line, igc):
+        result = cls()
         m = HFDTE_RECORD_RE.match(line)
         if m:
-            self.source, self.type = m.group(1, 2)
+            result.source, result.type = m.group(1, 2)
             day, month, year = map(int, m.group(3, 4, 5))
             try:
-                self.date = datetime.date(2000 + year, month, day)
+                result.date = datetime.date(2000 + year, month, day)
             except ValueError:
                 raise SyntaxError, line
-            igc.hfdterecord = self
-            return
+            igc.hfdterecord = result
+            return result
         m = HFFXA_RECORD_RE.match(line)
         if m:
-            self.source, self.type = m.group(1, 2)
-            self.value = int(m.group(3))
-            igc.h['fxa'] = self.value
-            return
+            result.source, result.type = m.group(1, 2)
+            result.value = int(m.group(3))
+            igc.h['fxa'] = result.value
+            return result
         m = H_RECORD_RE.match(line)
         if m:
-            self.source, self.key, self.value = m.groups()
-            igc.h[self.key.lower()] = self.value
-            return
+            result.source, result.key, result.value = m.groups()
+            igc.h[result.key.lower()] = result.value
+            return result
         raise SyntaxError, line
 
 
 class IRecord(Record):
 
-    def __init__(self, line, igc):
+    @classmethod
+    def parse(cls, line, igc):
+        result = cls()
         for i in xrange(0, int(line[1:3])):
             m = I_RECORD_RE.match(line, 3 + 7 * i, 10 + 7 * i)
             if not m:
                 raise SyntaxError, line
             igc.i[m.group(3).lower()] = slice(int(m.group(1)),
                                               int(m.group(2)) + 1)
+        return result
 
 
 class LRecord(Record):
 
-    def __init__(self, line, igc):
+    @classmethod
+    def parse(cls, line, igc):
+        result = cls()
         m = L_RECORD_RE.match(line)
         if not m:
             raise SyntaxError, line
         igc.l.append(m.group(1))
+        return result
 
 
 class IGC(object):
@@ -191,8 +211,10 @@ class IGC(object):
         for line in file:
             try:
                 line = line.rstrip()
-                if line[0] in class_by_letter:
-                    self.records.append(class_by_letter[line[0]](line, self))
+                letter = line[0]
+                if letter in class_by_letter:
+                    klass = class_by_letter[letter]
+                    self.records.append(klass.parse(line, self))
                 else:
                     logging.warning('%s: unknown record %s' \
                                     % (self.filename, repr(line)))
