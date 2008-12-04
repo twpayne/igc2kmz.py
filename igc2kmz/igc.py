@@ -196,7 +196,7 @@ class LRecord(Record):
 
 class IGC(object):
 
-    def __init__(self, file):
+    def __init__(self, file, date=None):
         try:
             self.filename = file.name
         except AttributeError:
@@ -208,6 +208,8 @@ class IGC(object):
         self.i = {}
         self.l = []
         self.records = []
+        if date:
+            HRecord.parse(date.strftime('HFDTE%d%m%y'), self)
         for line in file:
             try:
                 line = line.rstrip()
