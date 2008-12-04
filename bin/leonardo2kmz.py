@@ -134,7 +134,7 @@ def main(argv):
                                flight_row.DATE.year,
                                flight_row.filename + options.igc_suffix)
         igc_path = os.path.join(*map(str, igc_path_components))
-        track = IGC(open(igc_path)).track()
+        track = IGC(open(igc_path), date=flight_row.DATE).track()
         flight = Flight(track)
         flight.glider_type = flight_row.glider
         flight.url = urljoin(options.url, SHOW_FLIGHT_URL % flight_row)
