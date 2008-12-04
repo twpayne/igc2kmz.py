@@ -83,7 +83,7 @@ def main(argv):
     parser.set_defaults(directory=DEFAULT_DIRECTORY)
     parser.set_defaults(engine=DEFAULT_ENGINE)
     parser.set_defaults(tz_offset=0)
-    parser.set_defaults(table_prefix='leonardo_')
+    parser.set_defaults(table_prefix='leonardo')
     parser.set_defaults(igc_suffix='.saned.full.igc')
     parser.set_defaults(debug=False)
     options, args = parser.parse_args(argv)
@@ -111,13 +111,13 @@ def main(argv):
             style, Snippet=None, name=options.name, description=description)
     #
     metadata = MetaData(options.engine)
-    pilots_table = Table(options.table_prefix + 'pilots', metadata,
+    pilots_table = Table(options.table_prefix + '_pilots', metadata,
                          autoload=True)
-    flights_table = Table(options.table_prefix + 'flights', metadata,
+    flights_table = Table(options.table_prefix + '_flights', metadata,
                           autoload=True)
-    flights_score_table = Table(options.table_prefix + 'flights_score',
+    flights_score_table = Table(options.table_prefix + '_flights_score',
                                 metadata, autoload=True)
-    photos_table = Table(options.table_prefix + 'photos', metadata,
+    photos_table = Table(options.table_prefix + '_photos', metadata,
                          autoload=True)
     #
     flights = []
