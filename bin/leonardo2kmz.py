@@ -70,6 +70,10 @@ def main(argv):
     parser.add_option('-e', '--engine', metavar='URL', help='set engine')
     parser.add_option('-z', '--tz-offset', metavar='HOURS', type='int',
                       help='set timezone offset')
+    parser.add_option('-t', '--table-prefix', metavar='STRING',
+                      help='set table prefix')
+    parser.add_option('-x', '--igc-suffix', metavar='STRING',
+                      help='set IGC file suffix')
     parser.add_option('--debug', action='store_true',
                       help='enable pretty KML output')
     parser.set_defaults(output='igc2kmz.kmz')
@@ -79,6 +83,8 @@ def main(argv):
     parser.set_defaults(directory=DEFAULT_DIRECTORY)
     parser.set_defaults(engine=DEFAULT_ENGINE)
     parser.set_defaults(tz_offset=0)
+    parser.set_defaults(table_prefix='leonardo_')
+    parser.set_defaults(igc_suffix='.saned.full.igc')
     parser.set_defaults(debug=False)
     options, args = parser.parse_args(argv)
     #
@@ -97,7 +103,7 @@ def main(argv):
     ps.append('<a href="%(url)s">%(name)s</a>' % d)
     ps.append('Created by <a href="http://github.com/twpayne/igc2kmz/wikis">'
               'igc2kmz</a><br/>Copyright &copy; Tom Payne, 2008')
-    html = '<center>%s</center' % ''.join('<p>%s</p>' % p for p in ps)
+    html = '<center>%s</center>' % ''.join('<p>%s</p>' % p for p in ps)
     description = kml.CDATA(html)
     balloon_style = kml.BalloonStyle(text=kml.CDATA('$[description]'))
     style = kml.Style(balloon_style)
@@ -105,11 +111,14 @@ def main(argv):
             style, Snippet=None, name=options.name, description=description)
     #
     metadata = MetaData(options.engine)
-    pilots_table = Table('leonardo_pilots', metadata, autoload=True)
-    flights_table = Table('leonardo_flights', metadata, autoload=True)
-    flights_score_table = Table('leonardo_flights_score', metadata,
-                                autoload=True)
-    photos_table = Table('leonardo_photos', metadata, autoload=True)
+    pilots_table = Table(options.table_prefix + 'pilots', metadata,
+                         autoload=True)
+    flights_table = Table(options.table_prefix + 'flights', metadata,
+                          autoload=True)
+    flights_score_table = Table(options.table_prefix + 'flights_score',
+                                metadata, autoload=True)
+    photos_table = Table(options.table_prefix + 'photos', metadata,
+                         autoload=True)
     #
     flights = []
     for flightID in args[1:]:
@@ -117,19 +126,26 @@ def main(argv):
         flight_row = select.execute().fetchone()
         if flight_row is None:
             raise KeyError, id
-        igc_path_components = (flights_dir, flight_row.userID, 'flights',
-                               flight_row.DATE.year, flight_row.filename)
+        if flight_row.userServerID:
+            path = '%(userServerID)_%(userID)' % flight_row
+        else:
+            path = flight_row.userID
+        igc_path_components = (flights_dir, path, 'flights',
+                               flight_row.DATE.year,
+                               flight_row.filename + options.igc_suffix)
         igc_path = os.path.join(*map(str, igc_path_components))
         track = IGC(open(igc_path)).track()
         flight = Flight(track)
         flight.glider_type = flight_row.glider
         flight.url = urljoin(options.url, SHOW_FLIGHT_URL % flight_row)
         #
-        select = pilots_table.select(pilots_table.c.pilotID
-                                     == flight_row.userID)
+        select = pilots_table.select((pilots_table.c.pilotID
+                                     == flight_row.userID) &
+                                     (pilots_table.c.serverID
+                                     == flight_row.userServerID))
         pilot_row = select.execute().fetchone()
         if pilot_row is None:
-            raise KeyError, flight_row.userID
+            raise KeyError, '(%(userID)s, %(userServerID)s)' % flight_row
         flight.pilot_name = '%(FirstName)s %(LastName)s' % pilot_row
         #
         routes = []
