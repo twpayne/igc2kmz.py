@@ -19,6 +19,7 @@
 import datetime
 import optparse
 import os.path
+from math import sqrt
 import re
 import sys
 
@@ -26,7 +27,7 @@ from sqlalchemy import create_engine, MetaData, Table
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from igc2kmz import flights2kmz, Flight
+from igc2kmz import Flight, flights2kmz, make_table
 from igc2kmz.igc import IGC
 import igc2kmz.kml as kml
 from igc2kmz.photo import Photo
@@ -55,6 +56,35 @@ PHOTO_URL = '/modules/leonardo/flights/%(path)s/%(name)s'
 B_RECORD_RE = re.compile(r'B(\d{2})(\d{2})(\d{2})'
                          r'(\d{2})(\d{5})([NS])(\d{3})(\d{5})([EW])')
 
+
+def make_takeoff_placemark(takeoff_row):
+    coord = Coord.deg(takeoff_row.lat, -takeoff_row.lon, 0)
+    point = kml.Point(coordinates=[coord])
+    icon_style = kml.IconStyle(kml.Icon.palette(3, 40), scale=sqrt(0.6))
+    label_style = kml.LabelStyle(scale=sqrt(0.6))
+    style = kml.Style(icon_style, label_style)
+    rows = []
+    if takeoff_row.name:
+        rows.append(('Name', takeoff_row.name))
+    if takeoff_row.intName:
+        if takeoff_row.intName != takeoff_row.name:
+            rows.append(('Name in English', takeoff_row.intName))
+    if takeoff_row.location:
+        rows.append(('Location', takeoff_row.location))
+    if takeoff_row.intLocation:
+        if takeoff_row.intLocation != takeoff_row.location:
+            rows.append(('Location in English', takeoff_row.intLocation))
+    if takeoff_row.countryCode:
+        rows.append(('Country', takeoff_row.countryCode))
+    if takeoff_row.description:
+        rows.append(('Description', takeoff_row.description))
+    if takeoff_row.link:
+        rows.append(('URL', '<a href="%(link)s">%(link)s</a>' % takeoff_row))
+    if takeoff_row.modifyDate:
+        rows.append(('Last modified', takeoff_row.modifyDate))
+    description = kml.CDATA(make_table(rows))
+    return kml.Placemark(point, style, Snippet=None, name=takeoff_row.name,
+                         description=description)
 
 def main(argv):
     parser = optparse.OptionParser(
@@ -91,6 +121,8 @@ def main(argv):
     leonardo_url = options.url + '/modules.php?name=leonardo'
     icon_url = options.url + options.icon
     #
+    roots = []
+    #
     icon = kml.Icon(href=icon_url)
     overlay_xy = kml.overlayXY(x=0.5, y=1, xunits='fraction', yunits='fraction')
     screen_xy = kml.screenXY(x=0.5, y=1, xunits='fraction', yunits='fraction')
@@ -107,6 +139,7 @@ def main(argv):
     style = kml.Style(balloon_style)
     screen_overlay = kml.ScreenOverlay(icon, overlay_xy, screen_xy, size,
             style, Snippet=None, name=options.name, description=description)
+    roots.append(screen_overlay)
     #
     metadata = MetaData(options.engine)
     pilots_table = Table(options.table_prefix + '_pilots', metadata,
@@ -117,6 +150,8 @@ def main(argv):
                                 metadata, autoload=True)
     photos_table = Table(options.table_prefix + '_photos', metadata,
                          autoload=True)
+    waypoints_table = Table(options.table_prefix + '_waypoints', metadata,
+                            autoload=True)
     #
     flights = []
     for flightID in args[1:]:
@@ -192,9 +227,14 @@ def main(argv):
                 flight.photos.append(photo)
         #
         flights.append(flight)
+        #
+        select = waypoints_table.select(waypoints_table.c.ID
+                                        == flight_row.takeoffID)
+        takeoff_row = select.execute().fetchone()
+        if takeoff_row:
+            roots.append(make_takeoff_placemark(takeoff_row))
     #
-    kmz = flights2kmz(flights, roots=[screen_overlay],
-                      tz_offset=options.tz_offset)
+    kmz = flights2kmz(flights, roots=roots, tz_offset=options.tz_offset)
     kmz.write(options.output, '2.2', debug=options.debug)
 
 if __name__ == '__main__':
