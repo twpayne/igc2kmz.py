@@ -34,10 +34,16 @@ from scale import Scale, TimeScale, ZeroCenteredScale
 import util
 
 
-RIGHTWARDS_ARROW = unicodedata.lookup('RIGHTWARDS ARROW').encode('utf_8')
-INFINITY = unicodedata.lookup('INFINITY').encode('utf_8')
-MULTIPLICATION_SIGN = unicodedata.lookup('MULTIPLICATION SIGN').encode('utf_8')
-UP_TACK = unicodedata.lookup('UP TACK').encode('utf_8')
+if 0:
+    RIGHTWARDS_ARROW = unicodedata.lookup('RIGHTWARDS ARROW').encode('utf_8')
+    INFINITY = unicodedata.lookup('INFINITY').encode('utf_8')
+    MULTIPLICATION_SIGN = unicodedata.lookup('MULTIPLICATION SIGN').encode('utf_8')
+    UP_TACK = unicodedata.lookup('UP TACK').encode('utf_8')
+else:
+    RIGHTWARDS_ARROW = '->'
+    INFINITY = 'inf'
+    MULTIPLICATION_SIGN = 'x'
+    UP_TACK = 'n/a'
 
 BASE_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__), '..'))
 
