@@ -57,6 +57,28 @@ B_RECORD_RE = re.compile(r'B(\d{2})(\d{2})(\d{2})'
                          r'(\d{2})(\d{5})([NS])(\d{3})(\d{5})([EW])')
 
 
+def make_banner(options):
+    leonardo_url = options.url + '/modules.php?name=leonardo'
+    icon_url = options.url + options.icon
+    icon = kml.Icon(href=icon_url)
+    overlay_xy = kml.overlayXY(x=0.5, y=1, xunits='fraction', yunits='fraction')
+    screen_xy = kml.screenXY(x=0.5, y=1, xunits='fraction', yunits='fraction')
+    size = kml.size(x=0, y=0, xunits='fraction', yunits='fraction')
+    d = {'name': options.name, 'icon': icon_url, 'url': leonardo_url}
+    ps = []
+    ps.append('<a href="%(url)s"><img alt="%(name)s" src="%(icon)s" /></a>' % d)
+    ps.append('<a href="%(url)s">%(name)s</a>' % d)
+    ps.append('Created by <a href="http://github.com/twpayne/igc2kmz/wikis">'
+              'igc2kmz</a><br/>Copyright &copy; Tom Payne, 2008')
+    html = '<center>%s</center>' % ''.join('<p>%s</p>' % p for p in ps)
+    description = kml.CDATA(html)
+    balloon_style = kml.BalloonStyle(text=kml.CDATA('$[description]'))
+    style = kml.Style(balloon_style)
+    return kml.ScreenOverlay(icon, overlay_xy, screen_xy, size, style,
+                             Snippet=None, name=options.name,
+                             description=description)
+
+
 def make_takeoff_placemark(takeoff_row):
     coord = Coord.deg(takeoff_row.lat, -takeoff_row.lon, 0)
     point = kml.Point(coordinates=[coord])
@@ -85,6 +107,7 @@ def make_takeoff_placemark(takeoff_row):
     description = kml.CDATA(make_table(rows))
     return kml.Placemark(point, style, Snippet=None, name=takeoff_row.name,
                          description=description)
+
 
 def main(argv):
     parser = optparse.OptionParser(
@@ -118,28 +141,9 @@ def main(argv):
     #
     flights_dir = os.path.join(options.directory,
                                'modules', 'leonardo', 'flights')
-    leonardo_url = options.url + '/modules.php?name=leonardo'
-    icon_url = options.url + options.icon
     #
     roots = []
-    #
-    icon = kml.Icon(href=icon_url)
-    overlay_xy = kml.overlayXY(x=0.5, y=1, xunits='fraction', yunits='fraction')
-    screen_xy = kml.screenXY(x=0.5, y=1, xunits='fraction', yunits='fraction')
-    size = kml.size(x=0, y=0, xunits='fraction', yunits='fraction')
-    d = {'name': options.name, 'icon': icon_url, 'url': leonardo_url}
-    ps = []
-    ps.append('<a href="%(url)s"><img alt="%(name)s" src="%(icon)s" /></a>' % d)
-    ps.append('<a href="%(url)s">%(name)s</a>' % d)
-    ps.append('Created by <a href="http://github.com/twpayne/igc2kmz/wikis">'
-              'igc2kmz</a><br/>Copyright &copy; Tom Payne, 2008')
-    html = '<center>%s</center>' % ''.join('<p>%s</p>' % p for p in ps)
-    description = kml.CDATA(html)
-    balloon_style = kml.BalloonStyle(text=kml.CDATA('$[description]'))
-    style = kml.Style(balloon_style)
-    screen_overlay = kml.ScreenOverlay(icon, overlay_xy, screen_xy, size,
-            style, Snippet=None, name=options.name, description=description)
-    roots.append(screen_overlay)
+    roots.append(make_banner(options))
     #
     metadata = MetaData(options.engine)
     pilots_table = Table(options.table_prefix + '_pilots', metadata,
@@ -219,8 +223,8 @@ def main(argv):
                                          == flight_row.ID)
             for photo_row in select.execute().fetchall():
                 photo_url = options.url + PHOTO_URL % photo_row
-                photo_path = os.path.join(flights_dir,
-                                          photo_row.path, photo_row.name)
+                photo_path = os.path.join(flights_dir, photo_row.path,
+                                          photo_row.name)
                 photo = Photo(photo_url, path=photo_path)
                 if photo_row.description:
                     photo.description = photo_row.description
