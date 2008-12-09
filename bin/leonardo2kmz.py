@@ -126,8 +126,6 @@ def main(argv):
                       help='set table prefix')
     parser.add_option('-x', '--igc-suffix', metavar='STRING',
                       help='set IGC file suffix')
-    parser.add_option('--debug', action='store_true',
-                      help='enable pretty KML output')
     parser.set_defaults(output='igc2kmz.kmz')
     parser.set_defaults(name=DEFAULT_NAME)
     parser.set_defaults(icon=DEFAULT_ICON)
@@ -136,7 +134,6 @@ def main(argv):
     parser.set_defaults(tz_offset=0)
     parser.set_defaults(table_prefix=DEFAULT_TABLE_PREFIX)
     parser.set_defaults(igc_suffix='.saned.full.igc')
-    parser.set_defaults(debug=False)
     options, args = parser.parse_args(argv)
     #
     flights_dir = os.path.join(options.directory,
@@ -239,7 +236,7 @@ def main(argv):
             roots.append(make_takeoff_placemark(takeoff_row))
     #
     kmz = flights2kmz(flights, roots=roots, tz_offset=options.tz_offset)
-    kmz.write(options.output, '2.2', debug=options.debug)
+    kmz.write(options.output, '2.2')
 
 if __name__ == '__main__':
     main(sys.argv)

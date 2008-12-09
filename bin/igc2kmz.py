@@ -84,9 +84,6 @@ def main(argv):
             help='add root element')
     parser.add_option('-t', '--task', metavar='FILENAME',
             help='set task')
-    parser.add_option('--debug',
-            action='store_true',
-            help='enable pretty KML output')
     group = optparse.OptionGroup(parser, 'Per-flight options')
     group.add_option('-i', '--igc', metavar='FILENAME', type='string',
             action='callback', callback=add_flight,
@@ -119,7 +116,6 @@ def main(argv):
             help='set photo comment')
     parser.add_option_group(group)
     #
-    parser.set_defaults(debug=False)
     parser.set_defaults(flights=[])
     parser.set_defaults(output='igc2kmz.kmz')
     parser.set_defaults(roots=[])
@@ -137,7 +133,7 @@ def main(argv):
                       roots=roots,
                       tz_offset=options.tz_offset,
                       task=task)
-    kmz.write(options.output, '2.2', debug=options.debug)
+    kmz.write(options.output, '2.2')
 
 
 if __name__ == '__main__':
