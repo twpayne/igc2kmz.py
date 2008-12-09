@@ -137,7 +137,7 @@ class Stock(object):
                 ['Altitude change', '$[altitude_change]m'],
                 ['Distance', '$[distance]km'],
                 ['Average glide ratio', '$[average_ld]:1'],
-                ['Average speed', '$[average_speed]:1'],
+                ['Average speed', '$[average_speed]km/h'],
                 ['Start altitude', '$[start_altitude]m'],
                 ['Finish altitude', '$[finish_altitude]m'],
                 ['Start time', '$[start_time]'],
