@@ -135,6 +135,7 @@ class Stock(object):
         bgcolors = '#ccffcc #ddffdd'.split()
         rows = [
                 ['Altitude change', '$[altitude_change]m'],
+                ['Average descent', '$[average_climb]m/s'],
                 ['Distance', '$[distance]km'],
                 ['Average glide ratio', '$[average_ld]:1'],
                 ['Average speed', '$[average_speed]km/h'],
