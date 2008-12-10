@@ -161,7 +161,7 @@ def main(argv):
         if flight_row is None:
             raise KeyError, id
         if flight_row.userServerID:
-            path = '%(userServerID)_%(userID)' % flight_row
+            path = '%(userServerID)d_%(userID)d' % flight_row
         else:
             path = flight_row.userID
         igc_path_components = (flights_dir, path, 'flights',
