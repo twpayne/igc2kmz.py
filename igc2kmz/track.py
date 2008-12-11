@@ -76,6 +76,9 @@ class Track(object):
 
     def analyse(self, dt):
         n = len(self.coords)
+        period = (self.coords[-1].dt - self.coords[0].dt).seconds / n
+        if dt < 2 * period:
+            dt = 2 * period
         self.bounds = util.BoundsSet()
         self.bounds.ele = util.Bounds([coord.ele for coord in self.coords])
         self.bounds.time = util.Bounds((self.coords[0].dt, self.coords[-1].dt))
