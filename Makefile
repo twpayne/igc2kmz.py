@@ -34,6 +34,7 @@ EXAMPLES=examples/2008-07-28-XPG-KVE-02.kmz \
 	 examples/2008-09-05-CGP-XAGC-01-ebessos.kmz \
 	 examples/858umbh1.kmz \
 	 examples/2008-05-02_Martin_Saleve-Tessin.kmz \
+	 examples/2008-05-12-CGP-XDFE-01.kmz \
 	 examples/2007-04-22-FLY-5094-01.kmz
 .PRECIOUS: $(EXAMPLES:%.kmz=%.olc)
 
@@ -238,6 +239,14 @@ examples/2008-05-02_Martin_Saleve-Tessin.kmz: examples/2008-05-02_Martin_Saleve-
 		-g "Gin Boomerang 5" \
 		-u http://www.xcontest.org/2008/switzerland/fr/vols/details:Alpsfreeride/2.5.2008/10:05 \
 		-x examples/2008-05-02_Martin_Saleve-Tessin.gpx
+
+examples/2008-05-12-CGP-XDFE-01.kmz: examples/2008-05-12-CGP-XDFE-01.igc examples/2008-05-12-CGP-XDFE-01.gpx examples/xcontest.kml
+	$(IGC2KMZ) -z 2 -o $@ -r examples/xcontest.kml \
+		-i $< \
+		-n "Christian Maurer" \
+		-g "Advance Omega" \
+		-u http://www.xcontest.org/2008/world/en/flights/detail:chrigel/12.5.2008/07:43 \
+		-x examples/2008-05-12-CGP-XDFE-01.gpx
 
 examples/leonardo.kml: $(BRAND2KML)
 	$(BRAND2KML) \
