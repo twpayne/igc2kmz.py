@@ -16,6 +16,7 @@ Add competition task support
 Clean up air speed track (average)
 Improve drift/windspeed algorithm
 Graphical thermal analysis
+Chart for colored by time
 
 LOW
 Support Aircotec TNC files

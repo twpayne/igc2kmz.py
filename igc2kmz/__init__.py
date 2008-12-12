@@ -308,7 +308,7 @@ class Flight(object):
         return chart
 
     def make_colored_track(self, globals, values, scale, altitude_mode,
-                           **folder_options):
+                           scale_chart=True, **folder_options):
         style_url = globals.stock.check_hide_children_style.url()
         folder = kml.Folder(name='Colored by %s' % scale.title,
                             styleUrl=style_url,
@@ -323,14 +323,16 @@ class Flight(object):
             style_url = kml.styleUrl(styles[discrete_values[sl.start]].url())
             placemark = kml.Placemark(style_url, line_string)
             folder.add(placemark)
-        href = self.make_scale_chart(globals, scale).get_url()
-        icon = kml.Icon(href=kml.CDATA(href))
-        overlay_xy = kml.overlayXY(x=0, xunits='fraction',
-                                   y=1, yunits='fraction')
-        screen_xy = kml.screenXY(x=0, xunits='fraction', y=1, yunits='fraction')
-        size = kml.size(x=0, xunits='fraction', y=0, yunits='fraction')
-        screen_overlay = kml.ScreenOverlay(icon, overlay_xy, screen_xy, size)
-        folder.add(screen_overlay)
+        if scale_chart:
+            href = self.make_scale_chart(globals, scale).get_url()
+            icon = kml.Icon(href=kml.CDATA(href))
+            overlay_xy = kml.overlayXY(x=0, xunits='fraction',
+                                       y=1, yunits='fraction')
+            screen_xy = kml.screenXY(x=0, xunits='fraction',
+                                     y=1, yunits='fraction')
+            size = kml.size(x=0, xunits='fraction', y=0, yunits='fraction')
+            screen_overlay = kml.ScreenOverlay(icon, overlay_xy, screen_xy, size)
+            folder.add(screen_overlay)
         return kmz.kmz(folder).add_roots(*styles)
 
     def make_track_folder(self, globals):
@@ -359,6 +361,12 @@ class Flight(object):
                                                globals.scales.tas,
                                                self.altitude_mode,
                                                visibility=0))
+        folder.add(self.make_colored_track(globals,
+                                           self.track.t,
+                                           globals.scales.t,
+                                           self.altitude_mode,
+                                           scale_chart=False,
+                                           visibility=visibility))
         style = kml.Style(kml.LineStyle(color=self.color, width=self.width))
         folder.add(self.make_solid_track(globals,
                                          style,
@@ -892,6 +900,9 @@ def flights2kmz(flights, roots=[], tz_offset=0, task=None):
                                  gradient=default_gradient)
     globals.scales.time = TimeScale(globals.bounds.time.tuple(),
                                     tz_offset=globals.tz_offset)
+    globals.scales.t = Scale(globals.bounds.t.tuple(),
+                             title='time',
+                             gradient=default_gradient)
     if hasattr(globals.bounds, 'tas'):
         globals.scales.tas = Scale(globals.bounds.tas.tuple(),
                                    title='air speed',

@@ -82,6 +82,7 @@ class Track(object):
         self.bounds = util.BoundsSet()
         self.bounds.ele = util.Bounds([coord.ele for coord in self.coords])
         self.bounds.time = util.Bounds((self.coords[0].dt, self.coords[-1].dt))
+        self.bounds.t = util.Bounds((self.t[0], self.t[-1]))
         if hasattr(self, 'tas'):
             self.bounds.tas = util.Bounds(self.tas)
         if self.bounds.ele.min != 0 or self.bounds.ele.max != 0:
