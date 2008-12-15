@@ -572,6 +572,9 @@ class Flight(object):
                          '%s %.2f points/km' % (MULTIPLICATION_SIGN,
                                                 route.multiplier)))
             rows.append(('Score', '<b>%.2f points</b>' % route.score))
+            speed = 3600.0 * route.distance \
+                    / (route.tps[-1].coord.dt - route.tps[0].coord.dt).seconds
+            rows.append(('Average speed', '%.1fkm/h' % speed))
             if route.circuit:
                 rows.append(make_row(route, -1, 0))
             table = make_table(rows)
