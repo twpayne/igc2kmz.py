@@ -65,7 +65,7 @@ class BoundsSet(object):
             if hasattr(self, key):
                 getattr(self, key).update(value)
             else:
-                setattr(self, key, value)
+                setattr(self, key, Bounds(value.tuple()))
 
 
 class OpenStruct(object):
