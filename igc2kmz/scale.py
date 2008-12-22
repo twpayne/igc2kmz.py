@@ -68,10 +68,7 @@ class Scale(object):
             return n - 1
         else:
             result = int(round(n * self.normalize(value)))
-            if result > n - 1:
-                return n - 1
-            else:
-                return result
+            return n - 1 if result > n - 1 else result
 
     def color(self, value):
         """Return the color for value."""
