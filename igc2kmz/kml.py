@@ -98,35 +98,34 @@ class _CompoundElement(_Element):
     def write(self, file):
         """Write self to file."""
         attrs = ''.join(' %s="%s"' % pair for pair in self.attrs.items())
-        if len(self.children) == 0:
-            file.write('<%s%s/>' % (self.name(), attrs))
-        else:
+        if self.children:
             file.write('<%s%s>' % (self.name(), attrs))
             for child in self.children:
                 child.write(file)
             file.write('</%s>' % self.name())
+        else:
+            file.write('<%s%s/>' % (self.name(), attrs))
 
     def pretty_write(self, file, indent='\t', prefix=''):
         """Write self to file."""
         attrs = ''.join(' %s="%s"' % pair for pair in self.attrs.items())
-        if len(self.children) == 0:
-            file.write('%s<%s%s/>\n' % (prefix, self.name(), attrs))
-        else:
+        if self.children:
             file.write('%s<%s%s>\n' % (prefix, self.name(), attrs))
             for child in self.children:
                 child.pretty_write(file, indent, indent + prefix)
             file.write('%s</%s>\n' % (prefix, self.name()))
+        else:
+            file.write('%s<%s%s/>\n' % (prefix, self.name(), attrs))
 
     def __str__(self):
         """Return the KML representation of self."""
         attrs = ''.join(' %s="%s"' % pair for pair in self.attrs.items())
-        if len(self.children) == 0:
-            return '<%s%s/>' % (self.name(), attrs)
-        else:
-            return '<%s%s>%s</%s>' % (self.name(),
-                                      attrs,
+        if self.children:
+            return '<%s%s>%s</%s>' % (self.name(), attrs,
                                       ''.join(map(str, self.children)),
                                       self.name())
+        else:
+            return '<%s%s/>' % (self.name(), attrs)
 
 
 class Verbatim(_Element):
@@ -197,7 +196,8 @@ class coordinates(_SimpleElement):
 
     @classmethod
     def arc(cls, center, radius, start, stop, error=0.1):
-        delta_theta = 2 * pi / int(ceil(pi / acos((radius - error) / (radius + error))))
+        delta_theta = 2 * pi / int(ceil(pi / acos((radius - error)
+                                   / (radius + error))))
         while start < 0:
             start += 2 * pi
             stop += 2 * pi
