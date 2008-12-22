@@ -127,7 +127,8 @@ class Track(object):
                 coord1 = self.coords[n - 1]
                 s1 = self.s[n - 1]
             else:
-                delta1 = float(t1 - self.t[i1 - 1]) / (self.t[i1] - self.t[i1 - 1])
+                delta1 = float(t1 - self.t[i1 - 1]) \
+                         / (self.t[i1] - self.t[i1 - 1])
                 coord1 = self.coords[i1 - 1].interpolate(self.coords[i1],
                                                          delta1)
                 s1 = (1.0 - delta1) * self.s[i1 - 1] + delta1 * self.s[i1]
