@@ -218,10 +218,10 @@ class IGC(object):
                     klass = class_by_letter[letter]
                     self.records.append(klass.parse(line, self))
                 else:
-                    logging.warning('%s: unknown record %s' \
+                    logging.warning('%s: unknown record %s'
                                     % (self.filename, repr(line)))
             except SyntaxError:
-                logging.warning('%s: invalid record %s' \
+                logging.warning('%s: invalid record %s'
                                 % (self.filename, repr(line)))
 
     def track(self):
