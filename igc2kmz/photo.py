@@ -68,5 +68,5 @@ class Photo(object):
             self.description = None
 
     def to_html_img(self):
-        return '<img alt="%s" src="%s" height="%d" width="%d"/>' % \
-               (self.name, self.url, self.jpeg.height, self.jpeg.height)
+        return '<img alt="%s" src="%s" height="%d" width="%d"/>' \
+               % (self.name, self.url, self.jpeg.height, self.jpeg.height)
