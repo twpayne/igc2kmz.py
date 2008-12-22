@@ -40,8 +40,8 @@ class gpx_tag(object):
             'version': '1.1',
             'xmlns': 'http://www.topografix.com/GPX/1/1',
             'xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance',
-            'xsi:schemaLocation': 'http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd',
-            }
+            'xsi:schemaLocation': 'http://www.topografix.com/GPX/1/1 '
+                                  'http://www.topografix.com/GPX/1/1/gpx.xsd'}
         self.tb.start('gpx', attrs)
         return self.tb
 
