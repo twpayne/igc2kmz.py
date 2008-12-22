@@ -278,17 +278,18 @@ def parse_datetime(value):
     return datetime.datetime.strptime(value.rstrip('\0'), '%Y:%m:%d %H:%M:%S')
 
 
-CHARSET = {
-    'ASCII\0\0\0': 'ascii',
-    'JIS\0\0\0\0\0': 'shift_jis',
-    'UNICODE\0': 'utf_8',
-    '\0\0\0\0\0\0\0\0': 'latin_1'}
+CHARSETS = {
+    'ASCII': 'ascii',
+    'JIS': 'shift_jis',
+    'UNICODE': 'utf_8',
+    '': 'latin_1'}
 
 
 def parse_usercomment(value):
     value = ''.join(map(chr, value))
-    if value[0:8] in CHARSET:
-        return value[8:].rstrip('\0').decode(CHARSET[value[0:8]])
+    charset = value[0:8].rstrip('\0')
+    if charset in CHARSETS:
+        return value[8:].rstrip('\0').decode(CHARSETS[charset])
     else:
         return value
 
