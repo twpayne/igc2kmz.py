@@ -19,13 +19,13 @@ from math import acos, asin, atan2, cos, pi, sin, sqrt
 
 
 R = 6371000.0
-compass = 'N NNE NE ENE E ESE SE SSE S SSW SW WSW W WNW NW NNW'.split()
+cardinal = 'N NNE NE ENE E ESE SE SSE S SSW SW WSW W WNW NW NNW'.split()
 
 
-def rad_to_compass(rad):
+def rad_to_cardinal(rad):
     while rad < 0.0:
         rad += 2 * pi
-    return compass[int(8 * rad / pi + 0.5) % 16]
+    return cardinal[int(8 * rad / pi + 0.5) % 16]
 
 
 class degreeattr(object):

@@ -27,7 +27,7 @@ import urlparse
 import third_party.pygooglechart as pygooglechart
 
 from color import bilinear_gradient, default_gradient
-from coord import rad_to_compass
+from coord import rad_to_cardinal
 import kml
 import kmz
 from scale import Scale, TimeScale, ZeroCenteredScale
@@ -623,7 +623,7 @@ class Flight(object):
             dict['duration'] = '%dm %02ds' % divmod(duration, 60)
             dict['accumulated_altitude_gain'] = total_dz_positive
             dict['accumulated_altitude_loss'] = total_dz_negative
-            dict['drift_direction'] = rad_to_compass(theta + pi)
+            dict['drift_direction'] = rad_to_cardinal(theta + pi)
             extended_data = kml.ExtendedData.dict(dict)
             if title == 'thermal':
                 name = '%dm at %.1fm/s' % (dz, dz / dt)
