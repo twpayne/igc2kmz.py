@@ -92,15 +92,13 @@ class TIFF(object):
             else:
                 if data_type == RATIONAL or data_type == SRATIONAL:
                     l = struct.unpack('%s%d%s'
-                                      % (self.byte_order_char,
-                                         2 * count,
+                                      % (self.byte_order_char, 2 * count,
                                          DATA_TYPE_FORMAT[data_type]),
                                       self.data[data_slice])
                     data = zip(l[0::2], l[1::2])
                 else:
                     data = struct.unpack('%s%d%s'
-                                         % (self.byte_order_char,
-                                            count,
+                                         % (self.byte_order_char, count,
                                             DATA_TYPE_FORMAT[data_type]),
                                          self.data[data_slice])
                 if count == 1:
@@ -284,8 +282,7 @@ CHARSET = {
     'ASCII\0\0\0': 'ascii',
     'JIS\0\0\0\0\0': 'shift_jis',
     'UNICODE\0': 'utf_8',
-    '\0\0\0\0\0\0\0\0': 'latin_1',
-}
+    '\0\0\0\0\0\0\0\0': 'latin_1'}
 
 
 def parse_usercomment(value):
