@@ -63,10 +63,7 @@ class Stock(object):
                                    y=0, yunits='fraction')
         screen_xy = kml.screenXY(x=0, xunits='fraction', y=0, yunits='fraction')
         size = kml.size(x=0, xunits='fraction', y=0, yunits='fraction')
-        screen_overlay = kml.ScreenOverlay(icon,
-                                           overlay_xy,
-                                           screen_xy,
-                                           size,
+        screen_overlay = kml.ScreenOverlay(icon, overlay_xy, screen_xy, size,
                                            visibility=visibility)
         style_url = self.check_hide_children_style.url()
         return kml.Folder(screen_overlay, name='None', styleUrl=style_url)
@@ -75,8 +72,7 @@ class Stock(object):
         text = '<h3>$[name]</h3>$[description]' + make_table(rows, bgcolors)
         bg_color = 'ff' + ''.join(reversed(re.findall(r'..', bgcolors[1][1:])))
         balloon_style = kml.BalloonStyle(text=kml.CDATA(text), bgColor=bg_color)
-        icon_style = kml.IconStyle(self.icons[0],
-                                   color=color,
+        icon_style = kml.IconStyle(self.icons[0], color=color,
                                    scale=self.icon_scales[0])
         label_style = kml.LabelStyle(color=color, scale=self.label_scales[0])
         line_style = kml.LineStyle(color=color, width=4)
@@ -113,8 +109,7 @@ class Stock(object):
                 ['Accumulated altitude loss', '$[accumulated_altitude_loss]m'],
                 ['Drift', '$[average_speed]km/h $[drift_direction]'],
                 ]
-        self.thermal_style = self.make_analysis_style('cc3333ff',
-                                                      bgcolors,
+        self.thermal_style = self.make_analysis_style('cc3333ff', bgcolors,
                                                       rows)
         self.kmz.add_roots(self.thermal_style)
         bgcolors = '#ccccff #ddddff'.split()
@@ -168,15 +163,12 @@ class Stock(object):
         #
         text = kml.text(kml.CDATA('<h3>$[name]</h3>$[description]'))
         balloon_style = kml.BalloonStyle(text)
-        icon_style = kml.IconStyle(self.icons[0],
-                                   color='ccff33ff',
+        icon_style = kml.IconStyle(self.icons[0], color='ccff33ff',
                                    scale=self.icon_scales[0])
         label_style = kml.LabelStyle(color='ccff33ff',
                                      scale=self.label_scales[0])
         line_style = kml.LineStyle(color='ccff33ff', width=2)
-        self.xc_style = kml.Style(balloon_style,
-                                  icon_style,
-                                  label_style,
+        self.xc_style = kml.Style(balloon_style, icon_style, label_style,
                                   line_style)
         self.kmz.add_roots(self.xc_style)
         #
@@ -187,9 +179,7 @@ class Stock(object):
         label_style = kml.LabelStyle(color='ccff33ff',
                                      scale=self.label_scales[0])
         line_style = kml.LineStyle(color='ccff33ff')
-        self.xc_style2 = kml.Style(balloon_style,
-                                   icon_style,
-                                   label_style,
+        self.xc_style2 = kml.Style(balloon_style, icon_style, label_style,
                                    line_style)
         self.kmz.add_roots(self.xc_style2)
         #
@@ -288,8 +278,7 @@ class Flight(object):
         return kmz.kmz(kml.Folder(placemark, **folder_options))
 
     def make_scale_chart(self, globals, scale):
-        chart = pygooglechart.SimpleLineChart(40, 200,
-                                              x_range=(0, 1),
+        chart = pygooglechart.SimpleLineChart(40, 200, x_range=(0, 1),
                                               y_range=scale.range)
         chart.fill_solid(pygooglechart.Chart.BACKGROUND, 'ffffff00')
         chart.fill_solid(pygooglechart.Chart.CHART, 'ffffffcc')
@@ -311,8 +300,7 @@ class Flight(object):
                            scale_chart=True, **folder_options):
         style_url = globals.stock.check_hide_children_style.url()
         folder = kml.Folder(name='Colored by %s' % scale.title,
-                            styleUrl=style_url,
-                            **folder_options)
+                            styleUrl=style_url, **folder_options)
         styles = [kml.Style(kml.LineStyle(color=color, width=self.width))
                   for color in scale.colors()]
         discrete_values = map(scale.discretize, values)
@@ -340,39 +328,29 @@ class Flight(object):
         folder = kmz.kmz(kml.Folder(name='Track', open=1, styleUrl=style_url))
         folder.add(globals.stock.invisible_none_folder)
         if self.track.elevation_data:
-            folder.add(self.make_colored_track(globals,
-                                               self.track.climb,
+            folder.add(self.make_colored_track(globals, self.track.climb,
                                                globals.scales.climb,
                                                'absolute'))
-            folder.add(self.make_colored_track(globals,
-                                               self.track.ele,
+            folder.add(self.make_colored_track(globals, self.track.ele,
                                                globals.scales.altitude,
-                                               'absolute',
-                                               visibility=0))
+                                               'absolute', visibility=0))
         visibility = not self.track.elevation_data
-        folder.add(self.make_colored_track(globals,
-                                           self.track.speed,
+        folder.add(self.make_colored_track(globals, self.track.speed,
                                            globals.scales.speed,
                                            self.altitude_mode,
                                            visibility=visibility))
         if hasattr(self.track, 'tas'):
-            folder.add(self.make_colored_track(globals,
-                                               self.track.tas,
+            folder.add(self.make_colored_track(globals, self.track.tas,
                                                globals.scales.tas,
                                                self.altitude_mode,
                                                visibility=0))
-        folder.add(self.make_colored_track(globals,
-                                           self.track.t,
-                                           globals.scales.t,
-                                           self.altitude_mode,
+        folder.add(self.make_colored_track(globals, self.track.t,
+                                           globals.scales.t, self.altitude_mode,
                                            scale_chart=False,
                                            visibility=visibility))
         style = kml.Style(kml.LineStyle(color=self.color, width=self.width))
-        folder.add(self.make_solid_track(globals,
-                                         style,
-                                         self.altitude_mode,
-                                         name='Solid color',
-                                         visibility=0))
+        folder.add(self.make_solid_track(globals, style, self.altitude_mode,
+                                         name='Solid color', visibility=0))
         return folder
 
     def make_shadow_folder(self, globals):
@@ -382,25 +360,16 @@ class Flight(object):
         folder = kmz.kmz(kml.Folder(name='Shadow', open=0, styleUrl=style_url))
         folder.add(globals.stock.invisible_none_folder)
         style = kml.Style(kml.LineStyle(color='ff000000', width=1))
-        folder.add(self.make_solid_track(globals,
-                                         style,
-                                         'clampToGround',
+        folder.add(self.make_solid_track(globals, style, 'clampToGround',
                                          name='Normal'))
         line_style = kml.LineStyle(color='00000000', width=1)
         poly_style = kml.PolyStyle(color='80000000')
         style = kml.Style(line_style, poly_style)
-        folder.add(self.make_solid_track(globals,
-                                         style,
-                                         'absolute',
-                                         True,
-                                         name='Extrude',
-                                         visibility=0))
+        folder.add(self.make_solid_track(globals, style, 'absolute', True,
+                                         name='Extrude', visibility=0))
         style = kml.Style(kml.LineStyle(color=self.color, width=self.width))
-        folder.add(self.make_solid_track(globals,
-                                         style,
-                                         'clampToGround',
-                                         name='Solid color',
-                                         visibility=0))
+        folder.add(self.make_solid_track(globals, style, 'clampToGround',
+                                         name='Solid color', visibility=0))
         return folder
 
     def make_animation(self, globals):
@@ -442,14 +411,11 @@ class Flight(object):
             dt += delta
         for i in xrange(0, len(coords)):
             j = (i + 1) % len(coords)
-            point = kml.Point(coordinates=[coords[i]],
-                              altitudeMode=self.altitude_mode)
+            point = kml.Point(coordinates=[coords[i]], altitudeMode=self.altitude_mode)
             heading = coords[i].initial_bearing_to_deg(coords[j])
-            camera = kml.Camera(altitude=coords[i].ele,
-                                heading=heading,
+            camera = kml.Camera(altitude=coords[i].ele, heading=heading,
                                 latitude=coords[i].lat_deg,
-                                longitude=coords[i].lon_deg,
-                                tilt=75)
+                                longitude=coords[i].lon_deg, tilt=75)
             placemark = kml.Placemark(point, camera)
             folder.add(placemark)
         return folder
@@ -457,25 +423,20 @@ class Flight(object):
     def make_placemark(self, globals, coord, altitudeMode=None, name=None,
                        style_url=None):
         point = kml.Point(coordinates=[coord], altitudeMode=altitudeMode)
-        return kml.Placemark(point,
-                             name=name,
-                             Snippet=None,
-                             styleUrl=style_url)
+        return kml.Placemark(point, name=name, Snippet=None, styleUrl=style_url)
 
     def make_altitude_marks_folder(self, globals):
         if not self.track.elevation_data:
             return kmz.kmz()
         style_url = globals.stock.check_hide_children_style.url()
-        folder = kml.Folder(name='Altitude marks',
-                            styleUrl=style_url,
+        folder = kml.Folder(name='Altitude marks', styleUrl=style_url,
                             visibility=0)
         for index, j in util.salient2([c.ele for c in self.track.coords],
                                       [100, 50, 10]):
             coord = self.track.coords[index]
             i = globals.scales.altitude.discretize(coord.ele)
             style_url = globals.altitude_styles[j][i].url()
-            folder.add(self.make_placemark(globals,
-                                           coord,
+            folder.add(self.make_placemark(globals, coord,
                                            altitudeMode='absolute',
                                            name='%dm' % coord.ele,
                                            style_url=style_url))
@@ -502,8 +463,7 @@ class Flight(object):
                 title = photo.name
             description = '<h3>%s</h3>%s' % (title, photo.to_html_img())
             style_url = globals.stock.photo_style.url()
-            placemark = kml.Placemark(point,
-                                      name=photo.name,
+            placemark = kml.Placemark(point, name=photo.name,
                                       description=kml.CDATA(description),
                                       Snippet=kml.CDATA(description),
                                       styleUrl=style_url)
@@ -551,8 +511,8 @@ class Flight(object):
         folder = kml.Folder(name='Cross country', open=0, styleUrl=style_url)
         folder.add(globals.stock.invisible_none_folder)
         for rank, route in enumerate(sorted(self.xc.routes,
-                                          key=operator.attrgetter('score'),
-                                          reverse=True)):
+                                            key=operator.attrgetter('score'),
+                                            reverse=True)):
             rows = []
             rows.append(('League', route.league))
             rows.append(('Type', route.name[0].upper() + route.name[1:]))
@@ -582,19 +542,15 @@ class Flight(object):
                    % (route.distance, route.name, route.score)
             visibility = 1 if rank == 0 else 0
             style_url = globals.stock.check_hide_children_style.url()
-            route_folder = kml.Folder(name=name,
-                                      description=kml.CDATA(table),
-                                      Snippet=None,
-                                      styleUrl=style_url,
+            route_folder = kml.Folder(name=name, description=kml.CDATA(table),
+                                      Snippet=None, styleUrl=style_url,
                                       visibility=visibility)
             for tp in route.tps:
                 coord = self.track.coord_at(tp.coord.dt)
                 point = kml.Point(coordinates=[coord],
-                                  altitudeMode=self.altitude_mode,
-                                  extrude=1)
+                                  altitudeMode=self.altitude_mode, extrude=1)
                 style_url = globals.stock.xc_style.url()
-                placemark = kml.Placemark(point,
-                                          name=tp.name,
+                placemark = kml.Placemark(point, name=tp.name,
                                           styleUrl=style_url)
                 route_folder.add(placemark)
             if route.circuit:
@@ -619,8 +575,7 @@ class Flight(object):
             return kmz.kmz()
         folder_style_url = globals.stock.check_hide_children_style.url()
         folder = kml.Folder(name=title.capitalize() + "s",
-                            styleUrl=folder_style_url,
-                            visibility=0)
+                            styleUrl=folder_style_url, visibility=0)
         for sl in slices:
             coord0 = self.track.coords[sl.start]
             coord1 = self.track.coords[sl.stop]
@@ -677,11 +632,8 @@ class Flight(object):
                        % (dp / 1000.0, average_ld, round(3.6 * dp / dt))
             elif title == 'dive':
                 name = '%dm at %.1fm/s' % (-dz, dz / dt)
-            placemark = kml.Placemark(point,
-                                      extended_data,
-                                      name=name,
-                                      Snippet=None,
-                                      styleUrl=style_url)
+            placemark = kml.Placemark(point, extended_data, name=name,
+                                      Snippet=None, styleUrl=style_url)
             folder.add(placemark)
             line_string = kml.LineString(coordinates=[coord0, coord1],
                                          altitudeMode='absolute')
@@ -722,9 +674,7 @@ class Flight(object):
         screen_overlay = kml.ScreenOverlay(icon, overlay_xy, screen_xy, size)
         name = scale.title.capitalize() + " graph"
         style_url = globals.stock.check_hide_children_style.url()
-        folder = kml.Folder(screen_overlay,
-                            name=name,
-                            styleUrl=style_url,
+        folder = kml.Folder(screen_overlay, name=name, styleUrl=style_url,
                             visibility=0)
         return folder
 
@@ -778,16 +728,13 @@ class Flight(object):
         if self.track.elevation_data:
             eles = [c.ele for c in self.track.coords]
             folder.add(self.make_graph(globals, eles, globals.scales.altitude))
-        folder.add(self.make_analysis_folder(globals,
-                                             'thermal',
+        folder.add(self.make_analysis_folder(globals, 'thermal',
                                              self.track.thermals,
                                              globals.stock.thermal_style.url()))
-        folder.add(self.make_analysis_folder(globals,
-                                             'glide',
+        folder.add(self.make_analysis_folder(globals, 'glide',
                                              self.track.glides,
                                              globals.stock.glide_style.url()))
-        folder.add(self.make_analysis_folder(globals,
-                                             'dive',
+        folder.add(self.make_analysis_folder(globals, 'dive',
                                              self.track.dives,
                                              globals.stock.dive_style.url()))
         folder.add(self.make_time_marks_folder(globals))
@@ -816,10 +763,8 @@ def make_task_folder(globals, task):
     table = make_table(rows)
     snippet = '%.1fkm via %d turnpoints' % (total / 1000.0, count)
     style_url = globals.stock.check_hide_children_style.url()
-    folder = kml.Folder(name=name,
-                        description=kml.CDATA(table),
-                        Snippet=snippet,
-                        styleUrl=style_url)
+    folder = kml.Folder(name=name, description=kml.CDATA(table),
+                        Snippet=snippet, styleUrl=style_url)
     style_url = globals.stock.xc_style.url()
     done = set()
     for tp in task.tps:
@@ -877,15 +822,13 @@ def flights2kmz(flights, roots=[], tz_offset=0, task=None):
     globals.task = task
     globals.scales = util.OpenStruct()
     globals.scales.altitude = Scale(globals.bounds.ele.tuple(),
-                                    title='altitude',
-                                    gradient=default_gradient)
+                                    title='altitude', gradient=default_gradient)
     globals.altitude_styles = []
     for i in xrange(0, 3):
         altitude_styles = []
         for c in globals.scales.altitude.colors():
             balloon_style = kml.BalloonStyle(text='$[description]')
-            icon_style = kml.IconStyle(globals.stock.icons[i],
-                                       color=c,
+            icon_style = kml.IconStyle(globals.stock.icons[i], color=c,
                                        scale=globals.stock.icon_scales[i])
             label_style = kml.LabelStyle(color=c,
                                          scale=globals.stock.label_scales[i])
@@ -895,21 +838,18 @@ def flights2kmz(flights, roots=[], tz_offset=0, task=None):
         globals.altitude_styles.append(altitude_styles)
     gradient = bilinear_gradient
     globals.scales.climb = ZeroCenteredScale(globals.bounds.climb.tuple(),
-                                             title='climb',
-                                             step=0.1,
+                                             title='climb', step=0.1,
                                              gradient=gradient)
     globals.scales.speed = Scale(globals.bounds.speed.tuple(),
                                  title='ground speed',
                                  gradient=default_gradient)
     globals.scales.time = TimeScale(globals.bounds.time.tuple(),
                                     tz_offset=globals.tz_offset)
-    globals.scales.t = Scale(globals.bounds.t.tuple(),
-                             title='time',
+    globals.scales.t = Scale(globals.bounds.t.tuple(), title='time',
                              gradient=default_gradient)
     if hasattr(globals.bounds, 'tas'):
         globals.scales.tas = Scale(globals.bounds.tas.tuple(),
-                                   title='air speed',
-                                   gradient=default_gradient)
+                                   title='air speed', gradient=default_gradient)
     globals.graph_width = 600
     globals.graph_height = 300
     result = kmz.kmz()
