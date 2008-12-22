@@ -19,13 +19,13 @@ from math import acos, asin, atan2, cos, pi, sin, sqrt
 
 
 R = 6371000.0
-cardinal = 'N NNE NE ENE E ESE SE SSE S SSW SW WSW W WNW NW NNW'.split()
+cardinals = 'N NNE NE ENE E ESE SE SSE S SSW SW WSW W WNW NW NNW'.split()
 
 
 def rad_to_cardinal(rad):
     while rad < 0.0:
         rad += 2 * pi
-    return cardinal[int(8 * rad / pi + 0.5) % 16]
+    return cardinals[int(8 * rad / pi + 0.5) % 16]
 
 
 class degreeattr(object):
@@ -111,7 +111,7 @@ class Coord(object):
 
     def coord_at(self, theta, d):
         """Return the point d from self in direction theta."""
-        lat = asin(sin(self.lat) * cos(d / R) \
+        lat = asin(sin(self.lat) * cos(d / R)
                    + cos(self.lat) * sin(d / R) * cos(theta))
         lon = self.lon + atan2(sin(theta) * sin(d / R) * cos(self.lat),
                                cos(d / R) - sin(self.lat) * sin(lat))
