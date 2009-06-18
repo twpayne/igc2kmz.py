@@ -296,7 +296,8 @@ def parse_usercomment(value):
 
 SOI = 0xffd8
 APP1 = 0xffe1
-SOF = 0xffc0
+SOF0 = 0xffc0
+SOF2 = 0xffc2
 
 
 class JPEG(object):
@@ -307,8 +308,10 @@ class JPEG(object):
         for tag, data in JPEG.chunks(file):
             if tag == APP1 and data[0:6] == 'Exif\0\0':
                 self.exif = exif(data[6:])
-            elif tag == SOF:
+            elif tag in [SOF0, SOF2]:
                 self.height, self.width = struct.unpack('>HH', data[1:5])
+        if self.height is None or self.width is None:
+            raise SyntaxError, "Missing SOF"
 
     @classmethod
     def chunks(self, file):
