@@ -39,6 +39,8 @@ DEFAULT_URL = 'http://www.paraglidingforum.com'
 DEFAULT_ICON = '/modules/leonardo/templates/basic/tpl/leonardo_logo.gif'
 DEFAULT_DIRECTORY = '/var/www/html'
 DEFAULT_TABLE_PREFIX = 'leonardo'
+DEFAULT_IGC_PATH = 'data/flights/tracks/%YEAR%/%PILOTID%'
+DEFAULT_PHOTOS_PATH = 'data/flights/photos/%YEAR%/%PILOTID%'
 
 LEAGUE = (None, 'Online Contest', 'World XC Online Contest')
 ROUTE_NAME = (
@@ -55,6 +57,12 @@ PHOTO_URL = '/modules/leonardo/flights/%(path)s/%(name)s'
 
 B_RECORD_RE = re.compile(r'B(\d{2})(\d{2})(\d{2})'
                          r'(\d{2})(\d{5})([NS])(\d{3})(\d{5})([EW])')
+
+
+def substitute(s, dict):
+    for key, value in dict.items():
+        s = re.sub('%%%s%%' % re.escape(key), value, s)
+    return s
 
 
 def make_banner(options):
@@ -126,6 +134,8 @@ def main(argv):
                       help='set table prefix')
     parser.add_option('-x', '--igc-suffix', metavar='STRING',
                       help='set IGC file suffix')
+    parser.add_option('-I', '--igc-path', metavar='STRING', help='set IGC path')
+    parser.add_option('-P', '--photos-path', metavar='STRING', help='set photos path')
     parser.set_defaults(output='igc2kmz.kmz')
     parser.set_defaults(name=DEFAULT_NAME)
     parser.set_defaults(icon=DEFAULT_ICON)
@@ -133,6 +143,8 @@ def main(argv):
     parser.set_defaults(directory=DEFAULT_DIRECTORY)
     parser.set_defaults(tz_offset=0)
     parser.set_defaults(table_prefix=DEFAULT_TABLE_PREFIX)
+    parser.set_defaults(igc_path=DEFAULT_IGC_PATH)
+    parser.set_defaults(photos_path=DEFAULT_PHOTOS_PATH)
     parser.set_defaults(igc_suffix='.saned.full.igc')
     options, args = parser.parse_args(argv)
     #
@@ -161,13 +173,15 @@ def main(argv):
         if flight_row is None:
             raise KeyError, id
         if flight_row.userServerID:
-            path = '%(userServerID)d_%(userID)d' % flight_row
+            pilot_id = '%(userServerID)d_%(userID)d' % flight_row
         else:
-            path = flight_row.userID
-        igc_path_components = (flights_dir, path, 'flights',
-                               flight_row.DATE.year,
-                               flight_row.filename + options.igc_suffix)
-        igc_path = os.path.join(*map(str, igc_path_components))
+            pilot_id = flight_row.userID
+        substituions = {
+                'PILOTID': str(pilot_id),
+                'YEAR': str(flight_row.DATE.year),
+                }
+        igc_path = os.path.join(substitute(options.igc_path, substituions),
+                                flight_row.filename + options.igc_suffix)
         track = IGC(open(igc_path), date=flight_row.DATE).track()
         flight = Flight(track)
         flight.glider_type = flight_row.glider
@@ -220,8 +234,8 @@ def main(argv):
                                          == flight_row.ID)
             for photo_row in select.execute().fetchall():
                 photo_url = options.url + PHOTO_URL % photo_row
-                photo_path = os.path.join(flights_dir, photo_row.path,
-                                          photo_row.name)
+                photo_path = os.path.join(substitute(options.photo_path, substituions),
+                                          flight_row.filename + options.photo_suffix)
                 photo = Photo(photo_url, path=photo_path)
                 if photo_row.description:
                     photo.description = photo_row.description
