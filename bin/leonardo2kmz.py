@@ -234,7 +234,7 @@ def main(argv):
                                          == flight_row.ID)
             for photo_row in select.execute().fetchall():
                 photo_url = options.url + PHOTO_URL % photo_row
-                photo_path = os.path.join(substitute(options.photo_path, substitutions),
+                photo_path = os.path.join(substitute(options.photos_path, substitutions),
                                           flight_row.filename + options.photo_suffix)
                 photo = Photo(photo_url, path=photo_path)
                 if photo_row.description:
