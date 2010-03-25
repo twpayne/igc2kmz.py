@@ -134,8 +134,10 @@ def main(argv):
                       help='set table prefix')
     parser.add_option('-x', '--igc-suffix', metavar='STRING',
                       help='set IGC file suffix')
-    parser.add_option('-I', '--igc-path', metavar='STRING', help='set IGC path')
-    parser.add_option('-P', '--photos-path', metavar='STRING', help='set photos path')
+    parser.add_option('-I', '--igc-path', metavar='STRING',
+                      help='set IGC path')
+    parser.add_option('-P', '--photos-path', metavar='STRING',
+                      help='set photos path')
     parser.set_defaults(output='igc2kmz.kmz')
     parser.set_defaults(name=DEFAULT_NAME)
     parser.set_defaults(icon=DEFAULT_ICON)
@@ -176,11 +178,11 @@ def main(argv):
             pilot_id = '%(userServerID)d_%(userID)d' % flight_row
         else:
             pilot_id = flight_row.userID
-        substituions = {
+        substitutions = {
                 'PILOTID': str(pilot_id),
                 'YEAR': str(flight_row.DATE.year),
                 }
-        igc_path = os.path.join(substitute(options.igc_path, substituions),
+        igc_path = os.path.join(substitute(options.igc_path, substitutions),
                                 flight_row.filename + options.igc_suffix)
         track = IGC(open(igc_path), date=flight_row.DATE).track()
         flight = Flight(track)
@@ -234,8 +236,9 @@ def main(argv):
                                          == flight_row.ID)
             for photo_row in select.execute().fetchall():
                 photo_url = options.url + PHOTO_URL % photo_row
-                photo_path = os.path.join(substitute(options.photo_path, substituions),
-                                          flight_row.filename + options.photo_suffix)
+                photo_path = os.path.join(substitute(options.photos_path,
+                                                     substitutions),
+                                          photo_row.path, photo_row.name)
                 photo = Photo(photo_url, path=photo_path)
                 if photo_row.description:
                     photo.description = photo_row.description
