@@ -134,8 +134,10 @@ def main(argv):
                       help='set table prefix')
     parser.add_option('-x', '--igc-suffix', metavar='STRING',
                       help='set IGC file suffix')
-    parser.add_option('-I', '--igc-path', metavar='STRING', help='set IGC path')
-    parser.add_option('-P', '--photos-path', metavar='STRING', help='set photos path')
+    parser.add_option('-I', '--igc-path', metavar='STRING',
+                      help='set IGC path')
+    parser.add_option('-P', '--photos-path', metavar='STRING',
+                      help='set photos path')
     parser.set_defaults(output='igc2kmz.kmz')
     parser.set_defaults(name=DEFAULT_NAME)
     parser.set_defaults(icon=DEFAULT_ICON)
