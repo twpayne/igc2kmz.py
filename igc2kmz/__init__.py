@@ -52,7 +52,7 @@ def make_table(rows, bgcolors='#dddddd #ffffff'.split()):
     trs = ('<tr bgcolor="%s"><th align="right">%s</th><td>%s</td></tr>'
            % (bgcolor, row[0], row[1])
            for row, bgcolor in izip(rows, cycle(bgcolors)))
-    return '<table cellpadding="0" cellspacing="0">%s</table>' % ''.join(trs)
+    return '<table cellpadding="1" cellspacing="1">%s</table>' % ''.join(trs)
 
 
 class Stock(object):
