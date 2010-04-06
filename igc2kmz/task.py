@@ -126,11 +126,11 @@ class Task(object):
         name_tag = element.find('{%s}name' % namespace)
         name = None if name_tag is None else name_tag.text.encode('utf_8')
         rtepts = element.findall('{%s}rtept' % namespace)
-        tps = map(Turnpoint.from_element, rtepts)
+        tps = [Turnpoint.from_element(rtept, namespace) for rtept in rtepts]
         return cls(name, tps)
 
     @classmethod
     def from_file(cls, file):
         element = parse(file)
         namespace = re.match('\{(.*)\}', element.getroot().tag).group(1)
-        return cls.from_element(element.find('/{%s}rte' % namespace), element)
+        return cls.from_element(element.find('/{%s}rte' % namespace), namespace)
