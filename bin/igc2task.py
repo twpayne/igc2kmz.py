@@ -32,7 +32,7 @@ except ImportError:
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from igc2kmz.coord import Coord
-from igc2kmz.etree import tag
+from igc2kmz.etree import pretty_write, tag
 from igc2kmz.gpx import gpx_tag
 from igc2kmz.igc import IGC
 from igc2kmz.task import Task, Turnpoint
@@ -151,8 +151,9 @@ def main(argv):
     with gpx_tag(TreeBuilder()) as tb:
         element = task.build_tree(tb).close()
     output = open(options.output, 'w') if options.output else sys.stdout
-    output.write('<?xml version="1.0" encoding="utf-8"?>')
-    ElementTree(element).write(output)
+    output.write('<?xml version="1.0" encoding="utf-8"?>\n')
+    pretty_write(output, element)
+
 
 if __name__ == '__main__':
     main(sys.argv)
