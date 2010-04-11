@@ -28,3 +28,17 @@ class tag(object):
 
     def __exit__(self, type, value, traceback):
         self.tb.end(self.name)
+
+
+def pretty_write(io, element, indent='\t', prefix=''):
+    attrs = ''.join(' %s="%s"' % item for item in element.items())
+    children = element.getchildren()
+    if children:
+        io.write('%s<%s%s>\n' % (prefix, element.tag, attrs))
+        for child in children:
+            pretty_write(io, child, indent, prefix + indent)
+        io.write('%s</%s>\n' % (prefix, element.tag))
+    elif element.text:
+        io.write('%s<%s%s>%s</%s>\n' % (prefix, element.tag, attrs, element.text, element.tag))
+    else:
+        io.write('%s<%s%s/>\n' % (prefix, element.tag, attrs))
