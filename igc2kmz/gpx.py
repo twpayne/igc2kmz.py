@@ -16,6 +16,7 @@
 
 
 from datetime import datetime
+import math
 import re
 try:
     from xml.etree.cElementTree import parse
@@ -63,8 +64,8 @@ class GPX(object):
         self.coords = []
         for trkpt in element.findall('/{%s}trk/{%s}trkseg/{%s}trkpt'
                                      % (namespace, namespace, namespace)):
-            lat = float(trkpt.get('lat'))
-            lon = float(trkpt.get('lon'))
+            lat = math.pi * float(trkpt.get('lat')) / 180.0
+            lon = math.pi * float(trkpt.get('lon')) / 180.0
             ele_tag = trkpt.find(ele_tag_name)
             ele = 0 if ele_tag is None else float(ele_tag.text)
             time = trkpt.find(time_tag_name)
