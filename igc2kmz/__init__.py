@@ -328,29 +328,37 @@ class Flight(object):
         folder = kmz.kmz(kml.Folder(name='Track', open=1, styleUrl=style_url))
         folder.add(globals.stock.invisible_none_folder)
         if self.track.elevation_data:
+            visibility = globals.default_track == 'climb'
             folder.add(self.make_colored_track(globals, self.track.climb,
                                                globals.scales.climb,
-                                               'absolute'))
+                                               'absolute',
+                                               visibility=visibility))
+            visibility = globals.default_track == 'altitude'
             folder.add(self.make_colored_track(globals, self.track.ele,
                                                globals.scales.altitude,
-                                               'absolute', visibility=0))
-        visibility = not self.track.elevation_data
+                                               'absolute',
+                                               visibility=visibility))
+        visibility = globals.default_track == 'speed'
         folder.add(self.make_colored_track(globals, self.track.speed,
                                            globals.scales.speed,
                                            self.altitude_mode,
                                            visibility=visibility))
         if hasattr(self.track, 'tas'):
+            visibility = globals.default_track == 'tas'
             folder.add(self.make_colored_track(globals, self.track.tas,
                                                globals.scales.tas,
                                                self.altitude_mode,
-                                               visibility=0))
+                                               visibility=visibility))
+        visibility = globals.default_track == 'time'
         folder.add(self.make_colored_track(globals, self.track.t,
                                            globals.scales.t, self.altitude_mode,
                                            scale_chart=False,
                                            visibility=visibility))
+        visibility = globals.default_track == 'solid_color'
         style = kml.Style(kml.LineStyle(color=self.color, width=self.width))
         folder.add(self.make_solid_track(globals, style, self.altitude_mode,
-                                         name='Solid color', visibility=0))
+                                         name='Solid color',
+                                         visibility=visibility))
         return folder
 
     def make_shadow_folder(self, globals):
@@ -852,6 +860,12 @@ def flights2kmz(flights, roots=[], tz_offset=0, task=None):
                                    title='air speed', gradient=default_gradient)
     globals.graph_width = 600
     globals.graph_height = 300
+    globals.default_track = 'solid_color'
+    if len(flights) == 1:
+        if flights[0].track.elevation_data:
+            globals.default_track = 'climb'
+        else:
+            globals.default_track = 'speed'
     result = kmz.kmz()
     result.add_siblings(stock.kmz)
     result.add_roots(kml.open(1), *roots)
