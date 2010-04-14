@@ -90,6 +90,10 @@ class BRecord(Record):
             setattr(result, key, int(line[value]))
         time = datetime.time(*map(int, m.group(1, 2, 3)))
         result.dt = datetime.datetime.combine(igc.hfdterecord.date, time)
+        if igc.b and result.dt < igc.b[-1].dt:
+            igc.hfdterecord.date = datetime.date.fromordinal(
+                    igc.hfdterecord.date.toordinal() + 1)
+            result.dt = datetime.datetime.combine(igc.hfdterecord.date, time)
         result.lat = int(m.group(4)) + int(m.group(5)) / 60000.0
         if 'lad' in igc.i:
             result.lat += int(line[igc.i['lad']]) / 6000000.0
