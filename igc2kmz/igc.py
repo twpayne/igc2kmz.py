@@ -87,7 +87,10 @@ class BRecord(Record):
         if not m:
             raise SyntaxError, line
         for key, value in igc.i.items():
-            setattr(result, key, int(line[value]))
+            try:
+                setattr(result, key, int(line[value]))
+            except ValueError:
+                setattr(result, key, None)
         time = datetime.time(*map(int, m.group(1, 2, 3)))
         result.dt = datetime.datetime.combine(igc.hfdterecord.date, time)
         if igc.b and result.dt < igc.b[-1].dt:
