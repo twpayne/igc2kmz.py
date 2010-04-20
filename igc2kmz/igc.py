@@ -28,6 +28,7 @@ A_RECORD_RE = re.compile(r'A(.*)\Z')
 B_RECORD_RE = re.compile(r'B(\d{2})(\d{2})(\d{2})(\d{2})(\d{5})([NS])'
                          r'(\d{3})(\d{5})([EW])([AV])(\d{5})(\d{5}).*\Z')
 C_RECORD_RE = re.compile(r'C(\d{2})(\d{5})([NS])(\d{3})(\d{5})([EW])(.*)\Z')
+E_RECORD_RE = re.compile(r'E(\d{2})(\d{2})(\d{2})(\w{3})(.*)\Z')
 G_RECORD_RE = re.compile(r'G(.*)\Z')
 HFDTE_RECORD_RE = re.compile(r'H(F)(DTE)(\d\d)(\d\d)(\d\d)\Z')
 HFFXA_RECORD_RE = re.compile(r'H(F)(FXA)(\d+)\Z')
@@ -130,6 +131,18 @@ class CRecord(Record):
             result.lon *= -1
         result.name = m.group(7)
         igc.c.append(result)
+        return result
+
+
+class ERecord(Record):
+
+    @classmethod
+    def parse(cls, line, igc):
+        result = cls()
+        m = E_RECORD_RE.match(line)
+        if not m:
+            raise SyntaxError, line
+        result.value = m.group(4)
         return result
 
 
