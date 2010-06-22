@@ -41,6 +41,7 @@ DEFAULT_DIRECTORY = '/var/www/html'
 DEFAULT_TABLE_PREFIX = 'leonardo'
 DEFAULT_IGC_PATH = 'data/flights/tracks/%YEAR%/%PILOTID%'
 DEFAULT_PHOTOS_PATH = 'data/flights/photos/%YEAR%/%PILOTID%'
+DEFAULT_PHOTOS_URL = '/modules/leonardo/data/flights/photos/%YEAR%/%PILOTID%'
 
 LEAGUE = (None, 'Online Contest', 'World XC Online Contest')
 ROUTE_NAME = (
@@ -138,6 +139,8 @@ def main(argv):
                       help='set IGC path')
     parser.add_option('-P', '--photos-path', metavar='STRING',
                       help='set photos path')
+    parser.add_option('-U', '--photos-url', metavar='STRING',
+                      help='set photos URL')
     parser.set_defaults(output='igc2kmz.kmz')
     parser.set_defaults(name=DEFAULT_NAME)
     parser.set_defaults(icon=DEFAULT_ICON)
@@ -147,6 +150,7 @@ def main(argv):
     parser.set_defaults(table_prefix=DEFAULT_TABLE_PREFIX)
     parser.set_defaults(igc_path=DEFAULT_IGC_PATH)
     parser.set_defaults(photos_path=DEFAULT_PHOTOS_PATH)
+    parser.set_defaults(photos_url=DEFAULT_PHOTOS_URL)
     parser.set_defaults(igc_suffix='.saned.full.igc')
     options, args = parser.parse_args(argv)
     #
@@ -182,7 +186,8 @@ def main(argv):
                 'PILOTID': str(pilot_id),
                 'YEAR': str(flight_row.DATE.year),
                 }
-        igc_path = os.path.join(substitute(options.igc_path, substitutions),
+        igc_path = os.path.join(options.directory,
+                                substitute(options.igc_path, substitutions),
                                 flight_row.filename + options.igc_suffix)
         track = IGC(open(igc_path), date=flight_row.DATE).track()
         flight = Flight(track)
@@ -235,10 +240,12 @@ def main(argv):
             select = photos_table.select(photos_table.c.flightID
                                          == flight_row.ID)
             for photo_row in select.execute().fetchall():
-                photo_url = options.url + PHOTO_URL % photo_row
-                photo_path = os.path.join(substitute(options.photos_path,
-                                                     substitutions),
-                                          photo_row.path, photo_row.name)
+                photo_url = options.url \
+                        + substitute(options.photos_url, substitutions) \
+                        + '/' + photo_row.name
+                photo_path = os.path.join(options.directory,
+                                          substitute(options.photos_path, substitutions),
+                                          photo_row.name)
                 photo = Photo(photo_url, path=photo_path)
                 if photo_row.description:
                     photo.description = photo_row.description
