@@ -25,6 +25,7 @@ except ImportError:
 
 from coord import Coord
 from track import Track
+from waypoint import Waypoint
 
 
 GPX_DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
@@ -60,6 +61,7 @@ class GPX(object):
         element = parse(file)
         namespace = re.match('\{(.*)\}', element.getroot().tag).group(1)
         ele_tag_name = '{%s}ele' % namespace
+        name_tag_name = '{%s}name' % namespace
         time_tag_name = '{%s}time' % namespace
         self.coords = []
         for trkpt in element.findall('/{%s}trk/{%s}trkseg/{%s}trkpt'
@@ -74,6 +76,15 @@ class GPX(object):
             dt = datetime.strptime(time.text, GPX_DATETIME_FORMAT)
             coord = Coord(lat, lon, ele, dt)
             self.coords.append(coord)
+        self.waypoints = []
+        for wpt in element.findall('/{%s}wpt' % namespace):
+            name = wpt.find(name_tag_name).text
+            lat = math.pi * float(wpt.get('lat')) / 180.0
+            lon = math.pi * float(wpt.get('lon')) / 180.0
+            ele_tag = wpt.find(ele_tag_name)
+            ele = 0 if ele_tag is None else float(ele_tag.text)
+            waypoint = Waypoint(name, lat, lon, ele)
+            self.waypoints.append(waypoint)
 
     def track(self):
         return Track(self.coords, filename=self.filename)
