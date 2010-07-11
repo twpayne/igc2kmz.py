@@ -200,8 +200,8 @@ class IRecord(Record):
             m = I_RECORD_RE.match(line, 3 + 7 * i, 10 + 7 * i)
             if not m:
                 raise SyntaxError, line
-            igc.i[m.group(3).lower()] = slice(int(m.group(1)),
-                                              int(m.group(2)) + 1)
+            igc.i[m.group(3).lower()] = slice(int(m.group(1)) - 1,
+                                              int(m.group(2)))
         return result
 
 
