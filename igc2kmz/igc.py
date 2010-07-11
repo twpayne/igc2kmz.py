@@ -96,6 +96,8 @@ class BRecord(Record):
             except ValueError:
                 setattr(result, key, None)
         time = datetime.time(*map(int, m.group(1, 2, 3)))
+        if 'tds' in igc.i:
+            time = time.replace(microsecond=int(line[igc.i['tds']]) * 100000)
         result.dt = datetime.datetime.combine(igc.hfdterecord.date, time)
         if igc.b and result.dt < igc.b[-1].dt:
             igc.hfdterecord.date = datetime.date.fromordinal(
