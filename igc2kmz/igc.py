@@ -63,6 +63,11 @@ class Record(object):
 
     __metaclass__ = Metaclass
 
+    def __repr__(self):
+        return '%s(%s)' % (self.__class__.__name__,
+                           ', '.join('%s=%s' % (key, repr(value))
+                                     for key, value in self.__dict__.items()))
+
 
 class ARecord(Record):
 
@@ -78,8 +83,6 @@ class ARecord(Record):
 
 
 class BRecord(Record):
-
-    __slots__ = ('dt', 'lat', 'lon', 'validity', 'alt', 'ele')
 
     @classmethod
     def parse(cls, line, igc):
@@ -260,3 +263,8 @@ class IGC(object):
             if any(getattr(b, k) for b in self.b):
                 kwargs[k] = [getattr(b, k) for b in self.b]
         return track.Track(coords, **kwargs)
+
+
+if __name__ == '__main__':
+    import sys
+    print repr(IGC(sys.stdin).__dict__)
