@@ -189,12 +189,6 @@ class Stock(object):
         #
         self.visible_none_folder = self.make_none_folder(1)
         self.invisible_none_folder = self.make_none_folder(0)
-        #
-        animation_icon_url = os.path.join('images', 'paraglider.png')
-        self.animation_icon = kml.Icon(href=animation_icon_url)
-        animation_icon = open(os.path.join(BASE_DIR, animation_icon_url)).read()
-        files = {animation_icon_url: animation_icon}
-        self.kmz.add_files(files)
 
 
 class Flight(object):
@@ -379,34 +373,6 @@ class Flight(object):
         folder.add(self.make_solid_track(globals, style, 'clampToGround',
                                          name='Solid color', visibility=0))
         return folder
-
-    def make_animation(self, globals):
-        icon_style = kml.IconStyle(globals.stock.animation_icon,
-                                   color=self.color,
-                                   scale=globals.stock.icon_scales[0])
-        list_style = kml.ListStyle(listItemType='checkHideChildren')
-        style = kml.Style(icon_style, list_style)
-        folder = kml.Folder(style, name='Animation')
-        point = kml.Point(coordinates=[self.track.coords[0]],
-                          altitudeMode=self.altitude_mode)
-        timespan = kml.TimeSpan(end=kml.dateTime(self.track.coords[0].dt))
-        placemark = kml.Placemark(point, timespan, styleUrl=style.url())
-        folder.add(placemark)
-        for i in xrange(1, len(self.track.coords)):
-            coord = self.track.coords[i - 1].halfway_to(self.track.coords[i])
-            point = kml.Point(coordinates=[coord],
-                              altitudeMode=self.altitude_mode)
-            begin = kml.dateTime(self.track.coords[i - 1].dt)
-            end = kml.dateTime(self.track.coords[i].dt)
-            timespan = kml.TimeSpan(begin=begin, end=end)
-            placemark = kml.Placemark(point, timespan, styleUrl=style.url())
-            folder.add(placemark)
-        point = kml.Point(coordinates=[self.track.coords[-1]],
-                          altitudeMode=self.altitude_mode)
-        timespan = kml.TimeSpan(begin=kml.dateTime(self.track.coords[-1].dt))
-        placemark = kml.Placemark(point, timespan, styleUrl=style.url())
-        folder.add(placemark)
-        return kmz.kmz(folder)
 
     def make_tour_folder(self, globals):
         style_url = globals.stock.check_hide_children_style.url()
@@ -729,7 +695,6 @@ class Flight(object):
         folder.add(self.make_snippet(globals))
         folder.add(self.make_track_folder(globals))
         folder.add(self.make_shadow_folder(globals))
-        folder.add(self.make_animation(globals))
         folder.add(self.make_photos_folder(globals))
         folder.add(self.make_xc_folder(globals))
         folder.add(self.make_altitude_marks_folder(globals))
