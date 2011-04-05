@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.5
+#!/usr/bin/env python
 #   igc2kmz IGC to Google Earth converter (Leonardo integration)
 #   Copyright (C) 2008  Tom Payne
 #
