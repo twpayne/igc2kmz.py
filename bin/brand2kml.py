@@ -51,7 +51,7 @@ def main(argv):
     ps = []
     ps.append('<a href="%(url)s"><img alt="%(name)s" src="%(icon)s" /></a>' % d)
     ps.append('<a href="%(url)s">%(name)s</a>' % d)
-    ps.append('Created by <a href="http://github.com/twpayne/igc2kmz/wikis">'
+    ps.append('Created by <a href="http://github.com/twpayne/igc2kmz">'
               'igc2kmz</a><br/>Copyright &copy; Tom Payne, 2008')
     html = '<center>%s</center' % ''.join('<p>%s</p>' % p for p in ps)
     description = kml.CDATA(html)

@@ -38,7 +38,7 @@ class gpx_tag(object):
 
     def __enter__(self):
         attrs = {
-            'creator': 'http://github.com/twpayne/igc2kmz/wikis',
+            'creator': 'http://github.com/twpayne/igc2kmz',
             'version': '1.1',
             'xmlns': 'http://www.topografix.com/GPX/1/1',
             'xmlns:xsi': 'http://www.w3.org/2001/XMLSchema-instance',
