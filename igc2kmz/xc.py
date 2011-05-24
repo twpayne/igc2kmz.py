@@ -40,7 +40,7 @@ class Turnpoint(object):
         with tag(tb, 'rtept', attrs):
             if self.coord.ele:
                 with tag(tb, 'ele'):
-                    tb.data('%d' % ele)
+                    tb.data('%d' % self.coord.ele)
             with tag(tb, 'name'):
                 tb.data(self.name)
             with tag(tb, 'time'):
