@@ -43,8 +43,9 @@ class Turnpoint(object):
                     tb.data('%d' % self.coord.ele)
             with tag(tb, 'name'):
                 tb.data(self.name)
-            with tag(tb, 'time'):
-                tb.data(self.coord.dt.strftime(GPX_DATETIME_FORMAT))
+            if self.coord.dt:
+                with tag(tb, 'time'):
+                    tb.data(self.coord.dt.strftime(GPX_DATETIME_FORMAT))
         return tb
 
     @classmethod
