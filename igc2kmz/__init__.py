@@ -332,6 +332,11 @@ class Flight(object):
                                                globals.scales.altitude,
                                                'absolute',
                                                visibility=visibility))
+            visibility = globals.default_track == 'tec'
+            folder.add(self.make_colored_track(globals, self.track.tec,
+                                               globals.scales.tec,
+                                               'absolute',
+                                               visibility=visibility))
         visibility = globals.default_track == 'speed'
         folder.add(self.make_colored_track(globals, self.track.speed,
                                            globals.scales.speed,
@@ -818,6 +823,9 @@ def flights2kmz(flights, roots=[], tz_offset=0, task=None):
                                  gradient=default_gradient)
     globals.scales.time = TimeScale(globals.bounds.time.tuple(),
                                     tz_offset=globals.tz_offset)
+    globals.scales.tec = Scale(globals.bounds.tec.tuple(),
+                               title='total energy compensation',
+                               gradient=gradient)
     globals.scales.t = Scale(globals.bounds.t.tuple(), title='time',
                              gradient=default_gradient)
     if hasattr(globals.bounds, 'tas'):

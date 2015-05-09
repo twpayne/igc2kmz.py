@@ -105,7 +105,7 @@ class Track(object):
                 min_ele = self.coords[i].ele
             elif self.coords[i].ele - min_ele > self.max_dz_positive:
                 self.max_dz_positive = self.coords[i].ele - min_ele
-        self.speed, self.climb, self.progress = [], [], []
+        self.speed, self.climb, self.tec, self.progress = [], [], [], []
         i0 = i1 = 0
         for i in xrange(1, n):
             t0 = (self.t[i - 1] + self.t[i]) / 2 - dt / 2
@@ -143,9 +143,11 @@ class Track(object):
                 progress = dp / ds
             self.speed.append(3.6 * ds / dt)
             self.climb.append(dz / dt)
+            self.tec.append(dz / dt + (ds * ds) / (2 * 9.80665))
             self.progress.append(progress)
         self.bounds.speed = util.Bounds(self.speed)
         self.bounds.climb = util.Bounds(self.climb)
+        self.bounds.tec = util.Bounds(self.tec)
         state = [UNKNOWN] * (n - 1)
         glide = (self.progress[i] >= 0.9 for i in xrange(0, n - 1))
         for sl in util.condense(util.runs_where(glide), self.t, 60):
