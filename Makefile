@@ -35,7 +35,8 @@ EXAMPLES=examples/2008-07-28-XPG-KVE-02.kmz \
 	 examples/858umbh1.kmz \
 	 examples/2008-05-02_Martin_Saleve-Tessin.kmz \
 	 examples/2008-05-12-CGP-XDFE-01.kmz \
-	 examples/2007-04-22-FLY-5094-01.kmz
+	 examples/2007-04-22-FLY-5094-01.kmz \
+	 examples/Kz9PYR1v.kmz
 .PRECIOUS: $(EXAMPLES:%.kmz=%.olc)
 
 examples: $(EXAMPLES)
@@ -247,6 +248,10 @@ examples/2008-05-12-CGP-XDFE-01.kmz: examples/2008-05-12-CGP-XDFE-01.igc example
 		-g "Advance Omega" \
 		-u http://www.xcontest.org/2008/world/en/flights/detail:chrigel/12.5.2008/07:43 \
 		-x examples/2008-05-12-CGP-XDFE-01.gpx
+
+examples/Kz9PYR1v.kmz: examples/Kz9PYR1v.igc
+	$(IGC2KMZ) -z 1 -o $@ -r examples/xcontest.kml \
+		-i $<
 
 examples/leonardo.kml: $(BRAND2KML)
 	$(BRAND2KML) \
