@@ -3,7 +3,7 @@ igc2kmz IGC to Google Earth converter
 
 igc2kmz converts paraglider and hang glider track logs into Google Earth KML format with lots of features, notably:
 
-* track colored by altitude, climb rate and ground speed
+* track colored by altitude, climb rate, ground speed and total energy
 * shadow feature makes it easier to judge the track's altitude by eye
 * animation of the flight
 * photos automatically placed where they were taken and with an optional comment
@@ -25,7 +25,7 @@ It is designed to run on XC league servers, and as such is not designed to be di
 Requirements
 ------------
 
-* [Python](http://www.python.org/) version 2.5 or 2.6, not version 3.0
+* [Python](http://www.python.org/) version 2.*, not version 3.0
 
 
 Get the code
