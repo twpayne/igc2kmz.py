@@ -27,7 +27,8 @@ import track
 A_RECORD_RE = re.compile(r'A(.*)\Z')
 B_RECORD_RE = re.compile(r'B(\d{2})(\d{2})(\d{2})(\d{2})(\d{5})([NS])'
                          r'(\d{3})(\d{5})([EW])([AV])(\d{5})(\d{5}).*\Z')
-C_RECORD_RE = re.compile(r'C(\d{2})(\d{5})([NS])(\d{3})(\d{5})([EW])(.*)\Z')
+C1_RECORD_RE = re.compile(r'C(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\w{4})(.*)\Z')
+C2_RECORD_RE = re.compile(r'C(\d{2})(\d{5})([NS])(\d{3})(\d{5})([EW])(.*)\Z')
 E_RECORD_RE = re.compile(r'E(\d{2})(\d{2})(\d{2})(\w{3})(.*)\Z')
 G_RECORD_RE = re.compile(r'G(.*)\Z')
 HFDTE_RECORD_RE = re.compile(r'H(F)(DTE)(\d\d)(\d\d)(\d\d)\Z')
@@ -125,7 +126,11 @@ class CRecord(Record):
     @classmethod
     def parse(cls, line, igc):
         result = cls()
-        m = C_RECORD_RE.match(line)
+        m = C1_RECORD_RE.match(line)
+        if m:
+            # FIXME handle C1 records
+            return None
+        m = C2_RECORD_RE.match(line)
         if not m:
             raise SyntaxError, line
         result.lat = int(m.group(1)) + int(m.group(2)) / 60000.0
