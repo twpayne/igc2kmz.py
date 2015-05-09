@@ -241,7 +241,9 @@ class IGC(object):
                 letter = line[0]
                 if letter in class_by_letter:
                     klass = class_by_letter[letter]
-                    self.records.append(klass.parse(line, self))
+                    record = klass.parse(line, self)
+                    if record:
+                        self.records.append(record)
                 else:
                     logging.warning('%s: unknown record %s'
                                     % (self.filename, repr(line)))
