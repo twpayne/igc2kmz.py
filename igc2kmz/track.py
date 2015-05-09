@@ -49,7 +49,7 @@ class Track(object):
                 continue
             ds = last_c.distance_to(c)
             dt = (c.dt - last_c.dt).seconds
-            if ds / dt > 40.0:
+            if ds / dt > 100.0:
                 continue
             dz = c.ele - last_c.ele
             if dz / dt < -30.0 or 30.0 < dz / dt:
