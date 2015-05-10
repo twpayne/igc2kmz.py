@@ -755,6 +755,8 @@ def make_task_folder(globals, task):
         folder.add(kml.Placemark(point, name=tp.name, styleUrl=style_url))
     done = set()
     for tp in task.tps:
+        if tp.radius == 0:
+            continue
         key = (tp.name, tp.radius)
         if key in done:
             continue
