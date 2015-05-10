@@ -823,9 +823,9 @@ def flights2kmz(flights, roots=[], tz_offset=0, task=None):
                                  gradient=default_gradient)
     globals.scales.time = TimeScale(globals.bounds.time.tuple(),
                                     tz_offset=globals.tz_offset)
-    globals.scales.tec = Scale(globals.bounds.tec.tuple(),
-                               title='total energy compensation',
-                               gradient=gradient)
+    globals.scales.tec = ZeroCenteredScale(globals.bounds.tec.tuple(),
+                                           title='climb with energy compensation',
+                                           gradient=gradient)
     globals.scales.t = Scale(globals.bounds.t.tuple(), title='time',
                              gradient=default_gradient)
     if hasattr(globals.bounds, 'tas'):

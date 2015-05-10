@@ -133,6 +133,7 @@ class Track(object):
                                                          delta1)
                 s1 = (1.0 - delta1) * self.s[i1 - 1] + delta1 * self.s[i1]
             ds = s1 - s0
+            ds2 = s1 * s1 - s0 * s0
             dz = coord1.ele - coord0.ele
             dp = coord0.distance_to(coord1)
             if ds == 0.0:
@@ -143,7 +144,7 @@ class Track(object):
                 progress = dp / ds
             self.speed.append(3.6 * ds / dt)
             self.climb.append(dz / dt)
-            self.tec.append(dz / dt + (ds * ds) / (2 * 9.80665))
+            self.tec.append(dz / dt + ds2 / (2 * 9.80665))
             self.progress.append(progress)
         self.bounds.speed = util.Bounds(self.speed)
         self.bounds.climb = util.Bounds(self.climb)
