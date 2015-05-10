@@ -698,6 +698,8 @@ class Flight(object):
         folder = kmz.kmz(kml.Folder(name=self.track.filename, open=1))
         folder.add(self.make_description(globals))
         folder.add(self.make_snippet(globals))
+        if self.track.declaration:
+            folder.add(make_task_folder(globals, self.track.declaration))
         folder.add(self.make_track_folder(globals))
         folder.add(self.make_shadow_folder(globals))
         folder.add(self.make_photos_folder(globals))
