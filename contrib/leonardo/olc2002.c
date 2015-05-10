@@ -3,7 +3,6 @@
    extern double atof();
 #include <string.h>  /* strlen() */
 #include <math.h>
-#include <malloc.h>
 #include <signal.h>
 #ifndef FALSE
 #define FALSE 0
