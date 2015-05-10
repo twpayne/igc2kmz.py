@@ -34,6 +34,7 @@ class Track(object):
         self.pilot_name = None
         self.glider_type = None
         self.glider_id = None
+        self.declaration = None
         self.__dict__.update(kwargs)
         self.analyse(20)
 

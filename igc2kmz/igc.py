@@ -21,6 +21,7 @@ import os.path
 import re
 
 from coord import Coord
+from task import Task, Turnpoint
 import track
 
 
@@ -271,6 +272,10 @@ class IGC(object):
         for k in self.i.keys():
             if any(getattr(b, k) for b in self.b):
                 kwargs[k] = [getattr(b, k) for b in self.b]
+        if self.c:
+            tps = [Turnpoint(c.name, Coord.deg(c.lat, c.lon, 0), 0)
+                   for c in self.c]
+            kwargs['declaration'] = Task('Declaration', tps)
         return track.Track(coords, **kwargs)
 
 
