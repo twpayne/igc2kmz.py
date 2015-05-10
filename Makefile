@@ -250,7 +250,7 @@ examples/2008-05-12-CGP-XDFE-01.kmz: examples/2008-05-12-CGP-XDFE-01.igc example
 		-x examples/2008-05-12-CGP-XDFE-01.gpx
 
 examples/Kz9PYR1v.kmz: examples/Kz9PYR1v.igc
-	$(IGC2KMZ) -z 1 -o $@ -r examples/xcontest.kml \
+	$(IGC2KMZ) -z 1 -o $@ \
 		-i $<
 
 examples/leonardo.kml: $(BRAND2KML)
