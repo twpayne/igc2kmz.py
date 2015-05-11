@@ -32,12 +32,20 @@ from igc2kmz.task import Task
 from igc2kmz.xc import XC
 
 
+# FIXME using a global variable here is horrible, but AFAICT optparse does not
+#       allow more than one option to be set in a callback
+default_output = None
+
+
 def add_flight(option, opt, value, parser):
     """Add a flight."""
-    ext = os.path.splitext(value)[1].lower()
-    if ext == '.igc':
+    global default_output
+    basename, ext = os.path.splitext(value)
+    if default_output is None:
+        default_output = basename + '.kmz'
+    if ext.lower() == '.igc':
         track = IGC(open(value)).track()
-    elif ext == '.gpx':
+    elif ext.lower() == '.gpx':
         track = GPX(open(value)).track()
     else:
         raise RuntimeError, 'unsupported file type %s' % repr(ext)
@@ -117,7 +125,6 @@ def main(argv):
     parser.add_option_group(group)
     #
     parser.set_defaults(flights=[])
-    parser.set_defaults(output='igc2kmz.kmz')
     parser.set_defaults(roots=[])
     parser.set_defaults(tz_offset=0)
     #
@@ -133,7 +140,8 @@ def main(argv):
                       roots=roots,
                       tz_offset=options.tz_offset,
                       task=task)
-    kmz.write(options.output, '2.2')
+    output = options.output or default_output
+    kmz.write(output, '2.2')
 
 
 if __name__ == '__main__':
