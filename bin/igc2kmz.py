@@ -30,18 +30,25 @@ from igc2kmz.kml import Verbatim
 from igc2kmz.photo import Photo
 from igc2kmz.task import Task
 from igc2kmz.xc import XC
+import glob
 
 
-def add_flight(option, opt, value, parser):
+def add_flight(option, opt, values, parser):
     """Add a flight."""
-    ext = os.path.splitext(value)[1].lower()
-    if ext == '.igc':
-        track = IGC(open(value)).track()
-    elif ext == '.gpx':
-        track = GPX(open(value)).track()
+    global default_output
+    basename, ext = os.path.splitext(values)
+    if default_output is None:
+        default_output = basename + '.kmz'
+    if ext.lower() == '.igc':
+        for value in glob.glob(values):
+            track = IGC(open(value)).track()
+            parser.values.flights.append(Flight(track))
+    elif ext.lower() == '.gpx':
+        for value in glob.glob(values):
+            track = GPX(open(value)).track()
+            parser.values.flights.append(Flight(track))
     else:
         raise RuntimeError, 'unsupported file type %s' % repr(ext)
-    parser.values.flights.append(Flight(track))
 
 
 def set_flight_option(option, opt, value, parser):
