@@ -140,6 +140,8 @@ class CRecord(Record):
         result.lon = int(m.group(4)) + int(m.group(5)) / 60000.0
         if m.group(6) == 'W':
             result.lon *= -1
+        if result.lat == 0 and result.lon == 0:
+            return None
         result.name = m.group(7)
         igc.c.append(result)
         return result
