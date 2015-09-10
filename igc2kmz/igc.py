@@ -34,7 +34,7 @@ E_RECORD_RE = re.compile(r'E(\d{2})(\d{2})(\d{2})(\w{3})(.*)\Z')
 G_RECORD_RE = re.compile(r'G(.*)\Z')
 HFDTE_RECORD_RE = re.compile(r'H(F)(DTE)(\d\d)(\d\d)(\d\d)\Z')
 HFFXA_RECORD_RE = re.compile(r'H(F)(FXA)(\d+)\Z')
-H_RECORD_RE = re.compile(r'H([FOP])([A-Z]{3}).*?:(.*)\Z')
+H_RECORD_RE = re.compile(r'H([FOP])([0-9A-Z]{3}).*?:(.*)\Z')
 I_RECORD_RE = re.compile(r'(\d{2})(\d{2})(\w{3})\Z')
 L_RECORD_RE = re.compile(r'L(.*)\Z')
 
