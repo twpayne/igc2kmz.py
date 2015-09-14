@@ -27,7 +27,7 @@ import track
 
 A_RECORD_RE = re.compile(r'A(.*)\Z')
 B_RECORD_RE = re.compile(r'B(\d{2})(\d{2})(\d{2})(\d{2})(\d{5})([NS])'
-                         r'(\d{3})(\d{5})([EW])([AV])(\d{5})(\d{5}).*\Z')
+                         r'(\d{3})(\d{5})([EW])([AV])(\d{5}|-\d{4})(\d{5}|-\d{4}).*\Z')
 C1_RECORD_RE = re.compile(r'C(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})(\w{4})(.*)\Z')
 C2_RECORD_RE = re.compile(r'C(\d{2})(\d{5})([NS])(\d{3})(\d{5})([EW])(.*)\Z')
 E_RECORD_RE = re.compile(r'E(\d{2})(\d{2})(\d{2})(\w{3})(.*)\Z')
