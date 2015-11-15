@@ -289,7 +289,10 @@ def parse_usercomment(value):
     value = ''.join(map(chr, value))
     charset = value[0:8].rstrip('\0')
     if charset in CHARSETS:
-        return value[8:].rstrip('\0').decode(CHARSETS[charset])
+        try:
+            return value[8:].rstrip('\0').decode(CHARSETS[charset])
+        except UnicodeDecodeError:
+            return ''
     else:
         return value
 
