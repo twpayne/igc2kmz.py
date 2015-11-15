@@ -391,7 +391,7 @@ class Flight(object):
                                    scale=globals.stock.icon_scales[0])
         list_style = kml.ListStyle(listItemType='checkHideChildren')
         style = kml.Style(icon_style, list_style)
-        folder = kml.Folder(style, name='Animation')
+        folder = kml.Folder(style, name='Animation', visibility=0)
         point = kml.Point(coordinates=[self.track.coords[0]],
                           altitudeMode=self.altitude_mode)
         timespan = kml.TimeSpan(end=kml.dateTime(self.track.coords[0].dt))
