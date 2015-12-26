@@ -122,7 +122,7 @@ class XC(object):
 
     @classmethod
     def from_element(cls, element, namespace):
-        rtes = element.findall('/{%s}rte' % namespace)
+        rtes = element.findall('./{%s}rte' % namespace)
         routes = [Route.from_element(rte, namespace) for rte in rtes]
         return cls(routes)
 
