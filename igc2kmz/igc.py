@@ -252,9 +252,6 @@ class IGC(object):
                     record = klass.parse(line, self)
                     if record:
                         self.records.append(record)
-                else:
-                    logging.warning('%s: unknown record %s'
-                                    % (self.filename, repr(line)))
             except SyntaxError:
                 logging.warning('%s: invalid record %s'
                                 % (self.filename, repr(line)))
