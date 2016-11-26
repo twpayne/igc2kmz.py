@@ -50,6 +50,8 @@ class Track(object):
                 continue
             ds = last_c.distance_to(c)
             dt = (c.dt - last_c.dt).seconds
+            if dt == 0:
+                dt=0.001
             if ds / dt > 100.0:
                 continue
             dz = c.ele - last_c.ele

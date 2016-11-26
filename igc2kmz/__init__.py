@@ -599,6 +599,8 @@ class Flight(object):
             for i in xrange(sl.start, sl.stop):
                 dz = self.track.coords[i + 1].ele - self.track.coords[i].ele
                 dt = self.track.t[i + 1] - self.track.t[i]
+                if dt==0:
+                    dt=100.0
                 if dz > 0:
                     total_dz_positive += dz
                 elif dz < 0:
