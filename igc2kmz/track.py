@@ -50,11 +50,8 @@ class Track(object):
                 continue
             ds = last_c.distance_to(c)
             dt = (c.dt - last_c.dt).seconds
-<<<<<<< Updated upstream
-=======
             if dt == 0:
                 dt=0.001
->>>>>>> Stashed changes
             if ds / dt > 100.0:
                 continue
             dz = c.ele - last_c.ele
