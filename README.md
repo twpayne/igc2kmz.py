@@ -51,7 +51,7 @@ Change to the directory where you unpacked the archive and run:
 Web frontend
 ------------
 Place this folder in Linux web server's document root, open http://localhost/igc2kmz/
-Make sure uploaed_files folder is writable by web server user. 
+Make sure uploaded_files folder is writable by web server user. 
 See http://prime.cyberorg.co.in/igc2kmz for example.
 
 Customise it
