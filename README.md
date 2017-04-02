@@ -48,6 +48,12 @@ Change to the directory where you unpacked the archive and run:
 	bin/igc2kmz.py -i <input-filename>.igc -o <output-filename>.kmz
 
 
+Web frontend
+------------
+Place this folder in Linux web server's document root, open http://localhost/igc2kmz/
+Make sure uploaed_files folder is writable by web server user. 
+See http://prime.cyberorg.co.in/igc2kmz for example.
+
 Customise it
 ------------
 
