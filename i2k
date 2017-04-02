@@ -1,0 +1,5 @@
+#!/bin/bash
+/bin/cp "$2" "$1"
+bin/igc2kmz.py -i $1 -o $1.kmz || true
+exit 0
+
