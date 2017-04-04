@@ -29,5 +29,7 @@ Upload IGC tracklog
 <button type="submit" name="btn-upload">upload</button>
 </form>
 Download your KMZ from <a href=uploaded_files/>HERE</a>
+<a href=https://github.com/cyberorg/igc2kmz>This page source code</a>
+<a href=http://cyberorg.github.io/xcleague/>All about Paragliding in India</a>
 </body>
 </html>
