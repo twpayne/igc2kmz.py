@@ -896,13 +896,14 @@ function css()
 /* General styles */
 
 BODY {
-	background-color:#FFFFFF;
+	background-color:black;
 	font-family:Verdana;
 	font-size:small;
+	color:white;
 }
 
 A {
-	color: #000000;
+	color: white;
 	text-decoration: none;
 }
 
@@ -916,7 +917,7 @@ A:hover {
 }
 
 #top a span, #top a:hover, #top a span:hover{
-	color:#68a9d2;
+	color:white;
 	font-weight:bold;
 	text-align:center;
 	font-size:large;
@@ -945,6 +946,7 @@ div.subtitle{
 	margin: 0 auto;
 	max-width:680px;
 	overflow:hidden;
+	color:white;
 }
 
 #error {
@@ -980,12 +982,14 @@ table.table td{
 }
 
 table.table tr.row.two {
-	background-color:#fcfdfe;
+	background-color:rgb(10,10,10);
+	color:white;
 }
 
 table.table tr.row.one {
-	background-color:#f8f9fa;
-}
+        background-color:rgb(20,20,20);
+	color:white;
+    }
 
 table.table tr.row td.icon {
 	width:25px;
